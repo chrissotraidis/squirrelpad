@@ -98,12 +98,20 @@ extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_
     std::lock_guard lock(audio_mutex);
     if (queue == nullptr || queued_frames.load(std::memory_order_relaxed) > sample_rate / 2) return;
     if (started && needs_rebuffer.exchange(false, std::memory_order_relaxed)) {
-        // Pause keeps queued PCM; the normal start path resumes after prefill.
-        const OSStatus pause_result = AudioQueuePause(queue);
-        if (pause_result == noErr) {
-            started = false;
-        } else {
-            std::fprintf(stderr, "[mobile audio] rebuffer pause failed: %d\n", (int)pause_result);
+        // A callback can return the last buffer before its samples finish playing.
+        // Rebuffer only after the sample clock reaches the end of queued PCM.
+        AudioTimeStamp stamp{};
+        const bool have_clock = clock_started &&
+            AudioQueueGetCurrentTime(queue, nullptr, &stamp, nullptr) == noErr &&
+            (stamp.mFlags & kAudioTimeStampSampleTimeValid) && stamp.mSampleTime >= 0;
+        if (!have_clock || stamp.mSampleTime >= static_cast<double>(enqueued_total_frames)) {
+            // Pause keeps queued PCM; the normal start path resumes after prefill.
+            const OSStatus pause_result = AudioQueuePause(queue);
+            if (pause_result == noErr) {
+                started = false;
+            } else {
+                std::fprintf(stderr, "[mobile audio] rebuffer pause failed: %d\n", (int)pause_result);
+            }
         }
     }
 
