@@ -84,6 +84,7 @@ struct SquirrelPadApp: App {
     @AppStorage("SquirrelPad.TouchControls") private var touchEnabled = true
     @AppStorage("SquirrelPad.TouchTransparency") private var touchTransparency = false
     @AppStorage("SquirrelPad.TouchOpacity") private var touchOpacity = 1.0
+    @AppStorage("SquirrelPad.ControlScale") private var controlScale = 1.0
     @AppStorage("SquirrelPad.ShowDpad") private var showDpad = true
     @AppStorage("SquirrelPad.ShowCButtons") private var showCButtons = true
     @State private var importing = false
@@ -105,6 +106,7 @@ struct SquirrelPadApp: App {
 
                     if session.running && touchEnabled && !menuOpen {
                         TouchControlsView(opacity: touchTransparency ? touchOpacity : 1.0,
+                                          scale: controlScale,
                                           showDpad: showDpad, showCButtons: showCButtons)
                     }
                     if !session.running {
@@ -216,6 +218,17 @@ struct SquirrelPadApp: App {
                         Text("Show the N64 controls on the game screen.")
                             .font(.subheadline)
                             .foregroundStyle(.white.opacity(0.68))
+                        VStack(alignment: .leading, spacing: 5) {
+                            HStack {
+                                Text("Control Size")
+                                Spacer()
+                                Text("\(Int((controlScale * 100).rounded()))%")
+                                    .monospacedDigit()
+                            }
+                            Slider(value: $controlScale, in: 0.8...1.2)
+                                .tint(.blue)
+                        }
+                        .disabled(!touchEnabled)
                         Divider().overlay(.white.opacity(0.4))
                         Toggle("Transparent Controls", isOn: $touchTransparency)
                             .tint(.blue)
@@ -244,6 +257,7 @@ struct SquirrelPadApp: App {
                             touchEnabled = true
                             touchTransparency = false
                             touchOpacity = 1.0
+                            controlScale = 1.0
                             showDpad = true
                             showCButtons = true
                         }
