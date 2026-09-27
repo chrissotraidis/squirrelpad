@@ -110,11 +110,11 @@ struct SquirrelPadApp: App {
                                       y: geometry.size.height / 2)
                     }
                     if menuOpen {
-                        Color.black.opacity(0.72)
+                        Color.black.opacity(0.78)
                             .onTapGesture { menuOpen = false }
-                        controlsPanel(compact: compact)
+                        controlsPanel(compact: compact, size: geometry.size)
                             .position(x: geometry.size.width / 2,
-                                      y: geometry.size.height / 2 - (compact ? 18 : 0))
+                                      y: geometry.size.height / 2 - (compact ? 16 : 0))
                     }
                     Button(action: toggleMenu) {
                         Text("•••")
@@ -170,36 +170,82 @@ struct SquirrelPadApp: App {
         .background(.black.opacity(0.76), in: RoundedRectangle(cornerRadius: 18))
     }
 
-    private func controlsPanel(compact: Bool) -> some View {
-        VStack(alignment: .leading, spacing: compact ? 12 : 20) {
-            Text("Controls").font(.title2.bold())
-            Toggle("Touch Controls", isOn: $touchEnabled)
-                .tint(.blue)
-            Toggle("Touch Control Transparency", isOn: $touchTransparency)
-                .tint(.blue)
-                .disabled(!touchEnabled)
-            if touchTransparency {
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack {
-                        Text("Touch Control Opacity")
-                        Spacer()
-                        Text("\(Int((touchOpacity * 100).rounded()))%")
-                            .monospacedDigit()
-                    }
-                    Slider(value: $touchOpacity, in: 0.25...1.0)
-                        .tint(.blue)
-                }
-                .disabled(!touchEnabled)
+    private func controlsPanel(compact: Bool, size: CGSize) -> some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 16) {
+                Text("Settings")
+                    .font(.system(size: compact ? 20 : 26, weight: .semibold))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 7)
+                    .background(.blue, in: RoundedRectangle(cornerRadius: 6))
+                Spacer()
+                Button("Close") { menuOpen = false }
+                    .buttonStyle(.bordered)
+                    .accessibilityLabel("Close menu")
+                    .padding(.trailing, compact ? 0 : 50)
             }
-            Button("Close menu") { menuOpen = false }
-                .buttonStyle(.borderedProminent)
+            .padding(.horizontal, compact ? 18 : 28)
+            .frame(height: compact ? 54 : 70)
+
+            Rectangle().fill(.white.opacity(0.55)).frame(height: 2)
+
+            HStack(alignment: .top, spacing: 0) {
+                Text("Controls")
+                    .font(.system(size: compact ? 17 : 22, weight: .medium))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(.blue, in: RoundedRectangle(cornerRadius: 6))
+                    .padding(.horizontal, compact ? 12 : 22)
+                    .padding(.top, 24)
+                    .frame(width: compact ? 158 : 230)
+
+                Rectangle().fill(.white.opacity(0.6)).frame(width: 2)
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: compact ? 16 : 24) {
+                        Text("Controls")
+                            .font(.system(size: compact ? 23 : 29, weight: .semibold))
+                        Toggle("Touch Controls", isOn: $touchEnabled)
+                            .tint(.blue)
+                        Text("Show the N64 controls on the game screen.")
+                            .font(.subheadline)
+                            .foregroundStyle(.white.opacity(0.68))
+                        Divider().overlay(.white.opacity(0.4))
+                        Toggle("Transparent Controls", isOn: $touchTransparency)
+                            .tint(.blue)
+                            .disabled(!touchEnabled)
+                        if touchTransparency {
+                            VStack(alignment: .leading, spacing: 5) {
+                                HStack {
+                                    Text("Control Opacity")
+                                    Spacer()
+                                    Text("\(Int((touchOpacity * 100).rounded()))%")
+                                        .monospacedDigit()
+                                }
+                                Slider(value: $touchOpacity, in: 0.25...1.0)
+                                    .tint(.blue)
+                            }
+                            .disabled(!touchEnabled)
+                        }
+                        Button("Restore Defaults") {
+                            touchEnabled = true
+                            touchTransparency = false
+                            touchOpacity = 1.0
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(compact ? 20 : 30)
+                }
+                .frame(height: size.height - (compact ? 156 : 128))
+            }
         }
         .foregroundStyle(.white)
-        .padding(compact ? 18 : 28)
-        .frame(maxWidth: compact ? 420 : 520)
-        .background(Color(white: 0.08).opacity(0.96),
-                    in: RoundedRectangle(cornerRadius: 18))
-        .padding(20)
+        .frame(width: size.width - (compact ? 32 : 56),
+               height: size.height - (compact ? 100 : 56))
+        .background(Color.black.opacity(0.93), in: RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(.white.opacity(0.35)))
     }
 
     private func toggleMenu() {
