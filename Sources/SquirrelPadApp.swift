@@ -93,10 +93,10 @@ struct SquirrelPadApp: App {
                 ZStack {
                     Color.black
                     RT64Surface(renderer: renderer)
-                        .frame(width: 160, height: 90)
+                        .frame(width: 240, height: 135)
                         .scaleEffect(compact
-                            ? min(geometry.size.width / 160, geometry.size.height / 90)
-                            : max(geometry.size.width / 160, geometry.size.height / 90))
+                            ? min(geometry.size.width / 240, geometry.size.height / 135)
+                            : max(geometry.size.width / 240, geometry.size.height / 135))
                         .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
 
                     if session.running && touchEnabled && !menuOpen {
