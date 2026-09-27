@@ -1,0 +1,29 @@
+diff --git a/src/shaders/TextureSampler.hlsli b/src/shaders/TextureSampler.hlsli
+index 1ceb2ce..184dc4c 100644
+--- a/src/shaders/TextureSampler.hlsli
++++ b/src/shaders/TextureSampler.hlsli
+@@ -128,11 +128,15 @@ float4 sampleTextureNative(Texture2D texture, uint nativeSampler, int2 texelBase
+         case NATIVE_SAMPLER_MIRROR_MIRROR:
+             return texture.SampleLevel(gNearestMirrorMirrorSampler, nativeUVCoord, 0.0f);
+         case NATIVE_SAMPLER_MIRROR_CLAMP:
+-            return texture.SampleLevel(gNearestMirrorClampSampler, nativeUVCoord, 0.0f);
++            // Metal permits 16 samplers per fragment stage. Mirror this axis in
++            // coordinates so the existing nearest clamp sampler can serve both.
++            nativeUVCoord.x = 1.0f - abs(frac(nativeUVCoord.x * 0.5f) * 2.0f - 1.0f);
++            return texture.SampleLevel(gNearestClampClampSampler, nativeUVCoord, 0.0f);
+         case NATIVE_SAMPLER_CLAMP_WRAP:
+             return texture.SampleLevel(gNearestClampWrapSampler, nativeUVCoord, 0.0f);
+         case NATIVE_SAMPLER_CLAMP_MIRROR:
+-            return texture.SampleLevel(gNearestClampMirrorSampler, nativeUVCoord, 0.0f);
++            nativeUVCoord.y = 1.0f - abs(frac(nativeUVCoord.y * 0.5f) * 2.0f - 1.0f);
++            return texture.SampleLevel(gNearestClampClampSampler, nativeUVCoord, 0.0f);
+         case NATIVE_SAMPLER_CLAMP_CLAMP:
+         default:
+             return texture.SampleLevel(gNearestClampClampSampler, nativeUVCoord, 0.0f);
+@@ -356,4 +360,4 @@ float4 sampleTexture(OtherMode otherMode, RenderFlags renderFlags, float2 inputU
+     }
+     
+     return textureColor;
+-}
+\ No newline at end of file
++}

@@ -1,0 +1,194 @@
+diff --git a/host/CMakeLists.txt b/host/CMakeLists.txt
+index 88cc74e..c750752 100644
+--- a/host/CMakeLists.txt
++++ b/host/CMakeLists.txt
+@@ -10,6 +10,10 @@ cmake_minimum_required(VERSION 3.20)
+ #   cmake --build host/build
+ 
+ project(ConkerRecomp C CXX)
++if (APPLE)
++    # RT64 and RecompFrontend both compile Objective-C++ sources.
++    enable_language(OBJC OBJCXX)
++endif()
+ 
+ set(CMAKE_CXX_STANDARD 20)
+ set(CMAKE_CXX_STANDARD_REQUIRED True)
+@@ -73,7 +77,7 @@ else()
+     )
+ endif()
+ 
+-add_executable(ConkerRecomp
++set(CONKER_SOURCES
+     src/main.cpp
+     src/null_renderer.cpp
+     src/overlays.cpp
+@@ -83,6 +87,13 @@ add_executable(ConkerRecomp
+     # The audio microcode, recompiled by RSPRecomp (recomp/audio_ucode.toml, run by recomp/recompile.py).
+     "${REPO_ROOT}/RecompiledFuncs/rsp/audio_ucode.cpp"
+ )
++if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
++    # The UIKit app owns process main and calls the game's entrypoint after ROM import.
++    add_library(ConkerRecomp STATIC ${CONKER_SOURCES})
++    target_compile_definitions(ConkerRecomp PRIVATE main=conker_native_main)
++else()
++    add_executable(ConkerRecomp ${CONKER_SOURCES})
++endif()
+ if (MSVC)
+     set_source_files_properties("${REPO_ROOT}/RecompiledFuncs/rsp/audio_ucode.cpp" PROPERTIES COMPILE_OPTIONS "/W0;/bigobj")
+ endif()
+@@ -97,9 +108,8 @@ if (CONKER_RT64)
+     # RT64 only needs zstd's library. Its programs also copy man pages with a shell
+     # command that breaks on a path with an apostrophe.
+     set(ZSTD_BUILD_PROGRAMS OFF CACHE BOOL "" FORCE)
+-    if (NOT WIN32)
+-        # Outside Windows, RT64 renders with Vulkan into an SDL window (as in
+-        # Banjo: Recompiled): the window is created with SDL_WINDOW_VULKAN.
++    if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
++        # Linux renders with Vulkan into an SDL window. Apple uses RT64's Metal path.
+         set(RT64_SDL_WINDOW_VULKAN ON CACHE BOOL "" FORCE)
+         add_compile_definitions(PLUME_SDL_VULKAN_ENABLED RT64_SDL_WINDOW_VULKAN)
+     endif()
+@@ -124,6 +134,8 @@ if (CONKER_RT64)
+     set(DXC_VS_OPTS "${DXC_COMMON_OPTS}" "-E" "VSMain" "-T vs_6_0" "-D DYNAMIC_RENDER_PARAMS" "-fvk-invert-y")
+     if (WIN32)
+         set(DXC "${RT64_DIR}/src/contrib/dxc/bin/x64/dxc.exe")
++    elseif (APPLE)
++        set(DXC "DYLD_LIBRARY_PATH=${RT64_DIR}/src/contrib/dxc/lib/arm64" "${RT64_DIR}/src/contrib/dxc/bin/arm64/dxc-macos")
+     else()
+         set(DXC "LD_LIBRARY_PATH=${RT64_DIR}/src/contrib/dxc/lib/x64" "${RT64_DIR}/src/contrib/dxc/bin/x64/dxc-linux")
+     endif()
+@@ -179,7 +191,7 @@ if (NOT MSVC AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
+     target_compile_options(ConkerRecomp PRIVATE -msse4.1)
+ endif()
+ 
+-if (UNIX)
++if (UNIX AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+     # Exported symbols let the crash handler's backtrace name recompiled functions.
+     target_link_options(ConkerRecomp PRIVATE -rdynamic)
+ elseif (WIN32)
+diff --git a/host/src/frontend.cpp b/host/src/frontend.cpp
+index 94e8242..214a35f 100644
+--- a/host/src/frontend.cpp
++++ b/host/src/frontend.cpp
+@@ -8,9 +8,11 @@
+ 
+ #define SDL_MAIN_HANDLED
+ #include <SDL.h>
+-#if defined(_WIN32)
+-// Only Windows needs the native window handle. On Linux this header brings in
+-// X11's, whose None macro breaks ultramodern's Device::None.
++#if defined(__APPLE__)
++#include <SDL_metal.h>
++#endif
++#if defined(_WIN32) || defined(__APPLE__)
++// Linux's SDL_syswm.h brings in X11's None macro, which breaks Device::None.
+ #include <SDL_syswm.h>
+ #endif
+ 
+@@ -57,6 +59,8 @@ namespace {
+         uint32_t flags = SDL_WINDOW_RESIZABLE;
+ #if defined(RT64_SDL_WINDOW_VULKAN)
+         flags |= SDL_WINDOW_VULKAN;
++#elif defined(__APPLE__)
++        flags |= SDL_WINDOW_METAL;
+ #endif
+         window = SDL_CreateWindow(conker::program_name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+             1600, 900, flags);
+@@ -69,6 +73,19 @@ namespace {
+         SDL_VERSION(&info.version);
+         SDL_GetWindowWMInfo(window, &info);
+         return ultramodern::renderer::WindowHandle{ info.info.win.window, GetCurrentThreadId() };
++#elif defined(__APPLE__)
++        SDL_SysWMinfo info;
++        SDL_VERSION(&info.version);
++        if (!SDL_GetWindowWMInfo(window, &info)) {
++            std::fprintf(stderr, "[frontend] SDL_GetWindowWMInfo failed: %s\n", SDL_GetError());
++            return {};
++        }
++        SDL_MetalView view = SDL_Metal_CreateView(window);
++        if (view == nullptr) {
++            std::fprintf(stderr, "[frontend] SDL_Metal_CreateView failed: %s\n", SDL_GetError());
++            return {};
++        }
++        return ultramodern::renderer::WindowHandle{ info.info.cocoa.window, SDL_Metal_GetLayer(view) };
+ #else
+         return ultramodern::renderer::WindowHandle{ window };
+ #endif
+diff --git a/host/src/main.cpp b/host/src/main.cpp
+index 0298ffc..aa35445 100644
+--- a/host/src/main.cpp
++++ b/host/src/main.cpp
+@@ -20,6 +20,9 @@
+ #include <string>
+ #include <thread>
+ #include <vector>
++#if defined(__APPLE__)
++#include <TargetConditionals.h>
++#endif
+ 
+ #include "recomp.h"
+ #include "librecomp/game.hpp"
+@@ -28,6 +31,12 @@
+ 
+ #include "conker.hpp"
+ 
++#if defined(SQUIRRELPAD_MOBILE_RT64)
++extern "C" void squirrelpad_mobile_window(void **window, void **view);
++std::unique_ptr<ultramodern::renderer::RendererContext> squirrelpad_create_mobile_renderer(
++    uint8_t *rdram, ultramodern::renderer::WindowHandle window, bool developer_mode);
++#endif
++
+ #if defined(CONKER_RT64)
+ #include "nfd.h"
+ #include "recompui/program_config.h"
+@@ -265,7 +274,13 @@ namespace {
+     void set_rumble(int, bool) {}
+ 
+     ultramodern::renderer::WindowHandle create_window(void*) {
++#if defined(SQUIRRELPAD_MOBILE_RT64)
++        ultramodern::renderer::WindowHandle handle{};
++        squirrelpad_mobile_window(&handle.window, &handle.view);
++        return handle;
++#else
+         return ultramodern::renderer::WindowHandle{};
++#endif
+     }
+ 
+     void vi_callback() {
+@@ -373,6 +388,10 @@ namespace {
+     }
+ }
+ 
++extern "C" uint32_t squirrelpad_vi_count() {
++    return vi_count.load();
++}
++
+ int main(int argc, char** argv) {
+     // Unbuffered, so diagnostics (e.g. RT64's microcode hashes) survive a crash.
+     std::setvbuf(stdout, nullptr, _IONBF, 0);
+@@ -398,6 +417,15 @@ int main(int argc, char** argv) {
+     }
+ 
+     std::filesystem::path old_data_dir = exe_directory(argv[0]) / "conker_data";
++#if defined(__APPLE__) && defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
++    // The bundle is read-only. The iOS shell supplies a sandbox-owned data folder.
++    if (const char* mobile_data_dir = std::getenv("SQUIRRELPAD_DATA_DIR")) {
++        old_data_dir = mobile_data_dir;
++    } else {
++        std::fputs("[host] Missing SQUIRRELPAD_DATA_DIR\n", stderr);
++        return EXIT_FAILURE;
++    }
++#endif
+ #if defined(CONKER_RT64)
+     if (!headless) {
+         NFD_Init();
+@@ -463,6 +491,9 @@ int main(int argc, char** argv) {
+     cfg.rsp_callbacks.get_rsp_microcode = get_rsp_microcode;
+     cfg.audio_callbacks = { queue_samples, get_frames_remaining, set_frequency };
+     cfg.renderer_callbacks.create_render_context = conker::create_null_renderer;
++#if defined(SQUIRRELPAD_MOBILE_RT64)
++    cfg.renderer_callbacks.create_render_context = squirrelpad_create_mobile_renderer;
++#endif
+     cfg.input_callbacks = { poll_input, get_input, set_rumble, conker::get_connected_device_info };
+     cfg.gfx_callbacks = { nullptr, create_window, nullptr };
+ #if defined(CONKER_RT64)

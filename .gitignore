@@ -1,0 +1,23 @@
+.DS_Store
+
+# Local reference checkouts, private game inputs, generated game code, and builds.
+/ref/
+/work/
+/build/
+/build-*/
+/DerivedData/
+/artifacts/
+/RecompiledFuncs/
+*.z64
+*.n64
+*.v64
+*.rom
+*.eep
+*.sra
+*.fla
+*.ipa
+*.xcarchive
+*.mobileprovision
+*.p12
+*.key
+*.pem

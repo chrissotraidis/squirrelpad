@@ -1,0 +1,34 @@
+diff --git a/librecomp/src/recomp.cpp b/librecomp/src/recomp.cpp
+index 850689d..ef27dc3 100644
+--- a/librecomp/src/recomp.cpp
++++ b/librecomp/src/recomp.cpp
+@@ -24,6 +24,9 @@
+ #include "librecomp/addresses.hpp"
+ #include "librecomp/mods.hpp"
+ #include "recompiler/live_recompiler.h"
++#if defined(__APPLE__)
++#include <TargetConditionals.h>
++#endif
+ 
+ #ifdef _WIN32
+ #    define WIN32_LEAN_AND_MEAN
+@@ -90,7 +93,9 @@ bool recomp::register_game(const recomp::GameEntry& entry) {
+ }
+ 
+ void recomp::mods::initialize_mods() {
++#if !defined(TARGET_OS_IPHONE) || !TARGET_OS_IPHONE
+     N64Recomp::live_recompiler_init();
++#endif
+     std::filesystem::create_directories(config_path / mods_directory);
+     std::filesystem::create_directories(config_path / mod_config_directory);
+     mod_context->set_mods_config_path(config_path / "mods.json");
+@@ -929,7 +934,9 @@ void recomp::start(const recomp::Configuration& cfg) {
+     ultramodern::set_message_queue_control(cfg.message_queue_control);
+ 
+     recomp::mods::initialize_mods();
++#if !defined(TARGET_OS_IPHONE) || !TARGET_OS_IPHONE
+     recomp::mods::scan_mods();
++#endif
+ 
+     // Allocate rdram without comitting it. Use a platform-specific virtual allocation function
+     // that initializes to zero. Protect the region above the memory size to catch accesses to invalid addresses.

@@ -1,0 +1,21 @@
+{
+  "upstream": {
+    "url": "https://github.com/sciaschi/CBFD-Recompiled.git",
+    "commit": "c55359c579448fe5c212faf4bb5c2415d6ec7fa8"
+  },
+  "gitlinks": {
+    "tools/N64Recomp": "ffb39cdad1da5de07eaaa48bd1db4a89a7986771",
+    "tools/N64ModernRuntime": "cdf5abbd5026fef5c364c676e4667c45e42b6863",
+    "tools/rt64": "43373749dac9bbc1b653e6a02aed40a9e1783bed",
+    "tools/RecompFrontend": "b1a1477c6556aeb7ed45defbfb5924f721efebc1",
+    "tools/rt64/src/contrib/plume": "d890ac899e505fb30040e037a4037cdeca68f033",
+    "tools/rt64/src/contrib/hlslpp": "6f5274c66132e8f951c400103d897582b8f21491"
+  },
+  "rom": {
+    "variant": "Conker's Bad Fur Day (US), big-endian bytes",
+    "size": 67108864,
+    "header": "80371240",
+    "sha1": "4cbadd3c4e0729dec46af64ad018050eada4f47a",
+    "distribution": "private input only"
+  }
+}
