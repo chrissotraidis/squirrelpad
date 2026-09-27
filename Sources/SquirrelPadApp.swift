@@ -80,6 +80,7 @@ struct SquirrelPadApp: App {
     @StateObject private var renderer = RendererStatus()
     @Environment(\.scenePhase) private var scenePhase
     @AppStorage("SquirrelPad.TouchControls") private var touchEnabled = true
+    @AppStorage("SquirrelPad.TouchTransparency") private var touchTransparency = false
     @AppStorage("SquirrelPad.TouchOpacity") private var touchOpacity = 1.0
     @State private var importing = false
     @State private var menuOpen = false
@@ -99,7 +100,7 @@ struct SquirrelPadApp: App {
                         .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
 
                     if session.running && touchEnabled && !menuOpen {
-                        TouchControlsView(opacity: touchOpacity)
+                        TouchControlsView(opacity: touchTransparency ? touchOpacity : 1.0)
                     }
                     if !session.running {
                         importPanel
@@ -126,7 +127,7 @@ struct SquirrelPadApp: App {
                     .accessibilityLabel("Menu")
                     .accessibilityIdentifier("squirrelpad-menu")
                     .position(x: compact ? geometry.size.width / 2 : geometry.size.width - 32,
-                              y: compact ? (menuOpen ? geometry.size.height - 64 : 20) : 32)
+                              y: compact ? (menuOpen ? geometry.size.height - 48 : 20) : 32)
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }
@@ -169,12 +170,17 @@ struct SquirrelPadApp: App {
             Text("Controls").font(.title2.bold())
             Toggle("Touch Controls", isOn: $touchEnabled)
                 .tint(.blue)
-            HStack {
-                Text("Opacity")
-                Slider(value: $touchOpacity, in: 0.25...1.0)
-                    .tint(.blue)
+            Toggle("Touch Control Transparency", isOn: $touchTransparency)
+                .tint(.blue)
+                .disabled(!touchEnabled)
+            if touchTransparency {
+                HStack {
+                    Text("Touch Control Opacity")
+                    Slider(value: $touchOpacity, in: 0.25...1.0)
+                        .tint(.blue)
+                }
+                .disabled(!touchEnabled)
             }
-            .disabled(!touchEnabled)
             Button("Close menu") { menuOpen = false }
                 .buttonStyle(.borderedProminent)
         }
