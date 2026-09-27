@@ -27,6 +27,8 @@ std::atomic<bool> needs_rebuffer{false};
 uint32_t sample_rate = 0;
 bool started = false;
 bool logged_samples = false;
+size_t enqueued_total_frames = 0;
+bool clock_started = false;
 
 int64_t steady_now_ns() {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -60,6 +62,8 @@ void stop_locked() {
     completed_nonzero_buffers.store(0, std::memory_order_relaxed);
     logged_completion.store(false, std::memory_order_relaxed);
     started = false;
+    enqueued_total_frames = 0;
+    clock_started = false;
 }
 }
 
@@ -129,6 +133,7 @@ extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_
         std::fprintf(stderr, "[mobile audio] enqueue failed: %d\n", (int)result);
         return;
     }
+    enqueued_total_frames += frames;
     if (!logged_samples && has_sound) {
         logged_samples = true;
         std::fprintf(stderr, "[mobile audio] queued nonzero stereo PCM\n");
@@ -140,6 +145,7 @@ extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_
             std::fprintf(stderr, "[mobile audio] playback start failed: %d\n", (int)result);
         } else {
             started = true;
+            clock_started = true;
             std::fprintf(stderr, "[mobile audio] playback started\n");
         }
     }
@@ -152,7 +158,19 @@ extern "C" size_t squirrelpad_audio_get_frames_remaining() {
         std::fprintf(stderr, "[mobile audio] output consumed nonzero PCM\n");
     }
     size_t frames = queued_frames.load(std::memory_order_relaxed);
-    if (started) {
+    bool have_clock = false;
+    if (clock_started) {
+        // Output callbacks can release a buffer before its samples have played.
+        // Use the queue's sample clock for the length reported back to Conker.
+        AudioTimeStamp stamp{};
+        if (AudioQueueGetCurrentTime(queue, nullptr, &stamp, nullptr) == noErr &&
+            (stamp.mFlags & kAudioTimeStampSampleTimeValid) && stamp.mSampleTime >= 0) {
+            const size_t played = static_cast<size_t>(stamp.mSampleTime);
+            frames = enqueued_total_frames > played ? enqueued_total_frames - played : 0;
+            have_clock = true;
+        }
+    }
+    if (!have_clock && started) {
         // The completion callback counts whole buffers. Estimate the portion
         // already playing so Conker sees a continuously shrinking AI length.
         const int64_t boundary = last_buffer_boundary_ns.load(std::memory_order_relaxed);
