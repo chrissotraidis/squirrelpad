@@ -12,8 +12,10 @@ namespace {
 constexpr size_t channels = 2;
 constexpr size_t frame_bytes = channels * sizeof(int16_t);
 constexpr size_t one_game_buffer = 736;
-// The Simulator can fall into repeated underruns if playback has no spare buffer.
-constexpr size_t playback_reserve = one_game_buffer + one_game_buffer / 2;
+// Keep two game buffers ahead of the AI length Conker sees; its audio thread
+// otherwise asks for shorter buffers while playback is close to empty.
+constexpr size_t playback_reserve = 2 * one_game_buffer;
+constexpr size_t startup_frames = 3 * one_game_buffer;
 
 std::mutex audio_mutex;
 AudioQueueRef queue = nullptr;
@@ -131,7 +133,7 @@ extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_
         logged_samples = true;
         std::fprintf(stderr, "[mobile audio] queued nonzero stereo PCM\n");
     }
-    if (!started && queued_frames.load(std::memory_order_relaxed) >= 2 * one_game_buffer) {
+    if (!started && queued_frames.load(std::memory_order_relaxed) >= startup_frames) {
         last_buffer_boundary_ns.store(steady_now_ns(), std::memory_order_relaxed);
         result = AudioQueueStart(queue, nullptr);
         if (result != noErr) {
