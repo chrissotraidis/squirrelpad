@@ -1,0 +1,21 @@
+diff --git a/host/src/main.cpp b/host/src/main.cpp
+--- a/host/src/main.cpp
++++ b/host/src/main.cpp
+@@ -39,6 +39,7 @@
+ extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_count);
+ extern "C" size_t squirrelpad_audio_get_frames_remaining();
+ extern "C" void squirrelpad_audio_set_frequency(uint32_t frequency);
++extern "C" void squirrelpad_wait_while_inactive();
+ #endif
+ 
+ #if defined(CONKER_RT64)
+@@ -310,6 +311,9 @@
+     }
+ 
+     void vi_callback() {
++#if defined(SQUIRRELPAD_MOBILE_RT64)
++        squirrelpad_wait_while_inactive();
++#endif
+         ++vi_count;
+ #if defined(CONKER_RT64)
+         if (!headless) {

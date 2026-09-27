@@ -1,9 +1,30 @@
 #include <cstdlib>
+#include <condition_variable>
+#include <mutex>
 #include <string>
 
 int conker_native_main(int argc, char **argv);
 extern "C" void squirrelpad_rt64_release_probe();
 extern "C" void squirrelpad_audio_stop();
+
+namespace {
+std::mutex activity_mutex;
+std::condition_variable activity_changed;
+bool active = true;
+}
+
+extern "C" void squirrelpad_set_active(bool value) {
+    {
+        std::lock_guard lock(activity_mutex);
+        active = value;
+    }
+    if (value) activity_changed.notify_all();
+}
+
+extern "C" void squirrelpad_wait_while_inactive() {
+    std::unique_lock lock(activity_mutex);
+    activity_changed.wait(lock, [] { return active; });
+}
 
 extern "C" int squirrelpad_run_core(const char *rom, const char *data_dir, int seconds) {
     if (rom == nullptr || data_dir == nullptr || seconds < 0) {

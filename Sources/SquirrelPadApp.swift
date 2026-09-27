@@ -10,6 +10,8 @@ private extension UTType {
 private func runConkerCore(_ rom: UnsafePointer<CChar>, _ dataDirectory: UnsafePointer<CChar>, _ seconds: Int32) -> Int32
 @_silgen_name("squirrelpad_vi_count")
 private func conkerVICount() -> UInt32
+@_silgen_name("squirrelpad_set_active")
+private func setCoreActive(_ active: Bool)
 
 @MainActor
 private final class GameSession: ObservableObject {
@@ -142,7 +144,10 @@ struct SquirrelPadApp: App {
             }
             .onChange(of: menuOpen) { open in if open { clearTouchInput() } }
             .onChange(of: touchEnabled) { enabled in if !enabled { clearTouchInput() } }
-            .onChange(of: scenePhase) { phase in if phase != .active { clearTouchInput() } }
+            .onChange(of: scenePhase) { phase in
+                if phase != .active { clearTouchInput() }
+                setCoreActive(phase == .active)
+            }
             .onChange(of: session.running) { running in if !running { clearTouchInput() } }
         }
     }
