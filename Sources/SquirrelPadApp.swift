@@ -112,7 +112,7 @@ struct SquirrelPadApp: App {
                             .onTapGesture { menuOpen = false }
                         controlsPanel(compact: compact)
                             .position(x: geometry.size.width / 2,
-                                      y: geometry.size.height / 2)
+                                      y: geometry.size.height / 2 - (compact ? 18 : 0))
                     }
                     Button(action: toggleMenu) {
                         Text("•••")
@@ -174,8 +174,13 @@ struct SquirrelPadApp: App {
                 .tint(.blue)
                 .disabled(!touchEnabled)
             if touchTransparency {
-                HStack {
-                    Text("Touch Control Opacity")
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack {
+                        Text("Touch Control Opacity")
+                        Spacer()
+                        Text("\(Int((touchOpacity * 100).rounded()))%")
+                            .monospacedDigit()
+                    }
                     Slider(value: $touchOpacity, in: 0.25...1.0)
                         .tint(.blue)
                 }
