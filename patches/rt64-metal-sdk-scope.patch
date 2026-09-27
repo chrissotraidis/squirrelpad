@@ -1,0 +1,23 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -169,6 +169,18 @@ function(build_shader_msl_impl TARGETOBJ FILENAME TARGET_NAME OUTNAME)
+     if (RT64_PREGENERATED_SHADER_DIR)
+         target_sources(${TARGETOBJ} PRIVATE ${OUTNAME}.metal.c)
+         return()
+     endif()
++    # This function is also called from sibling CMake directories, where the
++    # RT64 directory's local variable is not visible.
++    if (NOT RT64_METAL_SDK)
++        set(RT64_METAL_SDK "macosx")
++        if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
++            if (CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator")
++                set(RT64_METAL_SDK "iphonesimulator")
++            else()
++                set(RT64_METAL_SDK "iphoneos")
++            endif()
++        endif()
++    endif()
+     add_custom_command(OUTPUT ${OUTNAME}.spv
+             COMMAND ${DXC} ${DXC_SPV_OPTS} ${ARGN} ${FILENAME} /Fo ${OUTNAME}.spv
+             DEPENDS ${FILENAME})
