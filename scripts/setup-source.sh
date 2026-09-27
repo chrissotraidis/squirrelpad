@@ -32,6 +32,7 @@ apply_once "$checkout/tools/N64ModernRuntime" "$checkout/recomp/n64modernruntime
 apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-ios-mods.patch"
 apply_once "$checkout/tools/rt64" "$checkout/recomp/rt64.patch"
 apply_once "$checkout" "$project/patches/conker-host.patch"
+apply_once "$checkout" "$project/patches/conker-mobile-audio.patch"
 apply_once "$checkout/tools/rt64/src/contrib/hlslpp" "$project/patches/hlslpp-stdlib.patch"
 apply_once "$checkout/tools/rt64" "$project/patches/rt64-ios.patch"
 apply_once "$checkout/tools/rt64" "$project/patches/rt64-ios-sampler-limit.patch"

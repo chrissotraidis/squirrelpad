@@ -1,0 +1,40 @@
+diff --git a/host/src/main.cpp b/host/src/main.cpp
+--- a/host/src/main.cpp
++++ b/host/src/main.cpp
+@@ -36,6 +36,9 @@
+ std::unique_ptr<ultramodern::renderer::RendererContext> squirrelpad_create_mobile_renderer(
+     uint8_t *rdram, ultramodern::renderer::WindowHandle window, bool developer_mode);
+ extern "C" bool squirrelpad_mobile_get_input(int player, uint16_t *buttons, float *x, float *y);
++extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_count);
++extern "C" size_t squirrelpad_audio_get_frames_remaining();
++extern "C" void squirrelpad_audio_set_frequency(uint32_t frequency);
+ #endif
+ 
+ #if defined(CONKER_RT64)
+@@ -264,9 +267,23 @@
+         return nullptr;
+     }
+ 
+-    void queue_samples(int16_t*, size_t) {}
+-    size_t get_frames_remaining() { return 0; }
+-    void set_frequency(uint32_t) {}
++    void queue_samples(int16_t* samples, size_t sample_count) {
++#if defined(SQUIRRELPAD_MOBILE_RT64)
++        squirrelpad_audio_queue_samples(samples, sample_count);
++#endif
++    }
++    size_t get_frames_remaining() {
++#if defined(SQUIRRELPAD_MOBILE_RT64)
++        return squirrelpad_audio_get_frames_remaining();
++#else
++        return 0;
++#endif
++    }
++    void set_frequency(uint32_t frequency) {
++#if defined(SQUIRRELPAD_MOBILE_RT64)
++        squirrelpad_audio_set_frequency(frequency);
++#endif
++    }
+ 
+     bool headless = true;
+ 
