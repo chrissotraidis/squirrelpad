@@ -78,36 +78,116 @@ private final class GameSession: ObservableObject {
 struct SquirrelPadApp: App {
     @StateObject private var session = GameSession()
     @StateObject private var renderer = RendererStatus()
+    @Environment(\.scenePhase) private var scenePhase
+    @AppStorage("SquirrelPad.TouchControls") private var touchEnabled = true
+    @AppStorage("SquirrelPad.TouchOpacity") private var touchOpacity = 1.0
     @State private var importing = false
+    @State private var menuOpen = false
 
     var body: some Scene {
         WindowGroup {
-            VStack(spacing: 20) {
-                RT64Surface(renderer: renderer)
-                    .frame(width: 160, height: 90)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                Text(renderer.message).font(.caption.monospaced())
-                Text("SquirrelPad").font(.largeTitle.bold())
-                Text(session.message).multilineTextAlignment(.center)
-                Button("Choose ROM") { importing = true }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(session.running)
-                if let storedROM = session.storedROM {
-                    Button("Continue Imported ROM") { session.importROM(storedROM) }
-                        .disabled(session.running)
+            GeometryReader { geometry in
+                let compact = geometry.size.height < 560
+                let menuSize: CGFloat = compact && !menuOpen ? 32 : compact ? 44 : 38
+                ZStack {
+                    Color.black
+                    RT64Surface(renderer: renderer)
+                        .frame(width: 160, height: 90)
+                        .scaleEffect(compact
+                            ? min(geometry.size.width / 160, geometry.size.height / 90)
+                            : max(geometry.size.width / 160, geometry.size.height / 90))
+                        .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
+
+                    if session.running && touchEnabled && !menuOpen {
+                        TouchControlsView(opacity: touchOpacity)
+                    }
+                    if !session.running {
+                        importPanel
+                            .position(x: geometry.size.width / 2,
+                                      y: geometry.size.height / 2)
+                    }
+                    if menuOpen {
+                        Color.black.opacity(0.72)
+                            .onTapGesture { menuOpen = false }
+                        controlsPanel(compact: compact)
+                            .position(x: geometry.size.width / 2,
+                                      y: geometry.size.height / 2)
+                    }
+                    Button(action: toggleMenu) {
+                        Text("•••")
+                            .font(.system(size: compact ? 17 : 15, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .frame(width: menuSize, height: menuSize)
+                            .background(.black.opacity(0.42), in: Circle())
+                            .overlay(Circle().stroke(.white.opacity(0.65), lineWidth: 2))
+                            .padding(compact && !menuOpen ? 6 : 0)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Menu")
+                    .accessibilityIdentifier("squirrelpad-menu")
+                    .position(x: compact ? geometry.size.width / 2 : geometry.size.width - 32,
+                              y: compact ? (menuOpen ? geometry.size.height - 64 : 20) : 32)
                 }
-                if session.running { ProgressView() }
+                .frame(width: geometry.size.width, height: geometry.size.height)
             }
-            .padding(32)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(red: 0.09, green: 0.13, blue: 0.14))
-            .foregroundStyle(.white)
+            .background(.black)
+            .ignoresSafeArea()
+            .statusBarHidden()
             .fileImporter(isPresented: $importing, allowedContentTypes: [.n64ROM, .data]) { selection in
                 switch selection {
                 case .success(let url): session.importROM(url)
                 case .failure(let error): session.message = "Could not choose ROM: \(error.localizedDescription)"
                 }
             }
+            .onChange(of: menuOpen) { open in if open { clearTouchInput() } }
+            .onChange(of: touchEnabled) { enabled in if !enabled { clearTouchInput() } }
+            .onChange(of: scenePhase) { phase in if phase != .active { clearTouchInput() } }
+            .onChange(of: session.running) { running in if !running { clearTouchInput() } }
         }
+    }
+
+    private var importPanel: some View {
+        VStack(spacing: 18) {
+            Text("SquirrelPad").font(.largeTitle.bold())
+            Text(session.message).multilineTextAlignment(.center)
+            Button("Choose ROM") { importing = true }
+                .buttonStyle(.borderedProminent)
+            if let storedROM = session.storedROM {
+                Button("Continue Imported ROM") { session.importROM(storedROM) }
+            }
+            Text(renderer.message).font(.caption.monospaced())
+            if session.running { ProgressView() }
+        }
+        .foregroundStyle(.white)
+        .padding(28)
+        .frame(maxWidth: 420)
+        .background(.black.opacity(0.76), in: RoundedRectangle(cornerRadius: 18))
+    }
+
+    private func controlsPanel(compact: Bool) -> some View {
+        VStack(alignment: .leading, spacing: compact ? 12 : 20) {
+            Text("Controls").font(.title2.bold())
+            Toggle("Touch Controls", isOn: $touchEnabled)
+                .tint(.blue)
+            HStack {
+                Text("Opacity")
+                Slider(value: $touchOpacity, in: 0.25...1.0)
+                    .tint(.blue)
+            }
+            .disabled(!touchEnabled)
+            Button("Close menu") { menuOpen = false }
+                .buttonStyle(.borderedProminent)
+        }
+        .foregroundStyle(.white)
+        .padding(compact ? 18 : 28)
+        .frame(maxWidth: compact ? 420 : 520)
+        .background(Color(white: 0.08).opacity(0.96),
+                    in: RoundedRectangle(cornerRadius: 18))
+        .padding(20)
+    }
+
+    private func toggleMenu() {
+        if !menuOpen { clearTouchInput() }
+        menuOpen.toggle()
     }
 }

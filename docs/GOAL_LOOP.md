@@ -1,6 +1,6 @@
 # SquirrelPad: goal loop for Conker's Bad Fur Day on iOS/iPadOS
 
-**Status:** execution authorized 2026-09-26. Work the lowest unmet gate and record measured results in [STATUS.md](STATUS.md). The user supplied a private ROM after this loop was drafted. Native arm64 macOS control builds run; an iPad Simulator now shows Conker intro and game-select frames through RT64 Metal. The optional 52-buffer raytracing debug pipeline is gated off on unsupported Metal devices. Gameplay, input, audio, save and device gates remain open.
+**Status:** execution authorized 2026-09-26. Work the lowest unmet gate and record measured results in [STATUS.md](STATUS.md). The user supplied a private ROM after this loop was drafted. Native arm64 macOS control builds run; iPad and iPhone Simulators show Conker intro and game-select frames through RT64 Metal. The optional 52-buffer raytracing debug pipeline is gated off on unsupported Metal devices. Touch A/B and the three-dot menu work in both Simulators; ordinary gameplay, audio, save and physical-device gates remain open.
 
 ## Product goal and completion rule
 

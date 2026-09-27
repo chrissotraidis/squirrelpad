@@ -115,7 +115,7 @@ index 94e8242..214a35f 100644
          return ultramodern::renderer::WindowHandle{ window };
  #endif
 diff --git a/host/src/main.cpp b/host/src/main.cpp
-index 0298ffc..aa35445 100644
+index 0298ffc..07f8ba5 100644
 --- a/host/src/main.cpp
 +++ b/host/src/main.cpp
 @@ -20,6 +20,9 @@
@@ -128,7 +128,7 @@ index 0298ffc..aa35445 100644
  
  #include "recomp.h"
  #include "librecomp/game.hpp"
-@@ -28,6 +31,12 @@
+@@ -28,6 +31,13 @@
  
  #include "conker.hpp"
  
@@ -136,12 +136,24 @@ index 0298ffc..aa35445 100644
 +extern "C" void squirrelpad_mobile_window(void **window, void **view);
 +std::unique_ptr<ultramodern::renderer::RendererContext> squirrelpad_create_mobile_renderer(
 +    uint8_t *rdram, ultramodern::renderer::WindowHandle window, bool developer_mode);
++extern "C" bool squirrelpad_mobile_get_input(int player, uint16_t *buttons, float *x, float *y);
 +#endif
 +
  #if defined(CONKER_RT64)
  #include "nfd.h"
  #include "recompui/program_config.h"
-@@ -265,7 +274,13 @@ namespace {
+@@ -261,11 +271,23 @@ namespace {
+     bool headless = true;
+ 
+     void poll_input() {}
+-    bool get_input(int, uint16_t*, float*, float*) { return false; }
++    bool get_input(int player, uint16_t* buttons, float* x, float* y) {
++#if defined(SQUIRRELPAD_MOBILE_RT64)
++        return squirrelpad_mobile_get_input(player, buttons, x, y);
++#else
++        return false;
++#endif
++    }
      void set_rumble(int, bool) {}
  
      ultramodern::renderer::WindowHandle create_window(void*) {
@@ -155,7 +167,7 @@ index 0298ffc..aa35445 100644
      }
  
      void vi_callback() {
-@@ -373,6 +388,10 @@ namespace {
+@@ -373,6 +395,10 @@ namespace {
      }
  }
  
@@ -166,7 +178,7 @@ index 0298ffc..aa35445 100644
  int main(int argc, char** argv) {
      // Unbuffered, so diagnostics (e.g. RT64's microcode hashes) survive a crash.
      std::setvbuf(stdout, nullptr, _IONBF, 0);
-@@ -398,6 +417,15 @@ int main(int argc, char** argv) {
+@@ -398,6 +424,15 @@ int main(int argc, char** argv) {
      }
  
      std::filesystem::path old_data_dir = exe_directory(argv[0]) / "conker_data";
@@ -182,7 +194,7 @@ index 0298ffc..aa35445 100644
  #if defined(CONKER_RT64)
      if (!headless) {
          NFD_Init();
-@@ -463,6 +491,9 @@ int main(int argc, char** argv) {
+@@ -463,6 +498,9 @@ int main(int argc, char** argv) {
      cfg.rsp_callbacks.get_rsp_microcode = get_rsp_microcode;
      cfg.audio_callbacks = { queue_samples, get_frames_remaining, set_frequency };
      cfg.renderer_callbacks.create_render_context = conker::create_null_renderer;

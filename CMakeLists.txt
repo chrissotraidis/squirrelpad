@@ -35,7 +35,9 @@ endif()
 add_executable(SquirrelPad MACOSX_BUNDLE
     Sources/SquirrelPadApp.swift
     Sources/RT64Surface.swift
+    Sources/TouchControlsView.swift
     Support/Conker/mobile_entry.cpp
+    Support/Conker/mobile_input.cpp
     ${rt64_bridge}
 )
 target_link_libraries(SquirrelPad PRIVATE ConkerRecomp
