@@ -35,6 +35,7 @@ apply_once "$checkout" "$project/patches/conker-host.patch"
 apply_once "$checkout/tools/rt64/src/contrib/hlslpp" "$project/patches/hlslpp-stdlib.patch"
 apply_once "$checkout/tools/rt64" "$project/patches/rt64-ios.patch"
 apply_once "$checkout/tools/rt64" "$project/patches/rt64-ios-sampler-limit.patch"
+apply_once "$checkout/tools/rt64" "$project/patches/rt64-ios-debug-capability.patch"
 apply_once "$checkout/tools/rt64/src/contrib/plume" "$project/patches/plume-ios-metal.patch"
 apply_once "$checkout/tools/N64ModernRuntime/N64Recomp/lib/sljit" "$project/patches/sljit-ios-allocator.patch"
 
