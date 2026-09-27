@@ -84,6 +84,8 @@ struct SquirrelPadApp: App {
     @AppStorage("SquirrelPad.TouchControls") private var touchEnabled = true
     @AppStorage("SquirrelPad.TouchTransparency") private var touchTransparency = false
     @AppStorage("SquirrelPad.TouchOpacity") private var touchOpacity = 1.0
+    @AppStorage("SquirrelPad.ShowDpad") private var showDpad = true
+    @AppStorage("SquirrelPad.ShowCButtons") private var showCButtons = true
     @State private var importing = false
     @State private var menuOpen = false
 
@@ -102,7 +104,8 @@ struct SquirrelPadApp: App {
                         .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
 
                     if session.running && touchEnabled && !menuOpen {
-                        TouchControlsView(opacity: touchTransparency ? touchOpacity : 1.0)
+                        TouchControlsView(opacity: touchTransparency ? touchOpacity : 1.0,
+                                          showDpad: showDpad, showCButtons: showCButtons)
                     }
                     if !session.running {
                         importPanel
@@ -144,6 +147,8 @@ struct SquirrelPadApp: App {
             }
             .onChange(of: menuOpen) { open in if open { clearTouchInput() } }
             .onChange(of: touchEnabled) { enabled in if !enabled { clearTouchInput() } }
+            .onChange(of: showDpad) { _ in clearTouchInput() }
+            .onChange(of: showCButtons) { _ in clearTouchInput() }
             .onChange(of: scenePhase) { phase in
                 if phase != .active { clearTouchInput() }
                 setCoreActive(phase == .active)
@@ -228,10 +233,19 @@ struct SquirrelPadApp: App {
                             }
                             .disabled(!touchEnabled)
                         }
+                        Divider().overlay(.white.opacity(0.4))
+                        Text("Button Visibility")
+                            .font(.headline)
+                        Toggle("D-pad Buttons", isOn: $showDpad)
+                            .tint(.blue)
+                        Toggle("C Buttons", isOn: $showCButtons)
+                            .tint(.blue)
                         Button("Restore Defaults") {
                             touchEnabled = true
                             touchTransparency = false
                             touchOpacity = 1.0
+                            showDpad = true
+                            showCButtons = true
                         }
                         .buttonStyle(.borderedProminent)
                     }

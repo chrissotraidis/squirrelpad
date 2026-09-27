@@ -99,6 +99,8 @@ private struct TouchStick: View {
 
 struct TouchControlsView: View {
     let opacity: Double
+    let showDpad: Bool
+    let showCButtons: Bool
 
     // The normalized centers follow HarkinianPad's accepted phone/tablet grip
     // layouts. Conker uses a continuous stick axis rather than eight key directions.
@@ -155,10 +157,13 @@ struct TouchControlsView: View {
                     .position(x: geometry.size.width * (compact ? 0.214 : 0.164),
                               y: geometry.size.height * (compact ? 0.722 : 0.745))
                 ForEach(Self.controls) { control in
-                    let center = compact ? control.phone : control.tablet
-                    TouchButton(control: control, compact: compact)
-                        .position(x: geometry.size.width * center.x,
-                                  y: geometry.size.height * center.y)
+                    if (showDpad || !control.id.hasPrefix("D-pad")) &&
+                       (showCButtons || !control.id.hasPrefix("C ")) {
+                        let center = compact ? control.phone : control.tablet
+                        TouchButton(control: control, compact: compact)
+                            .position(x: geometry.size.width * center.x,
+                                      y: geometry.size.height * center.y)
+                    }
                 }
             }
             .opacity(opacity)
