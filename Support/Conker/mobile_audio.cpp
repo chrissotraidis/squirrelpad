@@ -2,6 +2,7 @@
 
 #include <array>
 #include <atomic>
+#include <chrono>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -30,6 +31,7 @@ std::atomic<size_t> resumes{0};
 std::atomic<size_t> completed_nonzero_buffers{0};
 std::atomic<OSStatus> callback_error{noErr};
 uint32_t sample_rate = 0;
+std::chrono::steady_clock::time_point next_retry;
 bool started = false;
 bool logged_samples = false;
 bool logged_completion = false;
@@ -105,18 +107,13 @@ void stop_locked() {
     logged_completion = false;
     logged_underruns = 0;
     logged_resumes = 0;
-}
+    next_retry = {};
 }
 
-extern "C" void squirrelpad_audio_set_frequency(uint32_t frequency) {
-    std::lock_guard lock(audio_mutex);
-    if (frequency == sample_rate && queue != nullptr) return;
-    stop_locked();
-    sample_rate = frequency;
-    if (frequency == 0) return;
-
+void create_queue_locked() {
+    if (sample_rate == 0) return;
     AudioStreamBasicDescription format{};
-    format.mSampleRate = frequency;
+    format.mSampleRate = sample_rate;
     format.mFormatID = kAudioFormatLinearPCM;
     format.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
     format.mBytesPerPacket = frame_bytes;
@@ -128,6 +125,7 @@ extern "C" void squirrelpad_audio_set_frequency(uint32_t frequency) {
     if (result != noErr) {
         std::fprintf(stderr, "[mobile audio] output init failed: %d\n", (int)result);
         queue = nullptr;
+        next_retry = std::chrono::steady_clock::now() + std::chrono::seconds(1);
         return;
     }
     for (auto &buffer : output_buffers) {
@@ -135,15 +133,28 @@ extern "C" void squirrelpad_audio_set_frequency(uint32_t frequency) {
         if (result != noErr || buffer == nullptr) {
             std::fprintf(stderr, "[mobile audio] buffer allocation failed: %d\n", (int)result);
             stop_locked();
+            next_retry = std::chrono::steady_clock::now() + std::chrono::seconds(1);
             return;
         }
     }
-    std::fprintf(stderr, "[mobile audio] output rate %u Hz\n", frequency);
+    std::fprintf(stderr, "[mobile audio] output rate %u Hz\n", sample_rate);
+}
+}
+
+extern "C" void squirrelpad_audio_set_frequency(uint32_t frequency) {
+    std::lock_guard lock(audio_mutex);
+    if (frequency == sample_rate && queue != nullptr) return;
+    stop_locked();
+    sample_rate = frequency;
+    create_queue_locked();
 }
 
 extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_count) {
     if (samples == nullptr || sample_count < channels || sample_count % channels != 0) return;
     std::lock_guard lock(audio_mutex);
+    if (queue == nullptr && sample_rate != 0 && std::chrono::steady_clock::now() >= next_retry) {
+        create_queue_locked();
+    }
     if (queue == nullptr) return;
 
     const size_t frames = sample_count / channels;
@@ -181,6 +192,7 @@ extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_
         if (result != noErr) {
             std::fprintf(stderr, "[mobile audio] playback start failed: %d\n", (int)result);
             stop_locked();
+            next_retry = std::chrono::steady_clock::now() + std::chrono::seconds(1);
         } else {
             started = true;
             std::fprintf(stderr, "[mobile audio] playback started\n");
