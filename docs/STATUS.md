@@ -132,6 +132,12 @@ A paired scheduling check set only the iOS graphics thread to utility QoS. Its i
 
 **Next narrow target:** pair normal PCM submission gaps with graphics completion timing, then isolate one expensive RT64 upload or framebuffer operation and compare a single renderer change on the same GAME1 → PLAY route. Do not mask stalls with still more output latency or claim audible fidelity from counters. Physical-device listening, routes and interruptions remain open.
 
+## Framebuffer parameter binding cut (2026-09-28)
+
+**Pass:** `patches/rt64-static-fb-params.patch` binds each framebuffer's fixed parameter buffer to its real and dummy descriptor sets when those sets are created. `addFramebuffer` continues updating the buffer contents and rebinding the changing color and depth textures, but no longer calls Metal's argument encoder twice per framebuffer on later use. The patch was reverse-checked, reapplied and built for the iOS Simulator RT64 archive/app and unsigned device archive/app (`work/audio-fb-static-sim-rt64-build.log`, `work/audio-fb-static-sim-app-build.log`, `work/audio-fb-static-device-rt64-build.log`, `work/audio-fb-static-device-app-build.log`). On iPad Pro 11-inch (M4) and iPhone 16 Pro, iOS 18.5, the same installed build reached **Continue Imported ROM → GAME1 → PLAY → first field**; the field and touch Start/A pause/resume were visually inspected on each (`work/audio-fb-static-ipad-run.log`, `work/audio-fb-static-iphone-run.log`).
+
+**Fail for audio:** the iPad reported four underruns through display list #10020, first near #3060; the iPhone reported one through #8580, near #2640. These independent runs do not prove a change in underrun rate relative to the baseline. The binding cut is a narrow renderer work reduction, not an audio fix. Next instrument remaining framebuffer texture bindings and texture-upload waits in one ordinary gameplay window, then compare a single change against the same route. Speaker/headphone quality still needs a real device.
+
 ## Second save slot (2026-09-27)
 
 On the iPad Simulator, touch stick navigation reached **GAME2 → NEW GAME** and A started it. The private EEPROM hash changed after the opening sequence and remained changed after termination. A cold relaunch revisited **GAME2**, which showed **PLAY** and `0:04:25` (`work/evidence/ipad-game2-save-relaunch.png`, `work/g5-game2-ipad-relaunch.log`). This proves a second occupied game-select slot persisted. It does not verify an in-level checkpoint or that two different game positions reload correctly; that remains part of G5.
