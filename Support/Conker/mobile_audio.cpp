@@ -14,6 +14,7 @@ constexpr size_t frame_bytes = channels * sizeof(int16_t);
 constexpr size_t one_game_buffer = 736;
 constexpr size_t playback_reserve = 5 * one_game_buffer;
 constexpr size_t startup_frames = 6 * one_game_buffer;
+constexpr size_t recovery_frames = 2 * one_game_buffer;
 constexpr size_t output_frames = 256;
 constexpr size_t output_buffer_count = 4;
 constexpr size_t ring_frames = 1 << 15;
@@ -52,7 +53,7 @@ void fill_buffer(AudioQueueBufferRef buffer) {
     const uint64_t written = frames_written.load(std::memory_order_acquire);
     const size_t available = static_cast<size_t>(written - read);
 
-    if (rebuffering.load(std::memory_order_relaxed) && available >= startup_frames) {
+    if (rebuffering.load(std::memory_order_relaxed) && available >= recovery_frames) {
         rebuffering.store(false, std::memory_order_relaxed);
         resumes.fetch_add(1, std::memory_order_relaxed);
     }
