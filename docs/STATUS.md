@@ -214,6 +214,16 @@ The second trace also timestamped VI messages at the runtime's external queue. T
 
 All three temporary runtime files (`events.cpp`, `mesgqueue.cpp`, `ultra_translation.cpp`) were restored and byte-checked against their saved originals. The ordinary Simulator app rebuilt with all three recompiled (`work/audio-vi-delivery-probes-restored-sim-build.log`); its executable SHA-256 is `8ce518bfbd0a7d33aa3f923c7acb7177257a49703506250065ada9b4b61f1847`, byte-identical to the earlier uninstrumented GAME1 → PLAY → first-field build. **No audio fix was retained. G4 remains open.**
 
+### VI loop phase check (2026-09-28)
+
+A temporary iPad first-field trace timed the VI loop from wake through screen action, state update, message mutex acquisition and VI enqueue (`work/audio-vi-phases-ipad-run.log`). The run logged an underrun near display list #1440, with no measured wake-to-enqueue phase over 50 ms through #6900. More underruns appeared after #7200. This rules out a long in-loop phase for the first observed underrun in this run, but does not identify its cause or explain the earlier deadline oversleeps and external-message delivery delays. The probe was removed, `events.cpp` matched its backup byte-for-byte, and the ordinary Simulator app rebuilt (`work/audio-vi-phases-restored-sim-build.log`). No audio scheduling or game-logic change was retained; audible glitches remain open.
+
+### Three-dot menu contrast and close action (2026-09-28)
+
+The Settings panel now uses a compact X close action, lighter backdrop and darker panel, and tighter content spacing on iPhone. The layout still uses the reference's blue Settings header and left category list; further menu parity remains open. The exact Simulator executable SHA-256 was `b7c1ec89ae687d70547db25ded854fa83099f537d1ceeaa789e39ffc370abf4f`. Simulator and unsigned device builds passed (`work/menu-contrast-final-sim-build.log`, `work/menu-contrast-final-device-build.log`).
+
+On iPhone 16 Pro and iPad Pro 11-inch (M4), iOS 18.5, the menu opened, switched to Audio, and closed from the X or three-dot control. Viewed captures are `work/evidence/iphone-menu-contrast-final.png` and `work/evidence/ipad-menu-contrast-final.png`. On iPad, the same build launched the private ROM, hid touch controls while the menu was open over the game, restored them on close, and kept rendering (`work/evidence/ipad-menu-contrast-gameplay.png`, `work/menu-contrast-final-ipad-run.log`). This verifies the menu behavior and appearance in these Simulator windows, not touch feel or audio quality on physical devices.
+
 ## Second save slot (2026-09-27)
 
 On the iPad Simulator, touch stick navigation reached **GAME2 → NEW GAME** and A started it. The private EEPROM hash changed after the opening sequence and remained changed after termination. A cold relaunch revisited **GAME2**, which showed **PLAY** and `0:04:25` (`work/evidence/ipad-game2-save-relaunch.png`, `work/g5-game2-ipad-relaunch.log`). This proves a second occupied game-select slot persisted. It does not verify an in-level checkpoint or that two different game positions reload correctly; that remains part of G5.

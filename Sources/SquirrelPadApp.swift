@@ -124,7 +124,7 @@ struct SquirrelPadApp: App {
                                       y: geometry.size.height / 2)
                     }
                     if menuOpen {
-                        Color.black.opacity(0.40)
+                        Color.black.opacity(0.28)
                             .onTapGesture { menuOpen = false }
                         controlsPanel(compact: compact, size: geometry.size)
                             .position(x: geometry.size.width / 2,
@@ -197,10 +197,15 @@ struct SquirrelPadApp: App {
                     .padding(.vertical, 7)
                     .background(.blue, in: RoundedRectangle(cornerRadius: 6))
                 Spacer()
-                Button("Close") { menuOpen = false }
-                    .buttonStyle(.bordered)
+                Button { menuOpen = false } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 15, weight: .bold))
+                        .frame(width: 32, height: 32)
+                        .background(.white.opacity(0.18), in: RoundedRectangle(cornerRadius: 5))
+                }
+                    .buttonStyle(.plain)
                     .accessibilityLabel("Close menu")
-                    .padding(.trailing, compact ? 0 : 50)
+                    .padding(.trailing, compact ? 0 : 48)
             }
             .padding(.horizontal, compact ? 18 : 28)
             .frame(height: compact ? 54 : 70)
@@ -219,7 +224,7 @@ struct SquirrelPadApp: App {
                 Rectangle().fill(.white.opacity(0.6)).frame(width: 2)
 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: compact ? 16 : 24) {
+                    VStack(alignment: .leading, spacing: compact ? 10 : 24) {
                         if settingsSection == .controls {
                             Text("Controls")
                                 .font(.system(size: compact ? 23 : 29, weight: .semibold))
@@ -289,7 +294,7 @@ struct SquirrelPadApp: App {
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(compact ? 20 : 30)
+                    .padding(compact ? 14 : 30)
                 }
                 .frame(height: size.height - (compact ? 156 : 128))
             }
@@ -297,7 +302,7 @@ struct SquirrelPadApp: App {
         .foregroundStyle(.white)
         .frame(width: size.width - (compact ? 160 : 56),
                height: size.height - (compact ? 100 : 56))
-        .background(Color.black.opacity(0.78), in: RoundedRectangle(cornerRadius: 14))
+        .background(Color.black.opacity(0.90), in: RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(.white.opacity(0.35)))
     }
 
