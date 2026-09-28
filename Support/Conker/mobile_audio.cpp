@@ -1,69 +1,110 @@
 #include <AudioToolbox/AudioToolbox.h>
 
-#include <algorithm>
+#include <array>
 #include <atomic>
-#include <chrono>
 #include <cstdint>
 #include <cstdio>
-#include <limits>
+#include <cstring>
 #include <mutex>
 
 namespace {
 constexpr size_t channels = 2;
 constexpr size_t frame_bytes = channels * sizeof(int16_t);
 constexpr size_t one_game_buffer = 736;
-// Keep enough queued audio to cover occasional late game-audio submissions.
-// This adds output latency, but short reserves caused repeated playback gaps.
 constexpr size_t playback_reserve = 5 * one_game_buffer;
 constexpr size_t startup_frames = 6 * one_game_buffer;
+constexpr size_t output_frames = 256;
+constexpr size_t output_buffer_count = 4;
+constexpr size_t ring_frames = 1 << 15;
 
 std::mutex audio_mutex;
 AudioQueueRef queue = nullptr;
-std::atomic<size_t> queued_frames{0};
+std::array<AudioQueueBufferRef, output_buffer_count> output_buffers{};
+std::array<int16_t, ring_frames * channels> pcm_ring{};
+std::atomic<uint64_t> frames_written{0};
+std::atomic<uint64_t> frames_read{0};
+std::atomic<bool> accepting_output{false};
+std::atomic<bool> rebuffering{true};
+std::atomic<size_t> underruns{0};
+std::atomic<size_t> resumes{0};
 std::atomic<size_t> completed_nonzero_buffers{0};
-std::atomic<bool> logged_completion{false};
-std::atomic<int64_t> last_buffer_boundary_ns{0};
-std::atomic<bool> needs_rebuffer{false};
+std::atomic<OSStatus> callback_error{noErr};
 uint32_t sample_rate = 0;
 bool started = false;
 bool logged_samples = false;
-size_t enqueued_total_frames = 0;
-bool clock_started = false;
+bool logged_completion = false;
+size_t logged_underruns = 0;
+size_t logged_resumes = 0;
 
-int64_t steady_now_ns() {
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(
-        std::chrono::steady_clock::now().time_since_epoch()).count();
+size_t available_frames() {
+    return static_cast<size_t>(frames_written.load(std::memory_order_acquire) -
+                               frames_read.load(std::memory_order_acquire));
+}
+
+void fill_buffer(AudioQueueBufferRef buffer) {
+    auto *output = static_cast<int16_t *>(buffer->mAudioData);
+    const uint64_t read = frames_read.load(std::memory_order_relaxed);
+    const uint64_t written = frames_written.load(std::memory_order_acquire);
+    const size_t available = static_cast<size_t>(written - read);
+
+    if (rebuffering.load(std::memory_order_relaxed) && available >= startup_frames) {
+        rebuffering.store(false, std::memory_order_relaxed);
+        resumes.fetch_add(1, std::memory_order_relaxed);
+    }
+    if (!rebuffering.load(std::memory_order_relaxed) && available >= output_frames) {
+        bool has_sound = false;
+        for (size_t i = 0; i < output_frames; ++i) {
+            const size_t offset = ((read + i) % ring_frames) * channels;
+            output[i * channels] = pcm_ring[offset];
+            output[i * channels + 1] = pcm_ring[offset + 1];
+            has_sound |= output[i * channels] != 0 || output[i * channels + 1] != 0;
+        }
+        frames_read.store(read + output_frames, std::memory_order_release);
+        buffer->mUserData = has_sound ? buffer : nullptr;
+    } else {
+        if (!rebuffering.exchange(true, std::memory_order_relaxed)) {
+            // Discard the incomplete output chunk before collecting a new reserve.
+            frames_read.store(written, std::memory_order_release);
+            underruns.fetch_add(1, std::memory_order_relaxed);
+        }
+        std::memset(output, 0, output_frames * frame_bytes);
+        buffer->mUserData = nullptr;
+    }
+    buffer->mAudioDataByteSize = output_frames * frame_bytes;
 }
 
 void output_done(void *, AudioQueueRef audio_queue, AudioQueueBufferRef buffer) {
-    const size_t frames = buffer->mAudioDataByteSize / frame_bytes;
-    size_t old = queued_frames.load(std::memory_order_relaxed);
-    while (!queued_frames.compare_exchange_weak(old, old > frames ? old - frames : 0,
-                                                std::memory_order_relaxed)) {}
-    if (old <= frames) {
-        needs_rebuffer.store(true, std::memory_order_relaxed);
-    }
-    last_buffer_boundary_ns.store(steady_now_ns(), std::memory_order_relaxed);
     if (buffer->mUserData != nullptr) {
         completed_nonzero_buffers.fetch_add(1, std::memory_order_relaxed);
     }
-    AudioQueueFreeBuffer(audio_queue, buffer);
+    if (!accepting_output.load(std::memory_order_acquire)) return;
+    fill_buffer(buffer);
+    const OSStatus result = AudioQueueEnqueueBuffer(audio_queue, buffer, 0, nullptr);
+    if (result != noErr && accepting_output.load(std::memory_order_relaxed)) {
+        callback_error.store(result, std::memory_order_relaxed);
+    }
 }
 
 void stop_locked() {
+    accepting_output.store(false, std::memory_order_release);
     if (queue != nullptr) {
         AudioQueueStop(queue, true);
         AudioQueueDispose(queue, true);
         queue = nullptr;
     }
-    queued_frames.store(0, std::memory_order_relaxed);
-    last_buffer_boundary_ns.store(0, std::memory_order_relaxed);
-    needs_rebuffer.store(false, std::memory_order_relaxed);
+    output_buffers.fill(nullptr);
+    frames_written.store(0, std::memory_order_relaxed);
+    frames_read.store(0, std::memory_order_relaxed);
+    rebuffering.store(true, std::memory_order_relaxed);
+    underruns.store(0, std::memory_order_relaxed);
+    resumes.store(0, std::memory_order_relaxed);
     completed_nonzero_buffers.store(0, std::memory_order_relaxed);
-    logged_completion.store(false, std::memory_order_relaxed);
+    callback_error.store(noErr, std::memory_order_relaxed);
     started = false;
-    enqueued_total_frames = 0;
-    clock_started = false;
+    logged_samples = false;
+    logged_completion = false;
+    logged_underruns = 0;
+    logged_resumes = 0;
 }
 }
 
@@ -83,77 +124,65 @@ extern "C" void squirrelpad_audio_set_frequency(uint32_t frequency) {
     format.mBytesPerFrame = frame_bytes;
     format.mChannelsPerFrame = channels;
     format.mBitsPerChannel = sizeof(int16_t) * 8;
-    const OSStatus result = AudioQueueNewOutput(&format, output_done, nullptr, nullptr, nullptr, 0, &queue);
+    OSStatus result = AudioQueueNewOutput(&format, output_done, nullptr, nullptr, nullptr, 0, &queue);
     if (result != noErr) {
         std::fprintf(stderr, "[mobile audio] output init failed: %d\n", (int)result);
         queue = nullptr;
-    } else {
-        std::fprintf(stderr, "[mobile audio] output rate %u Hz\n", frequency);
+        return;
     }
+    for (auto &buffer : output_buffers) {
+        result = AudioQueueAllocateBuffer(queue, output_frames * frame_bytes, &buffer);
+        if (result != noErr || buffer == nullptr) {
+            std::fprintf(stderr, "[mobile audio] buffer allocation failed: %d\n", (int)result);
+            stop_locked();
+            return;
+        }
+    }
+    std::fprintf(stderr, "[mobile audio] output rate %u Hz\n", frequency);
 }
 
 extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_count) {
-    if (samples == nullptr || sample_count < channels || sample_count % channels != 0 ||
-        sample_count > std::numeric_limits<uint32_t>::max() / sizeof(int16_t)) return;
+    if (samples == nullptr || sample_count < channels || sample_count % channels != 0) return;
     std::lock_guard lock(audio_mutex);
-    if (queue == nullptr || queued_frames.load(std::memory_order_relaxed) > sample_rate / 2) return;
-    if (started && needs_rebuffer.exchange(false, std::memory_order_relaxed)) {
-        // A callback can return the last buffer before its samples finish playing.
-        // Rebuffer only after the sample clock reaches the end of queued PCM.
-        AudioTimeStamp stamp{};
-        const bool have_clock = clock_started &&
-            AudioQueueGetCurrentTime(queue, nullptr, &stamp, nullptr) == noErr &&
-            (stamp.mFlags & kAudioTimeStampSampleTimeValid) && stamp.mSampleTime >= 0;
-        if (!have_clock || stamp.mSampleTime >= static_cast<double>(enqueued_total_frames)) {
-            // Pause keeps queued PCM; the normal start path resumes after prefill.
-            const OSStatus pause_result = AudioQueuePause(queue);
-            if (pause_result == noErr) {
-                started = false;
-            } else {
-                std::fprintf(stderr, "[mobile audio] rebuffer pause failed: %d\n", (int)pause_result);
-            }
-        }
-    }
+    if (queue == nullptr) return;
 
-    AudioQueueBufferRef buffer = nullptr;
-    const uint32_t byte_count = static_cast<uint32_t>(sample_count * sizeof(int16_t));
-    OSStatus result = AudioQueueAllocateBuffer(queue, byte_count, &buffer);
-    if (result != noErr || buffer == nullptr) {
-        std::fprintf(stderr, "[mobile audio] buffer allocation failed: %d\n", (int)result);
-        return;
-    }
-    // RDRAM's native-endian 32-bit words expose each stereo pair in reverse order.
-    auto *output = static_cast<int16_t *>(buffer->mAudioData);
-    bool has_sound = false;
-    for (size_t i = 0; i < sample_count; i += channels) {
-        output[i] = samples[i + 1];
-        output[i + 1] = samples[i];
-        has_sound |= output[i] != 0 || output[i + 1] != 0;
-    }
-    buffer->mAudioDataByteSize = byte_count;
-    buffer->mUserData = has_sound ? buffer : nullptr;
     const size_t frames = sample_count / channels;
-    queued_frames.fetch_add(frames, std::memory_order_relaxed);
-    result = AudioQueueEnqueueBuffer(queue, buffer, 0, nullptr);
-    if (result != noErr) {
-        queued_frames.fetch_sub(frames, std::memory_order_relaxed);
-        AudioQueueFreeBuffer(queue, buffer);
-        std::fprintf(stderr, "[mobile audio] enqueue failed: %d\n", (int)result);
-        return;
+    const uint64_t written = frames_written.load(std::memory_order_relaxed);
+    const uint64_t read = frames_read.load(std::memory_order_acquire);
+    const size_t available = static_cast<size_t>(written - read);
+    if (frames > ring_frames - available || available > sample_rate / 2) return;
+
+    bool has_sound = false;
+    for (size_t i = 0; i < frames; ++i) {
+        const size_t offset = ((written + i) % ring_frames) * channels;
+        pcm_ring[offset] = samples[i * channels + 1];
+        pcm_ring[offset + 1] = samples[i * channels];
+        has_sound |= pcm_ring[offset] != 0 || pcm_ring[offset + 1] != 0;
     }
-    enqueued_total_frames += frames;
+    frames_written.store(written + frames, std::memory_order_release);
     if (!logged_samples && has_sound) {
         logged_samples = true;
         std::fprintf(stderr, "[mobile audio] queued nonzero stereo PCM\n");
     }
-    if (!started && queued_frames.load(std::memory_order_relaxed) >= startup_frames) {
-        last_buffer_boundary_ns.store(steady_now_ns(), std::memory_order_relaxed);
-        result = AudioQueueStart(queue, nullptr);
+
+    if (!started && available + frames >= startup_frames) {
+        rebuffering.store(false, std::memory_order_relaxed);
+        for (auto *buffer : output_buffers) {
+            fill_buffer(buffer);
+            const OSStatus result = AudioQueueEnqueueBuffer(queue, buffer, 0, nullptr);
+            if (result != noErr) {
+                std::fprintf(stderr, "[mobile audio] enqueue failed: %d\n", (int)result);
+                stop_locked();
+                return;
+            }
+        }
+        accepting_output.store(true, std::memory_order_release);
+        const OSStatus result = AudioQueueStart(queue, nullptr);
         if (result != noErr) {
             std::fprintf(stderr, "[mobile audio] playback start failed: %d\n", (int)result);
+            stop_locked();
         } else {
             started = true;
-            clock_started = true;
             std::fprintf(stderr, "[mobile audio] playback started\n");
         }
     }
@@ -161,34 +190,24 @@ extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_
 
 extern "C" size_t squirrelpad_audio_get_frames_remaining() {
     std::lock_guard lock(audio_mutex);
-    if (completed_nonzero_buffers.load(std::memory_order_relaxed) > 0 &&
-        !logged_completion.exchange(true, std::memory_order_relaxed)) {
+    if (queue == nullptr) return 0;
+    if (completed_nonzero_buffers.load(std::memory_order_relaxed) > 0 && !logged_completion) {
+        logged_completion = true;
         std::fprintf(stderr, "[mobile audio] output consumed nonzero PCM\n");
     }
-    size_t frames = queued_frames.load(std::memory_order_relaxed);
-    bool have_clock = false;
-    if (clock_started) {
-        // Output callbacks can release a buffer before its samples have played.
-        // Use the queue's sample clock for the length reported back to Conker.
-        AudioTimeStamp stamp{};
-        if (AudioQueueGetCurrentTime(queue, nullptr, &stamp, nullptr) == noErr &&
-            (stamp.mFlags & kAudioTimeStampSampleTimeValid) && stamp.mSampleTime >= 0) {
-            const size_t played = static_cast<size_t>(stamp.mSampleTime);
-            frames = enqueued_total_frames > played ? enqueued_total_frames - played : 0;
-            have_clock = true;
-        }
+    const size_t drain_count = underruns.load(std::memory_order_relaxed);
+    if (drain_count != logged_underruns) {
+        logged_underruns = drain_count;
+        std::fprintf(stderr, "[mobile audio] underrun %zu; collecting PCM reserve\n", drain_count);
     }
-    if (!have_clock && started) {
-        // The completion callback counts whole buffers. Estimate the portion
-        // already playing so Conker sees a continuously shrinking AI length.
-        const int64_t boundary = last_buffer_boundary_ns.load(std::memory_order_relaxed);
-        const int64_t elapsed_ns = steady_now_ns() - boundary;
-        if (boundary > 0 && elapsed_ns > 0) {
-            const size_t played = static_cast<size_t>(
-                static_cast<double>(elapsed_ns) * sample_rate / 1'000'000'000.0);
-            frames -= std::min(frames, std::min(played, one_game_buffer));
-        }
+    const size_t resume_count = resumes.load(std::memory_order_relaxed);
+    if (resume_count != logged_resumes) {
+        logged_resumes = resume_count;
+        std::fprintf(stderr, "[mobile audio] reserve refilled %zu\n", resume_count);
     }
+    const OSStatus error = callback_error.exchange(noErr, std::memory_order_relaxed);
+    if (error != noErr) std::fprintf(stderr, "[mobile audio] callback enqueue failed: %d\n", (int)error);
+    const size_t frames = available_frames();
     return frames > playback_reserve ? frames - playback_reserve : 0;
 }
 
