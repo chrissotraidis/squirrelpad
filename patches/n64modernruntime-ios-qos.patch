@@ -1,0 +1,50 @@
+--- a/ultramodern/src/threads.cpp
++++ b/ultramodern/src/threads.cpp
+@@ -13,6 +13,12 @@
+ #ifdef _WIN32
+ #include <Windows.h>
+ #endif
++#if defined(__APPLE__)
++#include <TargetConditionals.h>
++#if TARGET_OS_IPHONE
++#include <pthread/qos.h>
++#endif
++#endif
+ 
+ static ultramodern::threads::callbacks_t threads_callbacks;
+ 
+@@ -147,8 +153,33 @@
+     pthread_setname_np(name.c_str());
+ }
+ 
+-void ultramodern::set_native_thread_priority(ThreadPriority pri) {}
++void ultramodern::set_native_thread_priority(ThreadPriority pri) {
++#if TARGET_OS_IPHONE
++    qos_class_t qos;
++    switch (pri) {
++        case ThreadPriority::Critical:
++            qos = QOS_CLASS_USER_INTERACTIVE;
++            break;
++        case ThreadPriority::VeryHigh:
++        case ThreadPriority::High:
++            qos = QOS_CLASS_USER_INITIATED;
++            break;
++        default:
++            return;
++    }
++
++    const int result = pthread_set_qos_class_self_np(qos, 0);
++    qos_class_t applied = QOS_CLASS_UNSPECIFIED;
++    const int readback = (result == 0) ? pthread_get_qos_class_np(pthread_self(), &applied, nullptr) : -1;
++    if (result != 0 || readback != 0 || applied != qos) {
++        std::fprintf(stderr, "[mobile qos] set/readback failed: set=%d readback=%d requested=%u observed=%u\n",
++            result, readback, unsigned(qos), unsigned(applied));
++    }
++#else
++    (void)pri;
+ #endif
++}
++#endif
+ 
+ static PTR(PTR(OSThread)) running_thread_variable = NULLPTR;
+ 

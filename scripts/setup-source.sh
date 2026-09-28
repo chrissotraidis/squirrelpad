@@ -30,6 +30,7 @@ apply_once() {
 apply_once "$checkout/tools/N64Recomp" "$checkout/recomp/n64recomp.patch"
 apply_once "$checkout/tools/N64ModernRuntime" "$checkout/recomp/n64modernruntime.patch"
 apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-ios-mods.patch"
+apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-ios-qos.patch"
 apply_once "$checkout/tools/rt64" "$checkout/recomp/rt64.patch"
 apply_once "$checkout" "$project/patches/conker-host.patch"
 apply_once "$checkout" "$project/patches/conker-mobile-audio.patch"
