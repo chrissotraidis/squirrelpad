@@ -1,0 +1,104 @@
+--- a/src/contrib/plume/plume_render_interface.h
++++ b/src/contrib/plume/plume_render_interface.h
+@@ -81,6 +81,10 @@
+         virtual ~RenderDescriptorSet() { }
+         virtual void setBuffer(uint32_t descriptorIndex, const RenderBuffer *buffer, uint64_t bufferSize = 0, const RenderBufferStructuredView *bufferStructuredView = nullptr, const RenderBufferFormattedView *bufferFormattedView = nullptr) = 0;
+         virtual void setTexture(uint32_t descriptorIndex, const RenderTexture *texture, RenderTextureLayout textureLayout, const RenderTextureView *textureView = nullptr) = 0;
++        virtual void setTexturePair(uint32_t firstIndex, const RenderTexture *first, RenderTextureLayout firstLayout, const RenderTexture *second, RenderTextureLayout secondLayout) {
++            setTexture(firstIndex, first, firstLayout);
++            setTexture(firstIndex + 1, second, secondLayout);
++        }
+         virtual void setSampler(uint32_t descriptorIndex, const RenderSampler *sampler) = 0;
+         virtual void setAccelerationStructure(uint32_t descriptorIndex, const RenderAccelerationStructure *accelerationStructure) = 0;
+     };
+--- a/src/contrib/plume/plume_render_interface_builders.h
++++ b/src/contrib/plume/plume_render_interface_builders.h
+@@ -148,6 +148,10 @@
+ 
+         void setTexture(uint32_t descriptorIndex, const RenderTexture *texture, const RenderTextureLayout textureLayout, const RenderTextureView *textureView = nullptr) {
+             descriptorSet->setTexture(descriptorIndex, texture, textureLayout, textureView);
++        }
++
++        void setTexturePair(uint32_t firstIndex, const RenderTexture *first, RenderTextureLayout firstLayout, const RenderTexture *second, RenderTextureLayout secondLayout) {
++            descriptorSet->setTexturePair(firstIndex, first, firstLayout, second, secondLayout);
+         }
+ 
+         void setSampler(uint32_t descriptorIndex, const RenderSampler *sampler) {
+--- a/src/contrib/plume/plume_metal.h
++++ b/src/contrib/plume/plume_metal.h
+@@ -222,6 +222,7 @@
+         ~MetalDescriptorSet() override;
+         void setBuffer(uint32_t descriptorIndex, const RenderBuffer *buffer, uint64_t bufferSize, const RenderBufferStructuredView *bufferStructuredView, const RenderBufferFormattedView *bufferFormattedView) override;
+         void setTexture(uint32_t descriptorIndex, const RenderTexture *texture, RenderTextureLayout textureLayout, const RenderTextureView *textureView) override;
++        void setTexturePair(uint32_t firstIndex, const RenderTexture *first, RenderTextureLayout firstLayout, const RenderTexture *second, RenderTextureLayout secondLayout) override;
+         void setSampler(uint32_t descriptorIndex, const RenderSampler *sampler) override;
+         void setAccelerationStructure(uint32_t descriptorIndex, const RenderAccelerationStructure *accelerationStructure) override;
+         void setDescriptor(uint32_t descriptorIndex, const Descriptor *descriptor);
+--- a/src/contrib/plume/plume_metal.cpp
++++ b/src/contrib/plume/plume_metal.cpp
+@@ -1793,6 +1793,51 @@
+         }
+     }
+ 
++    void MetalDescriptorSet::setTexturePair(uint32_t firstIndex, const RenderTexture *first, RenderTextureLayout firstLayout, const RenderTexture *second, RenderTextureLayout secondLayout) {
++        const uint32_t secondIndex = firstIndex + 1;
++        if (device->useArgumentBuffersTier2 || first == nullptr || second == nullptr ||
++            secondIndex >= setLayout->descriptorBindingIndices.size()) {
++            RenderDescriptorSet::setTexturePair(firstIndex, first, firstLayout, second, secondLayout);
++            return;
++        }
++
++        const uint32_t firstBase = setLayout->descriptorIndexBases[firstIndex];
++        const uint32_t secondBase = setLayout->descriptorIndexBases[secondIndex];
++        const uint32_t firstBinding = setLayout->descriptorBindingIndices[firstIndex];
++        const uint32_t secondBinding = setLayout->descriptorBindingIndices[secondIndex];
++        const uint32_t firstArgument = firstIndex - firstBase + firstBinding;
++        const uint32_t secondArgument = secondIndex - secondBase + secondBinding;
++        if (secondArgument != firstArgument + 1 ||
++            mapDataType(setLayout->setBindings[firstBase].descriptorType) != MTL::DataTypeTexture ||
++            mapDataType(setLayout->setBindings[secondBase].descriptorType) != MTL::DataTypeTexture) {
++            RenderDescriptorSet::setTexturePair(firstIndex, first, firstLayout, second, secondLayout);
++            return;
++        }
++
++        MetalAutoreleasePool releasePool;
++        MTL::Texture *resources[2] = {
++            static_cast<const MetalTexture *>(first)->mtl,
++            static_cast<const MetalTexture *>(second)->mtl
++        };
++        const MTL::Texture *textures[2] = { resources[0], resources[1] };
++        argumentBuffer.argumentEncoder->setTextures(textures, NS::Range(firstArgument, 2));
++        if (argumentBuffer.mtl->storageMode() == MTL::StorageModeManaged) {
++            argumentBuffer.mtl->didModifyRange(NS::Range(argumentBuffer.offset, argumentBuffer.mtl->length() - argumentBuffer.offset));
++        }
++
++        const uint32_t indices[2] = { firstIndex, secondIndex };
++        const uint32_t bindings[2] = { firstBinding, secondBinding };
++        for (uint32_t i = 0; i < 2; i++) {
++            resources[i]->retain();
++            MTL::Resource *oldResource = resourceEntries[indices[i]].resource;
++            if (oldResource != nullptr) {
++                oldResource->release();
++            }
++            resourceEntries[indices[i]].resource = resources[i];
++            resourceEntries[indices[i]].type = getDescriptorType(bindings[i]);
++        }
++    }
++
+     void MetalDescriptorSet::setSampler(const uint32_t descriptorIndex, const RenderSampler *sampler) {
+         MetalAutoreleasePool releasePool;
+         if (sampler == nullptr) {
+--- a/src/render/rt64_texture_cache.cpp
++++ b/src/render/rt64_texture_cache.cpp
+@@ -1107,8 +1107,9 @@
+                         dstTexture->format = RenderFormat::R8G8B8A8_UNORM;
+                         dstTexture->texture = directWorker->device->createTexture(RenderTextureDesc::Texture2D(upload.width, upload.height, 1, dstTexture->format, RenderTextureFlag::STORAGE | RenderTextureFlag::UNORDERED_ACCESS));
+                         dstTexture->texture->setName("Texture Cache RGBA32 #" + std::to_string(TextureGlobalCounter++));
+-                        descSet->setTexture(descSet->TMEM, dstTexture->tmem.get(), RenderTextureLayout::SHADER_READ);
+-                        descSet->setTexture(descSet->RGBA32, dstTexture->texture.get(), RenderTextureLayout::GENERAL);
++                        assert(descSet->RGBA32 == descSet->TMEM + 1);
++                        descSet->setTexturePair(descSet->TMEM, dstTexture->tmem.get(), RenderTextureLayout::SHADER_READ,
++                                                dstTexture->texture.get(), RenderTextureLayout::GENERAL);
+                         beforeDecodeBarriers.emplace_back(dstTexture->texture.get(), RenderTextureLayout::GENERAL);
+                     }
+ 

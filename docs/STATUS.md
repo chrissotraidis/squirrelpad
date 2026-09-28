@@ -148,6 +148,12 @@ The runtime's Apple `set_native_thread_priority` is a no-op, so a separate iOS-o
 
 **Next narrow target:** reduce the Tier-1 Metal argument-encoder binding cost or a measured GPU wait without changing game logic or increasing audio latency, then replay the same route on both Simulators. Physical-device listening and audio-route checks remain for Chris when an iPad and iPhone are available.
 
+### Paired texture binding check (2026-09-28)
+
+`patches/rt64-ios-texture-pair.patch` binds the texture decoder's adjacent TMEM and RGBA32 slots with one Metal Tier-1 `MTLArgumentEncoder::setTextures` call. Other backends and Metal Tier-2 retain the two-call behavior. A temporary timing probe confirmed this branch executed and recorded a 16.1 ms paired call near an underrun; the probe was removed. The patch was reverse-applied, cleanly replayed, and built in the final Simulator and unsigned `iphoneos` RT64/app targets (`work/audio-texture-pair-final-{sim,device}-{rt64,app}-build.log`).
+
+The exact final Simulator app reached **Continue Imported ROM → GAME1 → PLAY → first field** on iPad Pro 11-inch (M4) and iPhone 16 Pro, iOS 18.5. Touch Start paused and A resumed in both viewed runs (`work/audio-texture-pair-final-ipad-field.png`, `work/audio-texture-pair-final-iphone-field.png`; matching `work/audio-texture-pair-final-{ipad,iphone}-run.log`). The iPad logged three underruns through display list #3480; the iPhone logged four through #4560. A prior candidate run logged five through #10380. These runs do not establish an audio improvement over the variable baseline. **Chris's audio-glitch report remains open.** Next measure actual PCM producer gaps and ring depth at each underrun, then tie a slow producer interval to its blocking thread before another renderer or audio change. The reference-style three-dot menu remains a separate open UI gap.
+
 ## Second save slot (2026-09-27)
 
 On the iPad Simulator, touch stick navigation reached **GAME2 → NEW GAME** and A started it. The private EEPROM hash changed after the opening sequence and remained changed after termination. A cold relaunch revisited **GAME2**, which showed **PLAY** and `0:04:25` (`work/evidence/ipad-game2-save-relaunch.png`, `work/g5-game2-ipad-relaunch.log`). This proves a second occupied game-select slot persisted. It does not verify an in-level checkpoint or that two different game positions reload correctly; that remains part of G5.
