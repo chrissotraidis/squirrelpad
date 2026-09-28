@@ -12,6 +12,13 @@ private func runConkerCore(_ rom: UnsafePointer<CChar>, _ dataDirectory: UnsafeP
 private func conkerVICount() -> UInt32
 @_silgen_name("squirrelpad_set_active")
 private func setCoreActive(_ active: Bool)
+@_silgen_name("squirrelpad_audio_set_volume")
+private func setMasterVolume(_ volume: Float)
+
+private enum SettingsSection {
+    case controls
+    case audio
+}
 
 @MainActor
 private final class GameSession: ObservableObject {
@@ -87,8 +94,10 @@ struct SquirrelPadApp: App {
     @AppStorage("SquirrelPad.ControlScale") private var controlScale = 1.0
     @AppStorage("SquirrelPad.ShowDpad") private var showDpad = true
     @AppStorage("SquirrelPad.ShowCButtons") private var showCButtons = true
+    @AppStorage("SquirrelPad.MasterVolume") private var masterVolume = 1.0
     @State private var importing = false
     @State private var menuOpen = false
+    @State private var settingsSection: SettingsSection = .controls
 
     var body: some Scene {
         WindowGroup {
@@ -141,6 +150,7 @@ struct SquirrelPadApp: App {
             .background(.black)
             .ignoresSafeArea()
             .statusBarHidden()
+            .onAppear { setMasterVolume(Float(masterVolume)) }
             .fileImporter(isPresented: $importing, allowedContentTypes: [.n64ROM, .data]) { selection in
                 switch selection {
                 case .success(let url): session.importROM(url)
@@ -151,6 +161,7 @@ struct SquirrelPadApp: App {
             .onChange(of: touchEnabled) { enabled in if !enabled { clearTouchInput() } }
             .onChange(of: showDpad) { _ in clearTouchInput() }
             .onChange(of: showCButtons) { _ in clearTouchInput() }
+            .onChange(of: masterVolume) { value in setMasterVolume(Float(value)) }
             .onChange(of: scenePhase) { phase in
                 if phase != .active { clearTouchInput() }
                 setCoreActive(phase == .active)
@@ -197,71 +208,85 @@ struct SquirrelPadApp: App {
             Rectangle().fill(.white.opacity(0.55)).frame(height: 2)
 
             HStack(alignment: .top, spacing: 0) {
-                Text("Controls")
-                    .font(.system(size: compact ? 17 : 22, weight: .medium))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background(.blue, in: RoundedRectangle(cornerRadius: 6))
-                    .padding(.horizontal, compact ? 12 : 22)
-                    .padding(.top, 24)
-                    .frame(width: compact ? 158 : 230)
+                VStack(spacing: 8) {
+                    settingsTab("Controls", section: .controls, compact: compact)
+                    settingsTab("Audio", section: .audio, compact: compact)
+                }
+                .padding(.horizontal, compact ? 12 : 22)
+                .padding(.top, 24)
+                .frame(width: compact ? 158 : 230)
 
                 Rectangle().fill(.white.opacity(0.6)).frame(width: 2)
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: compact ? 16 : 24) {
-                        Text("Controls")
-                            .font(.system(size: compact ? 23 : 29, weight: .semibold))
-                        Toggle("Touch Controls", isOn: $touchEnabled)
-                            .tint(.blue)
-                        Text("Show the N64 controls on the game screen.")
-                            .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.68))
-                        VStack(alignment: .leading, spacing: 5) {
-                            HStack {
-                                Text("Control Size")
-                                Spacer()
-                                Text("\(Int((controlScale * 100).rounded()))%")
-                                    .monospacedDigit()
-                            }
-                            Slider(value: $controlScale, in: 0.8...1.2)
+                        if settingsSection == .controls {
+                            Text("Controls")
+                                .font(.system(size: compact ? 23 : 29, weight: .semibold))
+                            Toggle("Touch Controls", isOn: $touchEnabled)
                                 .tint(.blue)
-                        }
-                        .disabled(!touchEnabled)
-                        Divider().overlay(.white.opacity(0.4))
-                        Toggle("Transparent Controls", isOn: $touchTransparency)
-                            .tint(.blue)
-                            .disabled(!touchEnabled)
-                        if touchTransparency {
+                            Text("Show the N64 controls on the game screen.")
+                                .font(.subheadline)
+                                .foregroundStyle(.white.opacity(0.68))
                             VStack(alignment: .leading, spacing: 5) {
                                 HStack {
-                                    Text("Control Opacity")
+                                    Text("Control Size")
                                     Spacer()
-                                    Text("\(Int((touchOpacity * 100).rounded()))%")
+                                    Text("\(Int((controlScale * 100).rounded()))%")
                                         .monospacedDigit()
                                 }
-                                Slider(value: $touchOpacity, in: 0.25...1.0)
+                                Slider(value: $controlScale, in: 0.8...1.2)
                                     .tint(.blue)
                             }
                             .disabled(!touchEnabled)
+                            Divider().overlay(.white.opacity(0.4))
+                            Toggle("Transparent Controls", isOn: $touchTransparency)
+                                .tint(.blue)
+                                .disabled(!touchEnabled)
+                            if touchTransparency {
+                                VStack(alignment: .leading, spacing: 5) {
+                                    HStack {
+                                        Text("Control Opacity")
+                                        Spacer()
+                                        Text("\(Int((touchOpacity * 100).rounded()))%")
+                                            .monospacedDigit()
+                                    }
+                                    Slider(value: $touchOpacity, in: 0.25...1.0)
+                                        .tint(.blue)
+                                }
+                                .disabled(!touchEnabled)
+                            }
+                            Divider().overlay(.white.opacity(0.4))
+                            Text("Button Visibility")
+                                .font(.headline)
+                            Toggle("D-pad Buttons", isOn: $showDpad)
+                                .tint(.blue)
+                            Toggle("C Buttons", isOn: $showCButtons)
+                                .tint(.blue)
+                            Button("Restore Defaults") {
+                                touchEnabled = true
+                                touchTransparency = false
+                                touchOpacity = 1.0
+                                controlScale = 1.0
+                                showDpad = true
+                                showCButtons = true
+                            }
+                            .buttonStyle(.borderedProminent)
+                        } else {
+                            Text("Audio")
+                                .font(.system(size: compact ? 23 : 29, weight: .semibold))
+                            HStack {
+                                Text("Master Volume")
+                                Spacer()
+                                Text("\(Int((masterVolume * 100).rounded()))%")
+                                    .monospacedDigit()
+                            }
+                            Slider(value: $masterVolume, in: 0...1)
+                                .tint(.blue)
+                                .accessibilityLabel("Master Volume")
+                            Button("Restore Default Volume") { masterVolume = 1.0 }
+                                .buttonStyle(.borderedProminent)
                         }
-                        Divider().overlay(.white.opacity(0.4))
-                        Text("Button Visibility")
-                            .font(.headline)
-                        Toggle("D-pad Buttons", isOn: $showDpad)
-                            .tint(.blue)
-                        Toggle("C Buttons", isOn: $showCButtons)
-                            .tint(.blue)
-                        Button("Restore Defaults") {
-                            touchEnabled = true
-                            touchTransparency = false
-                            touchOpacity = 1.0
-                            controlScale = 1.0
-                            showDpad = true
-                            showCButtons = true
-                        }
-                        .buttonStyle(.borderedProminent)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(compact ? 20 : 30)
@@ -274,6 +299,17 @@ struct SquirrelPadApp: App {
                height: size.height - (compact ? 100 : 56))
         .background(Color.black.opacity(0.78), in: RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(.white.opacity(0.35)))
+    }
+
+    private func settingsTab(_ title: String, section: SettingsSection, compact: Bool) -> some View {
+        Button(title) { settingsSection = section }
+            .buttonStyle(.plain)
+            .font(.system(size: compact ? 17 : 22, weight: .medium))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(settingsSection == section ? Color.blue : Color.clear,
+                        in: RoundedRectangle(cornerRadius: 6))
     }
 
     private func toggleMenu() {

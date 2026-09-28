@@ -13,6 +13,14 @@ Updated 2026-09-28. Work the lowest unmet goal in [GOAL_LOOP.md](GOAL_LOOP.md). 
 | G7 hardware | Awaiting devices | `xcrun devicectl list devices` found no connected iPad or iPhone on 2026-09-26. Both physical acceptance rows remain open. |
 | G8 package | Open | The unsigned `iphoneos` app is 11 MiB, ARM64, and contains only `Info.plist`, `PkgInfo` and the executable at bundle depth two. It has not been signed, installed on hardware, or given a complete ROM-derived-code/license audit. |
 
+## Audio menu control (2026-09-28)
+
+The three-dot Settings menu now has a functional Audio pane with a saved Master Volume slider and Restore Default Volume. The output callback applies the selected gain to PCM after reading the game ring; at 100% it passes the original samples unchanged. This is a menu control, **not a fix for the reported audio glitches**. The reference `ref/harkinianpad/docs/readme/simulator-settings.jpg` has an Audio sidebar item, but its broader settings and binding UI remain unimplemented here.
+
+The Simulator and unsigned device builds passed (`work/menu-audio-sim-build.log`, `work/menu-audio-device-build.log`). In the iPad Pro 11-inch (M4) iOS 18.5 Simulator, an actual slider click set 0%; a full app relaunch still showed 0%. The game then queued nonzero PCM but did not report nonzero output. Restore Default Volume changed the pane to 100%, and the same game run reported nonzero output (`work/menu-audio-ipad-muted-relaunch.log`). In the iPhone 16 Pro iOS 18.5 Simulator, a click set 50%; a full relaunch still showed 50%, and the game launched with nonzero PCM output (`work/menu-audio-iphone-relaunch.log`). Both menu panes and game launch screens were viewed in the Simulators against the reference image. Accessibility `setValue` alone moved the thumb without saving the value, so persistence was checked only after an actual click changed the displayed percentage.
+
+The iPhone screenshot exposed a separate layout gap: its landscape camera cutout overlaps the left side of the Settings panel. That needs a safe-area layout change and a new two-Simulator comparison. Audibility and glitch frequency remain unverified by this gain check.
+
 ## Touch and menu comparison (2026-09-26)
 
 The iPad comparison uses `ref/harkinianpad/docs/readme/harkinianpad-gameplay.jpg` and `ref/harkinianpad/docs/readme/simulator-settings.jpg`. SquirrelPad's viewed captures are `work/evidence/ipad-touch-game-select-final.png`, `work/evidence/ipad-touch-menu-final.png`, `work/evidence/iphone-touch-game-select.png` and `work/evidence/iphone-touch-menu-final.png`. HarkinianPad has no iPhone screenshot in this checkout, so the phone comparison uses the accepted normalized centers and menu-placement code in `ref/harkinianpad/sources/Shipwright/soh/ios/HarkinianPadTouchControls.mm`. These reference images and game captures are local, ignored evidence, not distributable assets.

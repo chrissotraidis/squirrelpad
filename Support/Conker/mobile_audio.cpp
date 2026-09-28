@@ -1,8 +1,10 @@
 #include <AudioToolbox/AudioToolbox.h>
 
 #include <array>
+#include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -32,6 +34,7 @@ std::atomic<size_t> resumes{0};
 std::atomic<size_t> completed_nonzero_buffers{0};
 std::atomic<size_t> completed_buffers{0};
 std::atomic<OSStatus> callback_error{noErr};
+std::atomic<uint16_t> output_volume{256};
 uint32_t sample_rate = 0;
 std::chrono::steady_clock::time_point next_retry;
 std::chrono::steady_clock::time_point last_callback_progress;
@@ -59,10 +62,11 @@ void fill_buffer(AudioQueueBufferRef buffer) {
     }
     if (!rebuffering.load(std::memory_order_relaxed) && available >= output_frames) {
         bool has_sound = false;
+        const int32_t volume = output_volume.load(std::memory_order_relaxed);
         for (size_t i = 0; i < output_frames; ++i) {
             const size_t offset = ((read + i) % ring_frames) * channels;
-            output[i * channels] = pcm_ring[offset];
-            output[i * channels + 1] = pcm_ring[offset + 1];
+            output[i * channels] = static_cast<int16_t>(pcm_ring[offset] * volume / 256);
+            output[i * channels + 1] = static_cast<int16_t>(pcm_ring[offset + 1] * volume / 256);
             has_sound |= output[i * channels] != 0 || output[i * channels + 1] != 0;
         }
         frames_read.store(read + output_frames, std::memory_order_release);
@@ -155,6 +159,12 @@ extern "C" void squirrelpad_audio_set_frequency(uint32_t frequency) {
     stop_locked();
     sample_rate = frequency;
     create_queue_locked();
+}
+
+extern "C" void squirrelpad_audio_set_volume(float volume) {
+    if (!std::isfinite(volume)) return;
+    output_volume.store(static_cast<uint16_t>(std::lround(std::clamp(volume, 0.0f, 1.0f) * 256.0f)),
+                        std::memory_order_relaxed);
 }
 
 extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_count) {
