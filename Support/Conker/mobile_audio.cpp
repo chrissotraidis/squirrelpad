@@ -60,26 +60,28 @@ void fill_buffer(AudioQueueBufferRef buffer) {
         rebuffering.store(false, std::memory_order_relaxed);
         resumes.fetch_add(1, std::memory_order_relaxed);
     }
-    if (!rebuffering.load(std::memory_order_relaxed) && available >= output_frames) {
-        bool has_sound = false;
-        const int32_t volume = output_volume.load(std::memory_order_relaxed);
-        for (size_t i = 0; i < output_frames; ++i) {
-            const size_t offset = ((read + i) % ring_frames) * channels;
-            output[i * channels] = static_cast<int16_t>(pcm_ring[offset] * volume / 256);
-            output[i * channels + 1] = static_cast<int16_t>(pcm_ring[offset + 1] * volume / 256);
-            has_sound |= output[i * channels] != 0 || output[i * channels + 1] != 0;
-        }
-        frames_read.store(read + output_frames, std::memory_order_release);
-        buffer->mUserData = has_sound ? buffer : nullptr;
-    } else {
-        if (!rebuffering.exchange(true, std::memory_order_relaxed)) {
-            // Discard the incomplete output chunk before collecting a new reserve.
-            frames_read.store(written, std::memory_order_release);
-            underruns.fetch_add(1, std::memory_order_relaxed);
-        }
-        std::memset(output, 0, output_frames * frame_bytes);
-        buffer->mUserData = nullptr;
+    const bool playing = !rebuffering.load(std::memory_order_relaxed);
+    const size_t frames_to_copy = playing ? std::min(available, output_frames) : 0;
+    bool has_sound = false;
+    const int32_t volume = output_volume.load(std::memory_order_relaxed);
+    for (size_t i = 0; i < frames_to_copy; ++i) {
+        const size_t offset = ((read + i) % ring_frames) * channels;
+        output[i * channels] = static_cast<int16_t>(pcm_ring[offset] * volume / 256);
+        output[i * channels + 1] = static_cast<int16_t>(pcm_ring[offset + 1] * volume / 256);
+        has_sound |= output[i * channels] != 0 || output[i * channels + 1] != 0;
     }
+    if (frames_to_copy < output_frames) {
+        std::memset(output + frames_to_copy * channels, 0,
+                    (output_frames - frames_to_copy) * frame_bytes);
+    }
+    if (frames_to_copy > 0) {
+        frames_read.store(read + frames_to_copy, std::memory_order_release);
+    }
+    if (playing && frames_to_copy < output_frames) {
+        rebuffering.store(true, std::memory_order_relaxed);
+        underruns.fetch_add(1, std::memory_order_relaxed);
+    }
+    buffer->mUserData = has_sound ? buffer : nullptr;
     buffer->mAudioDataByteSize = output_frames * frame_bytes;
 }
 
