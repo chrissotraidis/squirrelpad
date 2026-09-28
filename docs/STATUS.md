@@ -1,6 +1,6 @@
 # SquirrelPad evidence ledger
 
-Updated 2026-09-27. Work the lowest unmet goal in [GOAL_LOOP.md](GOAL_LOOP.md). The private ROM, generated game code, builds, logs, saves and gameplay captures stay under ignored `ref/` or `work/`.
+Updated 2026-09-28. Work the lowest unmet goal in [GOAL_LOOP.md](GOAL_LOOP.md). The private ROM, generated game code, builds, logs, saves and gameplay captures stay under ignored `ref/` or `work/`.
 
 | Gate | State | Measured result and remaining test |
 | --- | --- | --- |
@@ -137,6 +137,14 @@ A paired scheduling check set only the iOS graphics thread to utility QoS. Its i
 **Pass:** `patches/rt64-static-fb-params.patch` binds each framebuffer's fixed parameter buffer to its real and dummy descriptor sets when those sets are created. `addFramebuffer` continues updating the buffer contents and rebinding the changing color and depth textures, but no longer calls Metal's argument encoder twice per framebuffer on later use. The patch was reverse-checked, reapplied and built for the iOS Simulator RT64 archive/app and unsigned device archive/app (`work/audio-fb-static-sim-rt64-build.log`, `work/audio-fb-static-sim-app-build.log`, `work/audio-fb-static-device-rt64-build.log`, `work/audio-fb-static-device-app-build.log`). On iPad Pro 11-inch (M4) and iPhone 16 Pro, iOS 18.5, the same installed build reached **Continue Imported ROM → GAME1 → PLAY → first field**; the field and touch Start/A pause/resume were visually inspected on each (`work/audio-fb-static-ipad-run.log`, `work/audio-fb-static-iphone-run.log`).
 
 **Fail for audio:** the iPad reported four underruns through display list #10020, first near #3060; the iPhone reported one through #8580, near #2640. These independent runs do not prove a change in underrun rate relative to the baseline. The binding cut is a narrow renderer work reduction, not an audio fix. Next instrument remaining framebuffer texture bindings and texture-upload waits in one ordinary gameplay window, then compare a single change against the same route. Speaker/headphone quality still needs a real device.
+
+## Texture-upload audio investigation (2026-09-28)
+
+**Fail for audio:** a temporary iPad Simulator trace on the ordinary GAME1 → PLAY route recorded three underruns near display list #2880 while the RT64 upload worker processed several slow batches. One single-texture batch spent 89.1 ms in its two Metal descriptor `setTexture` calls; another spent 38.4 ms there. A two-texture batch spent 28.4 ms binding and 64.6 ms waiting for GPU work, with `TextureCache::waitForGPUUploads` blocking the renderer for 95.4 ms (`work/audio-upload-wait-ipad-run.log`). The timing is adjacent, not proof that any one call caused each underrun. The upload wait protects textures used by the next frame, so it was not removed.
+
+Setting only RT64's upload thread to iOS user-initiated QoS did not improve this route: the iPad logged two underruns near display list #3180, a later 76.8 ms upload wait, and 18 underruns by #8160 (`work/audio-upload-qos-ipad-run.log`). The QoS change and all timing probes were rejected. The original RT64 source was restored and built for Simulator (`work/audio-upload-probes-restored-sim-rt64-build.log`, `work/audio-upload-probes-restored-sim-app-build.log`). The exact restored app reached GAME1 → PLAY and the first field; its capture is `work/audio-upload-probes-restored-ipad-field.png`, and it logged seven underruns through display list #5160 (`work/audio-upload-probes-restored-ipad-run.log`). This is still an audio failure, and the Simulator runs are not controlled audible-quality comparisons.
+
+**Next narrow target:** reduce the Tier-1 Metal argument-encoder binding cost or a measured GPU wait without changing game logic or increasing audio latency, then replay the same route on both Simulators. Physical-device listening and audio-route checks remain for Chris when an iPad and iPhone are available.
 
 ## Second save slot (2026-09-27)
 
