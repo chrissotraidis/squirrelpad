@@ -115,7 +115,7 @@ struct SquirrelPadApp: App {
                                       y: geometry.size.height / 2)
                     }
                     if menuOpen {
-                        Color.black.opacity(0.78)
+                        Color.black.opacity(0.40)
                             .onTapGesture { menuOpen = false }
                         controlsPanel(compact: compact, size: geometry.size)
                             .position(x: geometry.size.width / 2,
@@ -272,7 +272,7 @@ struct SquirrelPadApp: App {
         .foregroundStyle(.white)
         .frame(width: size.width - (compact ? 32 : 56),
                height: size.height - (compact ? 100 : 56))
-        .background(Color.black.opacity(0.93), in: RoundedRectangle(cornerRadius: 14))
+        .background(Color.black.opacity(0.78), in: RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(.white.opacity(0.35)))
     }
 
