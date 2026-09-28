@@ -29,9 +29,12 @@ std::atomic<bool> rebuffering{true};
 std::atomic<size_t> underruns{0};
 std::atomic<size_t> resumes{0};
 std::atomic<size_t> completed_nonzero_buffers{0};
+std::atomic<size_t> completed_buffers{0};
 std::atomic<OSStatus> callback_error{noErr};
 uint32_t sample_rate = 0;
 std::chrono::steady_clock::time_point next_retry;
+std::chrono::steady_clock::time_point last_callback_progress;
+size_t observed_completed_buffers = 0;
 bool started = false;
 bool logged_samples = false;
 bool logged_completion = false;
@@ -76,6 +79,7 @@ void fill_buffer(AudioQueueBufferRef buffer) {
 }
 
 void output_done(void *, AudioQueueRef audio_queue, AudioQueueBufferRef buffer) {
+    completed_buffers.fetch_add(1, std::memory_order_relaxed);
     if (buffer->mUserData != nullptr) {
         completed_nonzero_buffers.fetch_add(1, std::memory_order_relaxed);
     }
@@ -101,6 +105,7 @@ void stop_locked() {
     underruns.store(0, std::memory_order_relaxed);
     resumes.store(0, std::memory_order_relaxed);
     completed_nonzero_buffers.store(0, std::memory_order_relaxed);
+    completed_buffers.store(0, std::memory_order_relaxed);
     callback_error.store(noErr, std::memory_order_relaxed);
     started = false;
     logged_samples = false;
@@ -108,6 +113,8 @@ void stop_locked() {
     logged_underruns = 0;
     logged_resumes = 0;
     next_retry = {};
+    last_callback_progress = {};
+    observed_completed_buffers = 0;
 }
 
 void create_queue_locked() {
@@ -157,6 +164,21 @@ extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_
     }
     if (queue == nullptr) return;
 
+    if (started) {
+        const auto now = std::chrono::steady_clock::now();
+        const size_t completed = completed_buffers.load(std::memory_order_relaxed);
+        if (completed != observed_completed_buffers) {
+            observed_completed_buffers = completed;
+            last_callback_progress = now;
+        } else if (available_frames() > sample_rate / 2 &&
+                   now - last_callback_progress > std::chrono::milliseconds(500)) {
+            std::fprintf(stderr, "[mobile audio] output callback stalled; restarting queue\n");
+            stop_locked();
+            create_queue_locked();
+            if (queue == nullptr) return;
+        }
+    }
+
     const size_t frames = sample_count / channels;
     const uint64_t written = frames_written.load(std::memory_order_relaxed);
     const uint64_t read = frames_read.load(std::memory_order_acquire);
@@ -195,6 +217,7 @@ extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_
             next_retry = std::chrono::steady_clock::now() + std::chrono::seconds(1);
         } else {
             started = true;
+            last_callback_progress = std::chrono::steady_clock::now();
             std::fprintf(stderr, "[mobile audio] playback started\n");
         }
     }
