@@ -310,25 +310,25 @@ struct SquirrelPadApp: App {
                                     .font(.subheadline)
                                     .foregroundStyle(.white.opacity(0.68))
                             }
-                            VStack(spacing: 0) {
+                            VStack(spacing: compact ? 5 : 7) {
                                 ForEach(ControllerInput.bindings.indices, id: \.self) { index in
                                     let binding = ControllerInput.bindings[index]
-                                    HStack {
+                                    HStack(spacing: 8) {
                                         Text(binding.n64)
-                                        Spacer()
+                                            .frame(width: compact ? 86 : 120, alignment: .leading)
+                                            .padding(.horizontal, 10)
+                                            .padding(.vertical, 7)
+                                            .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: 4))
                                         Text(binding.gamepad)
-                                            .foregroundStyle(.white.opacity(0.68))
+                                            .padding(.horizontal, 10)
+                                            .padding(.vertical, 7)
+                                            .background(.blue.opacity(0.68), in: RoundedRectangle(cornerRadius: 4))
+                                        Spacer(minLength: 0)
                                     }
                                     .font(.system(size: compact ? 14 : 17))
-                                    .padding(.vertical, compact ? 5 : 7)
                                     .accessibilityElement(children: .combine)
-                                    if index + 1 < ControllerInput.bindings.count {
-                                        Divider().overlay(.white.opacity(0.2))
-                                    }
                                 }
                             }
-                            .padding(.horizontal, 12)
-                            .background(.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 6))
                             Divider().overlay(.white.opacity(0.4))
                             Text("Touch Layout")
                                 .font(.headline)
