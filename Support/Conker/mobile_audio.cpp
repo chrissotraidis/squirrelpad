@@ -52,6 +52,8 @@ size_t logged_resumes = 0;
 size_t dropped_buffers = 0;
 size_t dropped_frames = 0;
 size_t logged_callback_gaps = 0;
+std::chrono::steady_clock::time_point last_submission;
+size_t slow_submissions = 0;
 
 size_t available_frames() {
     return static_cast<size_t>(frames_written.load(std::memory_order_acquire) -
@@ -146,6 +148,8 @@ void stop_locked() {
     dropped_buffers = 0;
     dropped_frames = 0;
     logged_callback_gaps = 0;
+    last_submission = {};
+    slow_submissions = 0;
     next_retry = {};
     last_callback_progress = {};
     observed_completed_buffers = 0;
@@ -200,6 +204,7 @@ extern "C" void squirrelpad_audio_set_active(bool active) {
     std::lock_guard lock(audio_mutex);
     if (scene_active == active) return;
     scene_active = active;
+    last_submission = {};
     if (queue == nullptr || !started) return;
     if (!active) {
         last_callback_ns.store(0, std::memory_order_relaxed);
@@ -229,6 +234,20 @@ extern "C" void squirrelpad_audio_set_active(bool active) {
 extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_count) {
     if (samples == nullptr || sample_count < channels || sample_count % channels != 0) return;
     std::lock_guard lock(audio_mutex);
+    const auto arrival = std::chrono::steady_clock::now();
+    if (started && scene_active && last_submission != std::chrono::steady_clock::time_point{} &&
+        arrival - last_submission >= std::chrono::milliseconds(80)) {
+        ++slow_submissions;
+        if (slow_submissions <= 3 || slow_submissions % 64 == 0) {
+            const auto gap_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                                    arrival - last_submission).count();
+            const auto time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                                     arrival.time_since_epoch()).count();
+            std::fprintf(stderr, "[mobile audio] PCM submission gap %lld ms at %lld ms; queued %zu frames (%zu gaps)\n",
+                         (long long)gap_ms, (long long)time_ms, available_frames(), slow_submissions);
+        }
+    }
+    last_submission = arrival;
     if (queue == nullptr && sample_rate != 0 && std::chrono::steady_clock::now() >= next_retry) {
         create_queue_locked();
     }
