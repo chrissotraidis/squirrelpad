@@ -36,6 +36,7 @@ apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime
 apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-apple-save-atomic.patch"
 apply_once "$checkout/tools/rt64" "$checkout/recomp/rt64.patch"
 apply_once "$checkout" "$project/patches/conker-host.patch"
+apply_once "$checkout" "$project/patches/conker-macos-audio-device.patch"
 apply_once "$checkout" "$project/patches/conker-mobile-audio.patch"
 apply_once "$checkout" "$project/patches/conker-mobile-lifecycle.patch"
 apply_once "$checkout/tools/rt64/src/contrib/hlslpp" "$project/patches/hlslpp-stdlib.patch"
