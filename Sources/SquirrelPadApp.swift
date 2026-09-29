@@ -87,6 +87,7 @@ private final class GameSession: ObservableObject {
 struct SquirrelPadApp: App {
     @StateObject private var session = GameSession()
     @StateObject private var renderer = RendererStatus()
+    @StateObject private var controllerInput = ControllerInput()
     @Environment(\.scenePhase) private var scenePhase
     @AppStorage("SquirrelPad.TouchControls") private var touchEnabled = true
     @AppStorage("SquirrelPad.TouchTransparency") private var touchTransparency = false
@@ -177,7 +178,10 @@ struct SquirrelPadApp: App {
             .background(.black)
             .ignoresSafeArea()
             .statusBarHidden()
-            .onAppear { setMasterVolume(Float(masterVolume)) }
+            .onAppear {
+                setMasterVolume(Float(masterVolume))
+                updateCoreActivity()
+            }
             .fileImporter(isPresented: $importing, allowedContentTypes: [.n64ROM, .data]) { selection in
                 switch selection {
                 case .success(let url): session.importROM(url)
@@ -205,6 +209,7 @@ struct SquirrelPadApp: App {
                     clearTouchInput()
                     editingLayout = false
                 }
+                updateCoreActivity()
             }
         }
     }
@@ -367,7 +372,9 @@ struct SquirrelPadApp: App {
     }
 
     private func updateCoreActivity() {
-        setCoreActive(scenePhase == .active && !menuOpen && !editingLayout)
+        let active = scenePhase == .active && !menuOpen && !editingLayout
+        setCoreActive(active)
+        controllerInput.setActive(active && session.running)
     }
 
     private func savedLayout(compact: Bool) -> [String: CGPoint] {

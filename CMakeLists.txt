@@ -36,6 +36,7 @@ add_executable(SquirrelPad MACOSX_BUNDLE
     Sources/SquirrelPadApp.swift
     Sources/RT64Surface.swift
     Sources/TouchControlsView.swift
+    Sources/ControllerInput.swift
     Support/Conker/mobile_entry.cpp
     Support/Conker/mobile_audio.cpp
     Support/Conker/mobile_input.cpp
@@ -44,6 +45,7 @@ add_executable(SquirrelPad MACOSX_BUNDLE
 target_link_libraries(SquirrelPad PRIVATE ConkerRecomp
     "-framework SwiftUI" "-framework UniformTypeIdentifiers" "-framework CryptoKit"
     "-framework AudioToolbox" "-framework Metal" "-framework MetalKit" "-framework QuartzCore" "-framework UIKit")
+target_link_libraries(SquirrelPad PRIVATE "-framework GameController")
 if (SQUIRRELPAD_RT64_ARCHIVE_DIR)
     target_sources(SquirrelPad PRIVATE Support/Conker/mobile_rt64_renderer.cpp)
     target_compile_definitions(SquirrelPad PRIVATE HLSL_CPU RT64_EMBEDDED_APPLE)
