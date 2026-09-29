@@ -40,6 +40,8 @@ std::chrono::steady_clock::time_point next_retry;
 std::chrono::steady_clock::time_point last_callback_progress;
 size_t observed_completed_buffers = 0;
 bool started = false;
+bool scene_active = true;
+bool paused_for_inactive = false;
 bool logged_samples = false;
 bool logged_completion = false;
 size_t logged_underruns = 0;
@@ -115,6 +117,7 @@ void stop_locked() {
     completed_buffers.store(0, std::memory_order_relaxed);
     callback_error.store(noErr, std::memory_order_relaxed);
     started = false;
+    paused_for_inactive = false;
     logged_samples = false;
     logged_completion = false;
     logged_underruns = 0;
@@ -169,6 +172,34 @@ extern "C" void squirrelpad_audio_set_volume(float volume) {
                         std::memory_order_relaxed);
 }
 
+extern "C" void squirrelpad_audio_set_active(bool active) {
+    std::lock_guard lock(audio_mutex);
+    if (scene_active == active) return;
+    scene_active = active;
+    if (queue == nullptr || !started) return;
+    if (!active) {
+        const OSStatus result = AudioQueuePause(queue);
+        if (result == noErr) {
+            paused_for_inactive = true;
+        } else {
+            std::fprintf(stderr, "[mobile audio] background pause failed: %d\n", (int)result);
+            stop_locked();
+            next_retry = std::chrono::steady_clock::now() + std::chrono::seconds(1);
+        }
+    } else if (paused_for_inactive) {
+        const OSStatus result = AudioQueueStart(queue, nullptr);
+        if (result == noErr) {
+            paused_for_inactive = false;
+            observed_completed_buffers = completed_buffers.load(std::memory_order_relaxed);
+            last_callback_progress = std::chrono::steady_clock::now();
+        } else {
+            std::fprintf(stderr, "[mobile audio] foreground resume failed: %d\n", (int)result);
+            stop_locked();
+            next_retry = std::chrono::steady_clock::now() + std::chrono::seconds(1);
+        }
+    }
+}
+
 extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_count) {
     if (samples == nullptr || sample_count < channels || sample_count % channels != 0) return;
     std::lock_guard lock(audio_mutex);
@@ -211,7 +242,7 @@ extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_
         std::fprintf(stderr, "[mobile audio] queued nonzero stereo PCM\n");
     }
 
-    if (!started && available + frames >= startup_frames) {
+    if (scene_active && !started && available + frames >= startup_frames) {
         rebuffering.store(false, std::memory_order_relaxed);
         for (auto *buffer : output_buffers) {
             fill_buffer(buffer);
