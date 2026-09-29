@@ -1,3 +1,4 @@
+import AVFAudio
 import CryptoKit
 import SwiftUI
 import UIKit
@@ -58,6 +59,12 @@ private final class GameSession: ObservableObject {
                 try data.write(to: imported, options: .atomic)
             }
             storedROM = imported
+            do {
+                try AVAudioSession.sharedInstance().setCategory(.playback)
+                NSLog("[mobile audio] session category: %@", AVAudioSession.sharedInstance().category.rawValue)
+            } catch {
+                NSLog("[mobile audio] session category failed: %@", error.localizedDescription)
+            }
             message = "ROM verified. Starting the native game core…"
             running = true
             let romPath = imported.path
