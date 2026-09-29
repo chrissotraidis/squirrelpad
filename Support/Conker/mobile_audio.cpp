@@ -46,6 +46,8 @@ bool logged_samples = false;
 bool logged_completion = false;
 size_t logged_underruns = 0;
 size_t logged_resumes = 0;
+size_t dropped_buffers = 0;
+size_t dropped_frames = 0;
 
 size_t available_frames() {
     return static_cast<size_t>(frames_written.load(std::memory_order_acquire) -
@@ -122,6 +124,8 @@ void stop_locked() {
     logged_completion = false;
     logged_underruns = 0;
     logged_resumes = 0;
+    dropped_buffers = 0;
+    dropped_frames = 0;
     next_retry = {};
     last_callback_progress = {};
     observed_completed_buffers = 0;
@@ -227,7 +231,15 @@ extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_
     const uint64_t written = frames_written.load(std::memory_order_relaxed);
     const uint64_t read = frames_read.load(std::memory_order_acquire);
     const size_t available = static_cast<size_t>(written - read);
-    if (frames > ring_frames - available || available > sample_rate / 2) return;
+    if (frames > ring_frames - available || available > sample_rate / 2) {
+        ++dropped_buffers;
+        dropped_frames += frames;
+        if (dropped_buffers <= 3 || dropped_buffers % 128 == 0) {
+            std::fprintf(stderr, "[mobile audio] dropped %zu PCM buffers (%zu frames total); queued %zu frames, incoming %zu\n",
+                         dropped_buffers, dropped_frames, available, frames);
+        }
+        return;
+    }
 
     bool has_sound = false;
     for (size_t i = 0; i < frames; ++i) {
