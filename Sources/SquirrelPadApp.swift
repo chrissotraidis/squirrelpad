@@ -112,6 +112,7 @@ struct SquirrelPadApp: App {
     @State private var editingCompact = false
     @State private var editedPositions: [String: CGPoint] = [:]
     @State private var settingsSection: SettingsSection = .controls
+    @State private var bindingsExpanded = false
 
     var body: some Scene {
         WindowGroup {
@@ -296,37 +297,49 @@ struct SquirrelPadApp: App {
                                 .font(.subheadline)
                                 .foregroundStyle(.white.opacity(0.68))
                             Divider().overlay(.white.opacity(0.4))
-                            Text("Controller Bindings")
+                            Button { bindingsExpanded.toggle() } label: {
+                                HStack(spacing: 10) {
+                                    Image(systemName: bindingsExpanded ? "chevron.down" : "chevron.right")
+                                    Text("Controller Bindings")
+                                    Spacer()
+                                }
                                 .font(.headline)
-                            HStack {
-                                Text("Connected")
-                                Spacer()
-                                Text(controllerInput.connectedName ?? "None")
-                                    .foregroundStyle(.white.opacity(0.68))
+                                .padding(10)
+                                .background(.white.opacity(0.12), in: RoundedRectangle(cornerRadius: 4))
                             }
-                            .font(.subheadline)
-                            if controllerInput.connectedName != nil {
-                                Text(controllerInput.rumbleAvailable ? "Rumble available" : "Rumble unavailable")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.white.opacity(0.68))
-                            }
-                            VStack(spacing: compact ? 5 : 7) {
-                                ForEach(ControllerInput.bindings.indices, id: \.self) { index in
-                                    let binding = ControllerInput.bindings[index]
-                                    HStack(spacing: 8) {
-                                        Text(binding.n64)
-                                            .frame(width: compact ? 86 : 120, alignment: .leading)
-                                            .padding(.horizontal, 10)
-                                            .padding(.vertical, 7)
-                                            .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: 4))
-                                        Text(binding.gamepad)
-                                            .padding(.horizontal, 10)
-                                            .padding(.vertical, 7)
-                                            .background(.blue.opacity(0.68), in: RoundedRectangle(cornerRadius: 4))
-                                        Spacer(minLength: 0)
+                            .buttonStyle(.plain)
+                            .accessibilityValue(bindingsExpanded ? "Expanded" : "Collapsed")
+                            if bindingsExpanded {
+                                HStack {
+                                    Text("Connected")
+                                    Spacer()
+                                    Text(controllerInput.connectedName ?? "None")
+                                        .foregroundStyle(.white.opacity(0.68))
+                                }
+                                .font(.subheadline)
+                                if controllerInput.connectedName != nil {
+                                    Text(controllerInput.rumbleAvailable ? "Rumble available" : "Rumble unavailable")
+                                        .font(.subheadline)
+                                        .foregroundStyle(.white.opacity(0.68))
+                                }
+                                VStack(spacing: compact ? 5 : 7) {
+                                    ForEach(ControllerInput.bindings.indices, id: \.self) { index in
+                                        let binding = ControllerInput.bindings[index]
+                                        HStack(spacing: 8) {
+                                            Text(binding.n64)
+                                                .frame(width: compact ? 86 : 120, alignment: .leading)
+                                                .padding(.horizontal, 10)
+                                                .padding(.vertical, 7)
+                                                .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: 4))
+                                            Text(binding.gamepad)
+                                                .padding(.horizontal, 10)
+                                                .padding(.vertical, 7)
+                                                .background(.blue.opacity(0.68), in: RoundedRectangle(cornerRadius: 4))
+                                            Spacer(minLength: 0)
+                                        }
+                                        .font(.system(size: compact ? 14 : 17))
+                                        .accessibilityElement(children: .combine)
                                     }
-                                    .font(.system(size: compact ? 14 : 17))
-                                    .accessibilityElement(children: .combine)
                                 }
                             }
                             Divider().overlay(.white.opacity(0.4))
