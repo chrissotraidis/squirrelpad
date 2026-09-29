@@ -382,12 +382,12 @@ struct SquirrelPadApp: App {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(compact ? 14 : 30)
                 }
-                .frame(height: size.height - (compact ? 156 : 128))
+                .frame(height: size.height - (compact ? 120 : 128))
             }
         }
         .foregroundStyle(.white)
-        .frame(width: size.width - (compact ? 160 : 56),
-               height: size.height - (compact ? 100 : 56))
+        .frame(width: size.width - (compact ? 64 : 56),
+               height: size.height - (compact ? 64 : 56))
         .background(Color.black.opacity(0.78), in: RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(.white.opacity(0.35)))
     }
