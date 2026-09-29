@@ -1,0 +1,134 @@
+diff --git a/ultramodern/src/timer.cpp b/ultramodern/src/timer.cpp
+index ee26c45..a1f3dea 100644
+--- a/ultramodern/src/timer.cpp
++++ b/ultramodern/src/timer.cpp
+@@ -1,6 +1,13 @@
+ #include <thread>
+ #include <variant>
+ #include <set>
++#if defined(__APPLE__)
++#include <TargetConditionals.h>
++#endif
++#if defined(__APPLE__) && TARGET_OS_IPHONE
++#include <mutex>
++#include <optional>
++#endif
+ #include "blockingconcurrentqueue.h"
+ 
+ #include "ultramodern/ultra64.h"
+@@ -13,6 +20,15 @@
+ 
+ // Start time for the program
+ static std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
++#if defined(__APPLE__) && TARGET_OS_IPHONE
++static std::mutex clock_mutex;
++static std::optional<std::chrono::high_resolution_clock::time_point> paused_at;
++
++static bool clock_is_paused() {
++    std::lock_guard lock(clock_mutex);
++    return paused_at.has_value();
++}
++#endif
+ // Offset of the duration since program start used to calculate the value for osGetTime. 
+ static int64_t ostime_offset = 0;
+ // Game speed multiplier (1 means no speedup)
+@@ -37,7 +53,12 @@ struct RemoveTimerAction {
+     PTR(OSTimer) timer;
+ };
+ 
++#if defined(__APPLE__) && TARGET_OS_IPHONE
++struct ClockChangedAction {};
++using Action = std::variant<AddTimerAction, RemoveTimerAction, ClockChangedAction>;
++#else
+ using Action = std::variant<AddTimerAction, RemoveTimerAction>;
++#endif
+ 
+ struct {
+     std::thread thread;
+@@ -59,12 +80,37 @@ std::chrono::microseconds ticks_to_duration(uint64_t ticks) {
+ }
+ 
+ std::chrono::high_resolution_clock::time_point ticks_to_timepoint(uint64_t ticks) {
++#if defined(__APPLE__) && TARGET_OS_IPHONE
++    std::lock_guard lock(clock_mutex);
++#endif
+     return start_time + ticks_to_duration(ticks);
+ }
+ 
+ uint64_t time_now() {
++#if defined(__APPLE__) && TARGET_OS_IPHONE
++    std::lock_guard lock(clock_mutex);
++    return duration_to_ticks(paused_at.value_or(std::chrono::high_resolution_clock::now()) - start_time);
++#else
+     return duration_to_ticks(std::chrono::high_resolution_clock::now() - start_time);
++#endif
++}
++
++#if defined(__APPLE__) && TARGET_OS_IPHONE
++extern "C" void squirrelpad_set_clock_paused(bool paused) {
++    {
++        std::lock_guard lock(clock_mutex);
++        if (paused && !paused_at) {
++            paused_at = std::chrono::high_resolution_clock::now();
++        } else if (!paused && paused_at) {
++            start_time += std::chrono::high_resolution_clock::now() - *paused_at;
++            paused_at.reset();
++        } else {
++            return;
++        }
++    }
++    timer_context.action_queue.enqueue(ClockChangedAction{});
+ }
++#endif
+ 
+ void timer_thread(RDRAM_ARG1) {
+     ultramodern::set_native_thread_name("Timer Thread");
+@@ -110,6 +156,14 @@ void timer_thread(RDRAM_ARG1) {
+             process_timer_action(cur_action);
+         }
+ 
++#if defined(__APPLE__) && TARGET_OS_IPHONE
++        while (clock_is_paused()) {
++            timer_context.action_queue.wait_dequeue(cur_action);
++            process_timer_action(cur_action);
++        }
++        if (active_timers.empty()) continue;
++#endif
++
+         // Get the timer that's closest to running out
+         PTR(OSTimer) cur_timer_ = *active_timers.begin();
+         OSTimer* cur_timer = TO_PTR(OSTimer, cur_timer_);
+@@ -129,6 +183,13 @@ void timer_thread(RDRAM_ARG1) {
+             process_timer_action(cur_action);
+         }
+         else {
++#if defined(__APPLE__) && TARGET_OS_IPHONE
++            // A pause can expire an old wall-clock wait without expiring its game deadline.
++            if (clock_is_paused() || time_now() < cur_timer->timestamp) {
++                active_timers.insert(cur_timer_);
++                continue;
++            }
++#endif
+             // Waiting for the timer completed, so send the timer's message to its message queue
+             ultramodern::enqueue_external_message_src(cur_timer->mq, cur_timer->msg, false, ultramodern::EventMessageSource::Timer);
+             // If the timer has a specified interval then reload it with that value
+@@ -150,11 +211,19 @@ uint32_t ultramodern::get_speed_multiplier() {
+ }
+ 
+ std::chrono::high_resolution_clock::time_point ultramodern::get_start() {
++#if defined(__APPLE__) && TARGET_OS_IPHONE
++    std::lock_guard lock(clock_mutex);
++#endif
+     return start_time;
+ }
+ 
+ std::chrono::high_resolution_clock::duration ultramodern::time_since_start() {
++#if defined(__APPLE__) && TARGET_OS_IPHONE
++    std::lock_guard lock(clock_mutex);
++    return paused_at.value_or(std::chrono::high_resolution_clock::now()) - start_time;
++#else
+     return std::chrono::high_resolution_clock::now() - start_time;
++#endif
+ }
+ 
+ extern "C" u32 osGetCount() {

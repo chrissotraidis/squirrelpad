@@ -6,6 +6,7 @@
 int conker_native_main(int argc, char **argv);
 extern "C" void squirrelpad_rt64_release_probe();
 extern "C" void squirrelpad_audio_stop();
+extern "C" void squirrelpad_set_clock_paused(bool paused);
 
 namespace {
 std::mutex activity_mutex;
@@ -14,6 +15,7 @@ bool active = true;
 }
 
 extern "C" void squirrelpad_set_active(bool value) {
+    squirrelpad_set_clock_paused(!value);
     {
         std::lock_guard lock(activity_mutex);
         active = value;
