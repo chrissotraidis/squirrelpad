@@ -180,8 +180,7 @@ struct SquirrelPadApp: App {
                         .buttonStyle(.plain)
                         .accessibilityLabel("Menu")
                         .accessibilityIdentifier("squirrelpad-menu")
-                        .position(x: compact ? geometry.size.width / 2 : geometry.size.width - 32,
-                                  y: compact ? (menuOpen ? geometry.size.height - 48 : 20) : 32)
+                        .position(x: geometry.size.width - (compact ? menuSideMargin : 32), y: 32)
                     }
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
