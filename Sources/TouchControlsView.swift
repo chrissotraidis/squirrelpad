@@ -23,6 +23,8 @@ private struct TouchButton: View {
     let control: TouchControl
     let compact: Bool
     let scale: Double
+    let editing: Bool
+    let move: (String, CGPoint) -> Void
     @State private var held = false
 
     private var size: CGFloat { (compact ? control.phoneSize : control.tabletSize) * scale }
@@ -38,13 +40,17 @@ private struct TouchButton: View {
             .overlay(RoundedRectangle(cornerRadius: size / 2)
                 .stroke(.white.opacity(held ? 0.9 : 0.58), lineWidth: 2))
             .contentShape(RoundedRectangle(cornerRadius: size / 2))
-            .gesture(DragGesture(minimumDistance: 0)
+            .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .named("touchLayout"))
                 .onChanged { _ in
+                    if editing { return }
                     guard !held else { return }
                     held = true
                     setTouchButton(control.mask, 1)
                 }
-                .onEnded { _ in release() })
+                .onEnded { value in
+                    if editing { move(control.id, value.location) }
+                    release()
+                })
             .onDisappear { release() }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(control.id)
@@ -60,6 +66,9 @@ private struct TouchButton: View {
 
 private struct TouchStick: View {
     let size: CGFloat
+    let editing: Bool
+    let center: CGPoint
+    let move: (String, CGPoint) -> Void
     @State private var offset = CGSize.zero
 
     var body: some View {
@@ -75,18 +84,22 @@ private struct TouchStick: View {
             }
             .frame(width: size, height: size)
             .contentShape(Circle())
-            .gesture(DragGesture(minimumDistance: 0)
+            .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .named("touchLayout"))
                 .onChanged { value in
+                    if editing { return }
                     let radius = size * 0.35
-                    let dx = value.location.x - size / 2
-                    let dy = value.location.y - size / 2
+                    let dx = value.location.x - center.x
+                    let dy = value.location.y - center.y
                     let length = max(1, hypot(dx, dy))
                     let scale = min(1, radius / length)
                     offset = CGSize(width: dx * scale, height: dy * scale)
                     setTouchStick(Float(offset.width / radius),
                                   Float(-offset.height / radius))
                 }
-                .onEnded { _ in reset() })
+                .onEnded { value in
+                    if editing { move("Stick", value.location) }
+                    reset()
+                })
             .onDisappear { reset() }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("Control Stick")
@@ -103,6 +116,9 @@ struct TouchControlsView: View {
     let scale: Double
     let showDpad: Bool
     let showCButtons: Bool
+    let editing: Bool
+    let layout: [String: CGPoint]
+    let onMove: (String, CGPoint) -> Void
 
     // The normalized centers follow HarkinianPad's accepted phone/tablet grip
     // layouts. Conker uses a continuous stick axis rather than eight key directions.
@@ -154,21 +170,34 @@ struct TouchControlsView: View {
     var body: some View {
         GeometryReader { geometry in
             let compact = geometry.size.height < 560
+            let width = geometry.size.width
+            let height = geometry.size.height
+            let move: (String, CGPoint) -> Void = { id, point in
+                onMove(id, CGPoint(x: min(max(point.x / width, 0.06), 0.94),
+                                   y: min(max(point.y / height, compact ? 0.12 : 0.06),
+                                          compact ? 0.88 : 0.94)))
+            }
             ZStack {
-                TouchStick(size: (compact ? 116 : 150) * scale)
-                    .position(x: geometry.size.width * (compact ? 0.214 : 0.164),
-                              y: geometry.size.height * (compact ? 0.752 : 0.81))
+                let stick = layout["Stick"] ?? CGPoint(x: compact ? 0.214 : 0.164,
+                                                        y: compact ? 0.752 : 0.81)
+                TouchStick(size: (compact ? 116 : 150) * scale,
+                           editing: editing,
+                           center: CGPoint(x: width * stick.x, y: height * stick.y),
+                           move: move)
+                    .position(x: width * stick.x, y: height * stick.y)
                 ForEach(Self.controls) { control in
                     if (showDpad || !control.id.hasPrefix("D-pad")) &&
                        (showCButtons || !control.id.hasPrefix("C ")) {
-                        let center = compact ? control.phone : control.tablet
-                        TouchButton(control: control, compact: compact, scale: scale)
-                            .position(x: geometry.size.width * center.x,
-                                      y: geometry.size.height * center.y)
+                        let normalized = layout[control.id] ?? (compact ? control.phone : control.tablet)
+                        let center = CGPoint(x: width * normalized.x, y: height * normalized.y)
+                        TouchButton(control: control, compact: compact, scale: scale,
+                                    editing: editing, move: move)
+                            .position(center)
                     }
                 }
             }
             .opacity(opacity)
+            .coordinateSpace(name: "touchLayout")
         }
         .allowsHitTesting(true)
     }

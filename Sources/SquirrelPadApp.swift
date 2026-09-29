@@ -95,8 +95,13 @@ struct SquirrelPadApp: App {
     @AppStorage("SquirrelPad.ShowDpad") private var showDpad = true
     @AppStorage("SquirrelPad.ShowCButtons") private var showCButtons = true
     @AppStorage("SquirrelPad.MasterVolume") private var masterVolume = 1.0
+    @AppStorage("SquirrelPad.LayoutTablet") private var tabletLayout = ""
+    @AppStorage("SquirrelPad.LayoutPhone") private var phoneLayout = ""
     @State private var importing = false
     @State private var menuOpen = false
+    @State private var editingLayout = false
+    @State private var editingCompact = false
+    @State private var editedPositions: [String: CGPoint] = [:]
     @State private var settingsSection: SettingsSection = .controls
 
     var body: some Scene {
@@ -113,10 +118,18 @@ struct SquirrelPadApp: App {
                             : max(geometry.size.width / 240, geometry.size.height / 135))
                         .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
 
-                    if session.running && touchEnabled && !menuOpen {
+                    if session.running && touchEnabled && (!menuOpen || editingLayout) {
                         TouchControlsView(opacity: touchTransparency ? touchOpacity : 1.0,
                                           scale: controlScale,
-                                          showDpad: showDpad, showCButtons: showCButtons)
+                                          showDpad: showDpad, showCButtons: showCButtons,
+                                          editing: editingLayout,
+                                          layout: editingLayout && editingCompact == compact
+                                              ? editedPositions : savedLayout(compact: compact),
+                                          onMove: { id, center in
+                                              if editingLayout && editingCompact == compact {
+                                                  editedPositions[id] = center
+                                              }
+                                          })
                     }
                     if !session.running {
                         importPanel
@@ -130,20 +143,34 @@ struct SquirrelPadApp: App {
                             .position(x: geometry.size.width / 2,
                                       y: geometry.size.height / 2 - (compact ? 16 : 0))
                     }
-                    Button(action: toggleMenu) {
-                        Text("•••")
-                            .font(.system(size: compact ? 17 : 15, weight: .semibold))
-                            .foregroundStyle(.white)
-                            .frame(width: menuSize, height: menuSize)
-                            .background(.black.opacity(0.42), in: Circle())
-                            .overlay(Circle().stroke(.white.opacity(0.65), lineWidth: 2))
-                            .padding(compact && !menuOpen ? 6 : 0)
+                    if editingLayout {
+                        HStack(spacing: 14) {
+                            Text("Drag controls to move them")
+                            Button("Reset Layout") { editedPositions = [:] }
+                            Button("Done") { finishLayoutEdit() }
+                        }
+                        .font(.system(size: compact ? 14 : 17, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(.black.opacity(0.82), in: Capsule())
+                        .position(x: geometry.size.width / 2, y: compact ? 42 : 48)
+                    } else {
+                        Button(action: toggleMenu) {
+                            Text("•••")
+                                .font(.system(size: compact ? 17 : 15, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(width: menuSize, height: menuSize)
+                                .background(.black.opacity(0.42), in: Circle())
+                                .overlay(Circle().stroke(.white.opacity(0.65), lineWidth: 2))
+                                .padding(compact && !menuOpen ? 6 : 0)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Menu")
+                        .accessibilityIdentifier("squirrelpad-menu")
+                        .position(x: compact ? geometry.size.width / 2 : geometry.size.width - 32,
+                                  y: compact ? (menuOpen ? geometry.size.height - 48 : 20) : 32)
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Menu")
-                    .accessibilityIdentifier("squirrelpad-menu")
-                    .position(x: compact ? geometry.size.width / 2 : geometry.size.width - 32,
-                              y: compact ? (menuOpen ? geometry.size.height - 48 : 20) : 32)
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }
@@ -163,10 +190,18 @@ struct SquirrelPadApp: App {
             .onChange(of: showCButtons) { _ in clearTouchInput() }
             .onChange(of: masterVolume) { value in setMasterVolume(Float(value)) }
             .onChange(of: scenePhase) { phase in
-                if phase != .active { clearTouchInput() }
+                if phase != .active {
+                    clearTouchInput()
+                    editingLayout = false
+                }
                 setCoreActive(phase == .active)
             }
-            .onChange(of: session.running) { running in if !running { clearTouchInput() } }
+            .onChange(of: session.running) { running in
+                if !running {
+                    clearTouchInput()
+                    editingLayout = false
+                }
+            }
         }
     }
 
@@ -268,6 +303,9 @@ struct SquirrelPadApp: App {
                                 .tint(.blue)
                             Toggle("C Buttons", isOn: $showCButtons)
                                 .tint(.blue)
+                            Button("Edit Layout") { beginLayoutEdit(compact: compact) }
+                                .buttonStyle(.borderedProminent)
+                                .disabled(!touchEnabled || !session.running)
                             Button("Restore Defaults") {
                                 touchEnabled = true
                                 touchTransparency = false
@@ -275,6 +313,8 @@ struct SquirrelPadApp: App {
                                 controlScale = 1.0
                                 showDpad = true
                                 showCButtons = true
+                                tabletLayout = ""
+                                phoneLayout = ""
                             }
                             .buttonStyle(.borderedProminent)
                         } else {
@@ -320,5 +360,33 @@ struct SquirrelPadApp: App {
     private func toggleMenu() {
         if !menuOpen { clearTouchInput() }
         menuOpen.toggle()
+    }
+
+    private func savedLayout(compact: Bool) -> [String: CGPoint] {
+        let stored = compact ? phoneLayout : tabletLayout
+        guard let data = stored.data(using: .utf8),
+              let values = try? JSONDecoder().decode([String: [Double]].self, from: data) else { return [:] }
+        var positions: [String: CGPoint] = [:]
+        for (id, point) in values where point.count == 2 && point[0].isFinite && point[1].isFinite {
+            positions[id] = CGPoint(x: min(max(point[0], 0), 1), y: min(max(point[1], 0), 1))
+        }
+        return positions
+    }
+
+    private func beginLayoutEdit(compact: Bool) {
+        clearTouchInput()
+        editedPositions = savedLayout(compact: compact)
+        editingCompact = compact
+        menuOpen = false
+        editingLayout = true
+    }
+
+    private func finishLayoutEdit() {
+        let values = editedPositions.mapValues { [Double($0.x), Double($0.y)] }
+        if let data = try? JSONEncoder().encode(values),
+           let text = String(data: data, encoding: .utf8) {
+            if editingCompact { phoneLayout = text } else { tabletLayout = text }
+        }
+        editingLayout = false
     }
 }
