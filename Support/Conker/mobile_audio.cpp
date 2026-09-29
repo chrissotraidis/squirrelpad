@@ -33,6 +33,9 @@ std::atomic<size_t> underruns{0};
 std::atomic<size_t> resumes{0};
 std::atomic<size_t> completed_nonzero_buffers{0};
 std::atomic<size_t> completed_buffers{0};
+std::atomic<int64_t> last_callback_ns{0};
+std::atomic<size_t> callback_gaps_over_40ms{0};
+std::atomic<int64_t> largest_callback_gap_us{0};
 std::atomic<OSStatus> callback_error{noErr};
 std::atomic<uint16_t> output_volume{256};
 uint32_t sample_rate = 0;
@@ -48,6 +51,7 @@ size_t logged_underruns = 0;
 size_t logged_resumes = 0;
 size_t dropped_buffers = 0;
 size_t dropped_frames = 0;
+size_t logged_callback_gaps = 0;
 
 size_t available_frames() {
     return static_cast<size_t>(frames_written.load(std::memory_order_acquire) -
@@ -90,6 +94,18 @@ void fill_buffer(AudioQueueBufferRef buffer) {
 }
 
 void output_done(void *, AudioQueueRef audio_queue, AudioQueueBufferRef buffer) {
+    const auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                            std::chrono::steady_clock::now().time_since_epoch()).count();
+    const int64_t previous_ns = last_callback_ns.exchange(now_ns, std::memory_order_relaxed);
+    if (previous_ns != 0) {
+        const int64_t gap_us = (now_ns - previous_ns) / 1000;
+        if (gap_us >= 40000) {
+            callback_gaps_over_40ms.fetch_add(1, std::memory_order_relaxed);
+            int64_t largest = largest_callback_gap_us.load(std::memory_order_relaxed);
+            while (gap_us > largest && !largest_callback_gap_us.compare_exchange_weak(
+                       largest, gap_us, std::memory_order_relaxed)) {}
+        }
+    }
     completed_buffers.fetch_add(1, std::memory_order_relaxed);
     if (buffer->mUserData != nullptr) {
         completed_nonzero_buffers.fetch_add(1, std::memory_order_relaxed);
@@ -117,6 +133,9 @@ void stop_locked() {
     resumes.store(0, std::memory_order_relaxed);
     completed_nonzero_buffers.store(0, std::memory_order_relaxed);
     completed_buffers.store(0, std::memory_order_relaxed);
+    last_callback_ns.store(0, std::memory_order_relaxed);
+    callback_gaps_over_40ms.store(0, std::memory_order_relaxed);
+    largest_callback_gap_us.store(0, std::memory_order_relaxed);
     callback_error.store(noErr, std::memory_order_relaxed);
     started = false;
     paused_for_inactive = false;
@@ -126,6 +145,7 @@ void stop_locked() {
     logged_resumes = 0;
     dropped_buffers = 0;
     dropped_frames = 0;
+    logged_callback_gaps = 0;
     next_retry = {};
     last_callback_progress = {};
     observed_completed_buffers = 0;
@@ -182,6 +202,7 @@ extern "C" void squirrelpad_audio_set_active(bool active) {
     scene_active = active;
     if (queue == nullptr || !started) return;
     if (!active) {
+        last_callback_ns.store(0, std::memory_order_relaxed);
         const OSStatus result = AudioQueuePause(queue);
         if (result == noErr) {
             paused_for_inactive = true;
@@ -194,6 +215,7 @@ extern "C" void squirrelpad_audio_set_active(bool active) {
         const OSStatus result = AudioQueueStart(queue, nullptr);
         if (result == noErr) {
             paused_for_inactive = false;
+            last_callback_ns.store(0, std::memory_order_relaxed);
             observed_completed_buffers = completed_buffers.load(std::memory_order_relaxed);
             last_callback_progress = std::chrono::steady_clock::now();
         } else {
@@ -298,6 +320,15 @@ extern "C" size_t squirrelpad_audio_get_frames_remaining() {
     }
     const OSStatus error = callback_error.exchange(noErr, std::memory_order_relaxed);
     if (error != noErr) std::fprintf(stderr, "[mobile audio] callback enqueue failed: %d\n", (int)error);
+    const size_t gaps = callback_gaps_over_40ms.load(std::memory_order_relaxed);
+    if (gaps != logged_callback_gaps) {
+        logged_callback_gaps = gaps;
+        if (gaps <= 3 || gaps % 64 == 0) {
+            std::fprintf(stderr, "[mobile audio] callback gaps >=40 ms: %zu; longest %lld us; queued %zu frames\n",
+                         gaps, (long long)largest_callback_gap_us.load(std::memory_order_relaxed),
+                         available_frames());
+        }
+    }
     const size_t frames = available_frames();
     return frames > playback_reserve ? frames - playback_reserve : 0;
 }
