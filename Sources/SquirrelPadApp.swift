@@ -184,7 +184,11 @@ struct SquirrelPadApp: App {
                 case .failure(let error): session.message = "Could not choose ROM: \(error.localizedDescription)"
                 }
             }
-            .onChange(of: menuOpen) { open in if open { clearTouchInput() } }
+            .onChange(of: menuOpen) { open in
+                if open { clearTouchInput() }
+                updateCoreActivity()
+            }
+            .onChange(of: editingLayout) { _ in updateCoreActivity() }
             .onChange(of: touchEnabled) { enabled in if !enabled { clearTouchInput() } }
             .onChange(of: showDpad) { _ in clearTouchInput() }
             .onChange(of: showCButtons) { _ in clearTouchInput() }
@@ -194,7 +198,7 @@ struct SquirrelPadApp: App {
                     clearTouchInput()
                     editingLayout = false
                 }
-                setCoreActive(phase == .active)
+                updateCoreActivity()
             }
             .onChange(of: session.running) { running in
                 if !running {
@@ -360,6 +364,10 @@ struct SquirrelPadApp: App {
     private func toggleMenu() {
         if !menuOpen { clearTouchInput() }
         menuOpen.toggle()
+    }
+
+    private func updateCoreActivity() {
+        setCoreActive(scenePhase == .active && !menuOpen && !editingLayout)
     }
 
     private func savedLayout(compact: Bool) -> [String: CGPoint] {
