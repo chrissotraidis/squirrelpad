@@ -1,0 +1,11 @@
+diff --git a/librecomp/include/librecomp/rsp.hpp b/librecomp/include/librecomp/rsp.hpp
+index 748558c..a9079ad 100644
+--- a/librecomp/include/librecomp/rsp.hpp
++++ b/librecomp/include/librecomp/rsp.hpp
+@@ -92,4 +92,5 @@ static inline void RSP_MEM_H_STORE(uint32_t offset, uint32_t addr, uint32_t val)
+-#define SET_DMA_MEM(mem_addr) dma_mem_address = (mem_addr)
++// SP_MEM_ADDR exposes 12 address bits and one IMEM bank bit.
++#define SET_DMA_MEM(mem_addr) dma_mem_address = ((mem_addr) & 0x1FFF)
+ #define SET_DMA_DRAM(dram_addr) dma_dram_address = (dram_addr)
+ #define DO_DMA_READ(rd_len) dma_rdram_to_dmem(rdram, dma_mem_address, dma_dram_address, (rd_len))
+ #define DO_DMA_WRITE(wr_len) dma_dmem_to_rdram(rdram, dma_mem_address, dma_dram_address, (wr_len))

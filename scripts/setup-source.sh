@@ -29,6 +29,7 @@ apply_once() {
 
 apply_once "$checkout/tools/N64Recomp" "$checkout/recomp/n64recomp.patch"
 apply_once "$checkout/tools/N64ModernRuntime" "$checkout/recomp/n64modernruntime.patch"
+apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-rsp-dma-address.patch"
 apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-ios-mods.patch"
 apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-ios-qos.patch"
 apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-ios-clock.patch"
