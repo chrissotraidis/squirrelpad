@@ -441,3 +441,7 @@ host/build-macos-metal/ConkerRecomp --rom "$PWD/conker/baserom.us.z64" --seconds
 ```
 
 The windowed host changes its working directory to the executable's directory, so the `--rom` value must be absolute. Both builds emit private ROM-derived native code; keep binaries local.
+
+## Translucent Settings redraw isolation (2026-09-29)
+
+On the iPad Pro 11-inch (M4), iOS 18.5 Simulator, the intermittent partial Settings redraw also occurred with the RT64 Metal surface temporarily removed: Controls showed missing border segments while accessibility still listed its controls. A no-Metal build with a fully opaque black panel drew Controls and Audio completely in the observed opening and tab switch, but that one pass does not prove a fix and loses the reference's translucency. Two narrower translucent variants—a separately filled `drawingGroup` backing and a rectangular backing clipped to the rounded panel—both reproduced missing header/border regions on Controls → Audio; the latter failure was captured at `work/evidence/ipad-menu-clip-backdrop-audio-failure.png`. Removing the dimming layer behind the menu also reproduced the defect on Controls opening. These were diagnostic builds, not acceptance builds. All source changes were removed. The next menu experiment should isolate the panel's presentation from the main game/launcher ZStack while retaining a translucent backdrop and the current close/tab interactions; background modifier substitutions alone are exhausted by this evidence. Menu parity remains open.
