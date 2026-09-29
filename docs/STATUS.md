@@ -292,6 +292,10 @@ On the iPad Simulator, touch stick navigation reached **GAME2 → NEW GAME** and
 
 **Open:** the runtime's `osGetTime` and timer thread still use wall time, and this gate does not prove game time or timer messages stay frozen on return. Audio output during background/interruptions and longer sleep/wake remain unmeasured. Do not mark G5 complete until those clocks, distinct in-level save states and repeated lifecycle transitions pass.
 
+## Background clock baseline (2026-09-28)
+
+A temporary `osGetTime()` print at the existing scene-activity bridge measured the iPad Pro 11-inch (M4), iOS 18.5 Simulator during one Home-screen interval. The first inactive notification read 1,146,155,109 ticks; the next active notification read 2,105,362,265 ticks. At 46,875,000 ticks per second, the game clock advanced 20.46 seconds while the app was backgrounded (`work/g5-clock-probe-ipad-run.log`). The VI display-list count stayed at #240 until the return and then resumed at #300. The probe was removed. This confirms that the VI gate alone does not freeze `osGetTime()`; it does not show whether any particular game timer fired. A fix must keep the VI schedule, `osGetTime()` and queued timer deadlines on one paused clock, then recheck background/foreground on both Simulators.
+
 ## GPU resource-limit experiment
 
 The first iPad RT64 build failed to load SDK 26 Metal 4 blobs on iOS 18.5. Recompiling the 56 blobs for `air64-apple-ios17.0-simulator` with `-std=metal3.1` let RT64 initialize. Its raster pixel shaders then exceeded the Simulator's 16-sampler limit with 18 declarations. `patches/rt64-ios-sampler-limit.patch` replaces two nearest mirror/clamp samplers with a mirrored UV transform and the existing nearest clamp sampler. All six generated `RasterPS*.metal` variants now declare 16 samplers. The rebuilt Simulator app progressed from three display lists and a shader-thread abort to visible moving frames and more than 9,700 display lists. Mirror edge fidelity still needs comparison with the macOS control.
