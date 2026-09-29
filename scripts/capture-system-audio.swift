@@ -1,8 +1,8 @@
 import AVFoundation
 import ScreenCaptureKit
 
-// Diagnostic capture of all Mac system audio, including Simulator output.
-// Run with other audio apps quiet; keep game recordings under ignored work/.
+// Diagnostic capture of system audio, including Simulator output. Pass an exact
+// application name to capture only that process. Keep recordings under ignored work/.
 
 final class AudioOutput: NSObject, SCStreamOutput {
     let writer: AVAssetWriter
@@ -44,16 +44,25 @@ final class AudioOutput: NSObject, SCStreamOutput {
 
 @main struct Capture {
     static func main() async throws {
-        guard CommandLine.arguments.count == 3,
+        guard (CommandLine.arguments.count == 3 || CommandLine.arguments.count == 4),
               let seconds = UInt64(CommandLine.arguments[2]) else {
-            fatalError("usage: capture-system-audio output.m4a seconds")
+            fatalError("usage: capture-system-audio output.m4a seconds [application-name]")
         }
         let url = URL(fileURLWithPath: CommandLine.arguments[1])
         let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
         guard let display = content.displays.first else {
             fatalError("display not available")
         }
-        let filter = SCContentFilter(display: display, excludingWindows: [])
+        let filter: SCContentFilter
+        if CommandLine.arguments.count == 4 {
+            let name = CommandLine.arguments[3]
+            guard let app = content.applications.first(where: { $0.applicationName == name }) else {
+                fatalError("application not found: \(name)")
+            }
+            filter = SCContentFilter(display: display, including: [app], exceptingWindows: [])
+        } else {
+            filter = SCContentFilter(display: display, excludingWindows: [])
+        }
         let configuration = SCStreamConfiguration()
         configuration.capturesAudio = true
         configuration.excludesCurrentProcessAudio = true
