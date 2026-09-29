@@ -1,0 +1,23 @@
+diff --git a/librecomp/src/files.cpp b/librecomp/src/files.cpp
+index af6f18d..0689a3f 100644
+--- a/librecomp/src/files.cpp
++++ b/librecomp/src/files.cpp
+@@ -42,10 +42,18 @@ bool recomp::finalize_output_file_with_backup(const std::filesystem::path& filep
+             return false;
+         }
+     }
++#if defined(__APPLE__)
++    // Both paths are in the same save directory. Rename replaces the live file
++    // atomically, so an interrupted write leaves either the old or new save.
++    std::filesystem::rename(temp_path, filepath, ec);
++#else
+     std::filesystem::copy_file(temp_path, filepath, std::filesystem::copy_options::overwrite_existing, ec);
++#endif
+     if (ec) {
+         return false;
+     }
++#if !defined(__APPLE__)
+     std::filesystem::remove(temp_path, ec);
++#endif
+     return true;
+ }
