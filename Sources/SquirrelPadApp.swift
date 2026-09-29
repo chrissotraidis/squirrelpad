@@ -1,5 +1,6 @@
 import CryptoKit
 import SwiftUI
+import UIKit
 import UniformTypeIdentifiers
 
 private extension UTType {
@@ -110,6 +111,7 @@ struct SquirrelPadApp: App {
             GeometryReader { geometry in
                 let compact = geometry.size.height < 560
                 let menuSize: CGFloat = compact && !menuOpen ? 32 : compact ? 44 : 38
+                let menuSideMargin = compact ? compactMenuSideMargin() : 28
                 ZStack {
                     Color.black
                     RT64Surface(renderer: renderer)
@@ -140,7 +142,8 @@ struct SquirrelPadApp: App {
                     if menuOpen {
                         Color.black.opacity(0.28)
                             .onTapGesture { menuOpen = false }
-                        controlsPanel(compact: compact, size: geometry.size)
+                        controlsPanel(compact: compact, size: geometry.size,
+                                      sideMargin: menuSideMargin)
                             .position(x: geometry.size.width / 2,
                                       y: geometry.size.height / 2 - (compact ? 16 : 0))
                     }
@@ -232,7 +235,15 @@ struct SquirrelPadApp: App {
         .background(.black.opacity(0.76), in: RoundedRectangle(cornerRadius: 18))
     }
 
-    private func controlsPanel(compact: Bool, size: CGSize) -> some View {
+    private func compactMenuSideMargin() -> CGFloat {
+        let insets = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+            .first(where: \.isKeyWindow)?.safeAreaInsets ?? .zero
+        return max(32, max(insets.left, insets.right) + 8)
+    }
+
+    private func controlsPanel(compact: Bool, size: CGSize, sideMargin: CGFloat) -> some View {
         VStack(spacing: 0) {
             HStack(spacing: 16) {
                 Text("Settings")
@@ -386,7 +397,7 @@ struct SquirrelPadApp: App {
             }
         }
         .foregroundStyle(.white)
-        .frame(width: size.width - (compact ? 64 : 56),
+        .frame(width: size.width - sideMargin * 2,
                height: size.height - (compact ? 64 : 56))
         .background(Color.black.opacity(0.78), in: RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(.white.opacity(0.35)))
