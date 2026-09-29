@@ -156,7 +156,7 @@ struct SquirrelPadApp: App {
                         .padding(.vertical, 8)
                         .background(.black.opacity(0.82), in: Capsule())
                         .position(x: geometry.size.width / 2, y: compact ? 42 : 48)
-                    } else {
+                    } else if !menuOpen {
                         Button(action: toggleMenu) {
                             Text("•••")
                                 .font(.system(size: compact ? 17 : 15, weight: .semibold))
