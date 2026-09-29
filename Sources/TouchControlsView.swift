@@ -35,10 +35,10 @@ private struct TouchButton: View {
             .font(.system(size: compact ? 15 : 18, weight: .semibold))
             .foregroundStyle(.white)
             .frame(width: width, height: size)
-            .background(control.tint.opacity(held ? 0.86 : 0.48),
+            .background(control.tint.opacity(held ? 0.70 : 0.30),
                         in: RoundedRectangle(cornerRadius: size / 2))
             .overlay(RoundedRectangle(cornerRadius: size / 2)
-                .stroke(.white.opacity(held ? 0.9 : 0.58), lineWidth: 2))
+                .stroke(.white.opacity(held ? 0.9 : 0.72), lineWidth: 2))
             .contentShape(RoundedRectangle(cornerRadius: size / 2))
             .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .named("touchLayout"))
                 .onChanged { _ in
