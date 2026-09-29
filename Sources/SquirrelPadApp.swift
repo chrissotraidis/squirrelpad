@@ -277,6 +277,43 @@ struct SquirrelPadApp: App {
                             Text("Show the N64 controls on the game screen.")
                                 .font(.subheadline)
                                 .foregroundStyle(.white.opacity(0.68))
+                            Divider().overlay(.white.opacity(0.4))
+                            Text("Controller Bindings")
+                                .font(.headline)
+                            HStack {
+                                Text("Connected")
+                                Spacer()
+                                Text(controllerInput.connectedName ?? "None")
+                                    .foregroundStyle(.white.opacity(0.68))
+                            }
+                            .font(.subheadline)
+                            if controllerInput.connectedName != nil {
+                                Text(controllerInput.rumbleAvailable ? "Rumble available" : "Rumble unavailable")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.white.opacity(0.68))
+                            }
+                            VStack(spacing: 0) {
+                                ForEach(ControllerInput.bindings.indices, id: \.self) { index in
+                                    let binding = ControllerInput.bindings[index]
+                                    HStack {
+                                        Text(binding.n64)
+                                        Spacer()
+                                        Text(binding.gamepad)
+                                            .foregroundStyle(.white.opacity(0.68))
+                                    }
+                                    .font(.system(size: compact ? 14 : 17))
+                                    .padding(.vertical, compact ? 5 : 7)
+                                    .accessibilityElement(children: .combine)
+                                    if index + 1 < ControllerInput.bindings.count {
+                                        Divider().overlay(.white.opacity(0.2))
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 12)
+                            .background(.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 6))
+                            Divider().overlay(.white.opacity(0.4))
+                            Text("Touch Layout")
+                                .font(.headline)
                             VStack(alignment: .leading, spacing: 5) {
                                 HStack {
                                     Text("Control Size")

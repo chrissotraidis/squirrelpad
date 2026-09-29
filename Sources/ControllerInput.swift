@@ -8,6 +8,15 @@ private func clearControllerState()
 
 @MainActor
 final class ControllerInput: ObservableObject {
+    static let bindings: [(n64: String, gamepad: String)] = [
+        ("Stick", "Left stick"), ("A", "A"), ("B", "B"),
+        ("Z", "LT / RT"), ("Start", "Menu"),
+        ("L", "LB"), ("R", "RB"),
+        ("C buttons", "Right stick"), ("D-pad", "D-pad")
+    ]
+
+    @Published private(set) var connectedName: String?
+    @Published private(set) var rumbleAvailable = false
     private var controller: GCController?
     private var active = false
     private var observers: [NSObjectProtocol] = []
@@ -45,6 +54,8 @@ final class ControllerInput: ObservableObject {
         controller?.extendedGamepad?.valueChangedHandler = nil
         clearControllerState()
         controller = next
+        connectedName = next.map { $0.vendorName ?? "Game Controller" }
+        rumbleAvailable = next?.haptics != nil
         next?.extendedGamepad?.valueChangedHandler = { [weak self, weak next] _, _ in
             DispatchQueue.main.async { [weak self, weak next] in
                 guard let self, self.controller === next else { return }
