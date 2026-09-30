@@ -22,6 +22,24 @@ private ROM data remain ignored under `work/`.
 
 ## Next useful test
 
+### Longer gameplay check, 2026-09-30
+
+The Birdy route reproduced one further underrun followed by reserve recovery in
+`work/birdy-route-ipad-run.log`, between display-list reports 66,360 and 66,420.
+Earlier 87/81/100 ms submission gaps retained 2,328–2,680 queued frames and did
+not underrun. The counter's implementation was rechecked: it increments when
+active playback has fewer samples than an output buffer requires, and the
+missing remainder is explicitly zero-filled. It is not a count of ordinary
+silent game samples.
+
+A 50-second system-mix recording during the scene-testing sequence completed
+with 2,652 accepted buffers, zero rejected buffers and no writer error
+(`work/evidence/birdy-route-ipad-dialogue.caf`). This run did not capture paired
+submitted PCM, and the underrun report has no event timestamp; therefore the
+recording cannot yet localize the exact failing sample boundary. It is neither
+a listening-quality pass nor proof of a Simulator-only cause. No audio change
+was justified or retained.
+
 Capture a reproducible audible failure in an identified scene, with the same
 interval's submitted PCM, inserted-silence count and system output. Determine
 whether the defect first appears in generated PCM, late production, or downstream
