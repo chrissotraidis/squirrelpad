@@ -89,6 +89,27 @@ or proof that a device causes Chris's glitches. No production change was made.
 Private harness, captures and results: `work/audio-live-positive*`,
 `work/evidence/audio-live-positive.{caf,wav}`.
 
+### Natural starvation window captured
+
+The next iPad run captured an actual failure in the rolling recorder, without
+injected delay: a 235 ms production gap with zero queued frames. Of 1,000
+filled buffers, the event buffer copied only 32 frames and padded 224 zeros;
+three following buffers padded 256 zeros each. Total inserted silence was
+992 frames (45.05 ms). The copied samples matched raw submitted PCM exactly
+across eight ring wraps. Mean filled-buffer spacing was 11.627 ms, near the
+11.626 ms expected at 22,020 Hz; the maximum was 21.455 ms. This captured
+event therefore localizes to late production, with no sample-transport
+mismatch or >=40 ms callback interval found in that window.
+
+The same run later reached Birdy's beer scene and logged a cluster of further
+underruns, finishing with seven reports and 17,040 inserted silent frames
+including recovery. The recorder had already frozen its first event, and
+the system recordings missed the exact event intervals. Neither downstream
+localization of those natural events nor a complete dialogue-quality pass
+is established. Private evidence: `work/audio-birdy-flight-{ring,boundary}.json`
+and `work/audio-birdy-flight-ipad-probe-run.log`. Next capture must keep system
+output continuous and rearm the recorder safely between natural events.
+
 ### Diagnostic improvement
 
 The backend now reports the latest underrun's steady-clock timestamp in the
