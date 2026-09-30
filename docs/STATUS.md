@@ -908,3 +908,57 @@ The observed production gap was 388 ms, queued frames zero, one underrun, and 3,
 **Restored:** production backend byte-restored, probe OFF, normal Release build succeeded (`work/audio-birdy-flight-normal-{config,build}.log`); no probe/flight symbols remain. Rebuilt binary SHA `aa48dba71d0331dc2c905a054cf5b85aec527a7b41bd57584b8cb484a0f9ab19` differs from prior normal binary despite identical source/size. Comparison found UUID/signature differences plus 61 bytes in linker stubs; a UUID/signature-only equality assertion failed, so no byte-identical rebuild claim. To restore the exact known app, copied the preserved normal iPhone bundle to private `work/audio-birdy-normal-original.app` and installed it in place on iPad, recovering installed executable SHA `61656792bfbe6fb6d54933338c1b50b56b6c03796dd71cd0eae2aba27e865026`. No app data was copied or erased. Launcher / Continue Imported ROM visually checked; terminated and shut down iPad. Phone app unchanged; no phone gameplay replay or new device SDK build. Private ROM/saves/settings preserved. No production/game/audio change retained; local evidence commit only, never pushed.
 
 **Next:** continuous system-output capture spanning the identified scene, with safe repeated capture of natural starvation windows; then repair only a measured failing boundary. Audio fidelity, story/checkpoints, menu/touch parity and hardware gates remain open. Chris still owns unavailable physical audio/routes/listening, touch feel, controllers and sustained hardware play.
+
+
+## Repeated audio recorder and continuous game capture (2026-09-30)
+
+**Progress, no audio fix:** private recorder safely rearms after each producer-side
+dump, with callback-owned counter reset and numbered files. Two-event synthetic
+and three-event clustered checks pass with zero copied-sample mismatches. Actual
+native AudioQueue positive control pauses production twice for 350 ms: two events,
+11,648 total inserted zeros, split 3,904/7,744 across two valid captures. The final
+log's obsolete `capture=0` field reports the reset dump flag; serial/files and exit
+assertion establish two captures, and the private harness print was corrected.
+Paired system recording: 2,044 accepted buffers, zero rejected, writer completed
+without error. Raw-to-filled PCM matches exactly; downstream correlation minima
+0.9283/0.9300, maximum fitted offsets 0.167/0 ms. Silence centers excluding 15 ms
+edges: 147.29/321.67 ms exact zeros, with nonzero adjacent RMS. These deliberately
+induced native failures validate repeated measurement, not natural causation.
+Evidence: `work/audio-repeat-live-{1,2}-{output,boundary}.json` and numbered `.bin`
+files; `work/evidence/audio-repeat-live.{caf,wav}`. Initial synthetic stimulus did
+not exhaust the recovered reserve a second time; extended withholding corrected
+the test. No production change followed from that test correction.
+
+**Not reproduced, continuous natural test:** temporary capture/input-probe Release
+build succeeded, executable SHA-256
+`d3173a7122fa514cb803bbdcc156fca5decf4b89c95f2097171d837d7925d67e`.
+iPad Pro 11-inch M4 / iOS 18.5; retained console from 11:09:37 to 11:19:45 local.
+Continue Imported ROM → touch Start → GAME1/PLAY → first field, ordinary movement
+and camera/buttons to Birdy's plot/pad were viewed. Full lesson/beer scene not
+established by these frames; no new cure/checkpoint claim. No logged underrun,
+>=80 ms submission gap, callback gap, dropped PCM or stalled queue; no numbered
+natural dump. System capture started before launch and stopped on request at
+~610 seconds, rather than its 1,800-second cap: 30,558 accepted buffers, zero
+rejected, writer status completed / nil error (`work/audio-repeat-game-capture.log`).
+Actual output MacBook Air Speakers (`work/audio-repeat-game-route.txt`); route
+query emitted the existing Swift CFString pointer warning but returned the app's
+active output. Private screenshot `work/evidence/audio-repeat-game-birdy.png`
+and viewed live frames establish only the route shown. Quiet interval does not
+invalidate previous natural starvation or pass listening quality.
+
+**Restored:** backend byte-equal to HEAD; normal probe-OFF Release build succeeded
+(`work/audio-repeat-normal-{config,build}.log`). Installed preserved exact normal
+bundle in place, verified installed executable SHA
+`61656792bfbe6fb6d54933338c1b50b56b6c03796dd71cd0eae2aba27e865026`;
+viewed launcher / Continue Imported ROM, terminated and shut down iPad. All capture,
+console and build sessions completed. Phone unchanged; no new phone or device SDK
+acceptance claim. Private ROM/saves/settings preserved. Local evidence commit only,
+never pushed. Full story, checkpoint, menu/touch fidelity and hardware gates stay open.
+
+**Conclusion:** measured natural underruns are real late-production holes. Prior
+thread evidence supports host scheduling as a contributor, not a complete device
+attribution. This turn proves repeated paired failure measurement works; it does
+not prove that all Chris's glitches are underruns or that real hardware cures them.
+Next: capture a natural failure with continuous downstream output plus event-time
+producer state, then repair only the failing boundary. Chris still owns physical
+listening/routes, touch feel, controllers and sustained hardware play when available.

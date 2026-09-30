@@ -143,3 +143,33 @@ Chris's scene and description (crackle, repetition, silence or incorrect voice)
 would help correlate the reported defect. Physical-device audio/routes and long
 play still need Chris when hardware becomes available. No physical-device fix is
 claimed, and no game logic change is justified by the current diagnosis.
+
+### Repeated paired capture validated
+
+The private recorder now rearms through an atomic producer-to-callback handshake;
+only the callback resets its output counters. Sequential and closely spaced
+synthetic starvation checks produced two and three numbered captures, respectively,
+with zero copied-sample mismatches. In a live native AudioQueue control, two
+intentional 350 ms producer pauses produced two captures: 3,904 and 7,744 inserted
+zero frames. Both matched raw PCM exactly. A continuous system recording accepted
+2,044 buffers with zero rejected buffers and completed without error. After
+alignment and excluding 15 ms resampling edges, the recorded silence centers were
+147.29 and 321.67 ms of exact zeros with nonzero adjacent signal. This proves
+repeated capture and downstream detection of induced starvation; it does not
+attribute natural game glitches to a device.
+
+The subsequent iPad Simulator replay recorded continuously from before launch to
+termination (about ten minutes), including GAME1/PLAY, field movement and Birdy's
+pad. No underrun, >=80 ms submission gap, callback gap, drop or queue stall was
+logged; no natural snapshot was produced. The system recorder accepted 30,558
+buffers, rejected zero and completed without error after its stop-file request.
+Actual app output was MacBook Air Speakers. Full Birdy dialogue/beer replay was
+not established from the viewed frames. This quiet experiment neither closes
+audio fidelity nor changes the existing natural-starvation conclusion.
+
+Private evidence: `work/audio-repeat-{synthetic,burst,live}*`,
+`work/audio-repeat-game-{run,capture}.log`, `work/audio-repeat-game-route.txt`, and
+`work/evidence/audio-repeat-{live.wav,game.caf}`. Production source was restored;
+no buffering, priority, game logic or host routing change was retained. The next
+useful measurement remains a natural failure paired with continuous system output
+and event-time producer state. Physical-device causation remains unknown.
