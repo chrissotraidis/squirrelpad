@@ -5,7 +5,7 @@ Updated 2026-09-30. Work the lowest unmet goal in [GOAL_LOOP.md](GOAL_LOOP.md). 
 | Gate | State | Measured result and remaining test |
 | --- | --- | --- |
 | G0 pinned inputs | Pass for source inputs | `sources.lock.json` pins Conker and its submodules. A fresh ignored checkout replayed every patch and regenerated 127 game files byte-for-byte identical to the existing output from the verified private US ROM. `docs/SOURCE_BOUNDARY.md` inventories the source/licensing boundary; independent tool/renderer builds and package audit remain G8. |
-| G1 macOS control | In progress | ARM64 N64RecompCLI/RSPRecomp/RecompModTool built; `python3 recomp/recompile.py` emitted 127 files. Headless host ran 15 seconds, 895 VIs and 446 display lists, exit 0. `patches/rt64-metal-sdk-scope.patch` fixed the RecompFrontend shader command; the macOS Metal rebuild passed and its host ran 120 seconds, 7174 VIs, exit 0 on Apple M1. A later macOS startup-order fix made the native window inspectable: moving intro, GAME1 file select and native Settings were viewed through CUA on 2026-09-30. Escape opened/closed Settings; ordinary A-key selection has not reached gameplay. Audio fidelity and save/relaunch remain unverified. |
+| G1 macOS control | In progress | ARM64 N64RecompCLI/RSPRecomp/RecompModTool built; `python3 recomp/recompile.py` emitted 127 files. Headless host ran 15 seconds, 895 VIs and 446 display lists, exit 0. `patches/rt64-metal-sdk-scope.patch` fixed the RecompFrontend shader command; the macOS Metal rebuild passed and its host ran 120 seconds, 7174 VIs, exit 0 on Apple M1. A later macOS startup-order fix made the native window inspectable: moving intro, GAME1 file select and native Settings were viewed through CUA on 2026-09-30. Escape opened/closed Settings; ordinary keyboard selection has not reached gameplay. A bounded event trace found CUA key-down/key-up share a timestamp and SDL reports the key released when polling; loaded A/Start bindings are correct. This is an automation timing limitation, not a demonstrated input-mapping defect. Audio fidelity and save/relaunch remain unverified. |
 | G2 mobile core and renderer | In progress | The Conker core, RSP audio path, runtime and RT64 Metal archives compile/link into an ARM64 `iphonesimulator` app and an unsigned ARM64 `iphoneos` app. Both SDK-specific RT64 closures force-link without desktop surface symbols. Metal blobs target iOS 17.0 and Metal 3.1; iOS 18.5 Simulator loaded them. iOS excludes mod scanning, LiveRecomp initialization and the game-start `load_mods` call. The latest iOS link excludes LiveRecomp entirely; neither final executable contains LiveGenerator, ShimFunction or sljit symbols, and the device map marks native mod protect/patch functions dead stripped. Runtime RDRAM still uses non-executable mmap/mprotect. Physical execution remains unverified. Both iPad and iPhone Simulators reached gameplay with the touch input bridge. This is not physical-device or audio proof. |
 | G3 Simulator frame | Partial | The iPad Pro 11-inch (M4) and iPhone 16 Pro, both iOS 18.5, reached moving intro, game select and the **first playable field** on RT64 Metal. Fresh iPad Pro 13-inch (M5) and iPhone 17 Pro iOS 26.5 runs rejected invalid and wrong-checksum files, imported the pinned US ROM through Files, reached the first field, and loaded a saved GAME1 slot after cold app relaunch. Touch Start/A paused/resumed in that field. Captures: `work/evidence/ipad26-fresh-import-relaunch-first-field.png`, `work/evidence/iphone26-fresh-import-relaunch-first-field.png`. macOS fidelity comparison, long play and audio quality remain open. |
 | G4 touch input and audio | Partial | The continuous stick and 14 N64 touch buttons feed Conker's mobile input callback for player 0. A separate GameController state maps extended-gamepad buttons and sticks into the same callback; a hidden virtual controller supplied combined A, C-right and left-stick input in the first playable field on both Simulators, then cleared on disconnect. Individual actions, controller title navigation and physical hardware remain unverified. On both Simulators, touch Start opened the game's pause screen and A resumed at the first field. Short stick/C taps changed the picture but do not establish sustained analog feel. The three-dot menu opened/closed and hid/restored the controls in the iPad field. Opacity, control size, D-pad/C-button visibility and separate iPad/iPhone touch positions persisted across full app relaunch; Restore Defaults returned the defaults. The iOS Audio Queue consumed nonzero stereo PCM on both Simulators. After Chris reported heavy glitches, a five-buffer reserve reduced measured restarts in separate Simulator runs, but did not eliminate them and adds about 100 ms of nominal buffering. A later queue-depth trace confirmed real underruns and the restored iPad build still restarted twice through display list #4620; intermittent sample starvation remains measured, but its relationship to the audible complaint and its practical severity are unverified. Routine audio diagnosis is deferred following Chris's 2026-09-30 correction. Pausing the queue with scene inactivity removed the immediate resume underrun in two short cycles on each Simulator; this does not establish general audio quality. Audible quality, interruptions/routes, simultaneous touches and controller play remain open; Settings now pauses game time. |
@@ -1150,3 +1150,78 @@ contains no `[native input]` marker. Updated the private native control bundle
 with that normal executable. All test processes terminal, Simulators shut down;
 mobile app/code and private ROM/saves untouched. No permanent input/game/audio
 behavior change, no push. G1 and full G6 remain open.
+
+
+### 2026-09-30 — distinguish native key taps from game input faults
+
+**Progress:** previous conversational audio-status reply changed no authoritative
+state. Revalidated the next native input check rather than repeating audio work.
+Both the default and test-profile paths were inspected without changing private
+preferences: default has no controls file and uses defaults; the test profile
+assigns Space (44) to A and Return (40) to Start. A temporary SDL-event trace with
+explicit `CONKER_TEST_PROFILE=1` confirmed the actual loaded bindings. CUA emitted
+key-down/up pairs with identical SDL timestamps; both keys already reported state
+zero when handling those events (`work/native-key-timing-run.log`). Thus brief
+automated taps can miss game polling; no production keyboard or game change is
+justified by this test. The bounded host exited zero at 180 seconds, 10,169 VIs.
+No ordinary macOS gameplay or save-control pass claimed.
+
+Restored both host/frontend and RecompFrontend/input-events sources from exact
+backups, rebuilt after invalidating source timestamps, and independently checked
+the rebuilt executable contains no `[key timing]` marker
+(`work/native-key-timing-restored-build.log`). Updated the private control bundle
+with the normal executable. Native process terminal; no audio tuning.
+
+The existing normal mobile build `1f8a3e154f83289fa2858bb802604b9200efa9c7e8b57c14ac26fce9f443fd1d`
+was launched in place on iPad M4 / iOS 18.5. Continue Imported ROM and touch
+Start/A reached GAME1, PLAY and the first field. Viewed raw capture:
+`work/evidence/ordinary-touch-ipad-field.png`. Brief CUA stick drags did not
+establish further story progression; no Birdy interaction, new checkpoint or
+full-story pass claimed. Terminated the app without erasing private data.
+
+
+### 2026-09-30 — removable binding chips and compact section reveal
+
+**Pass, small menu improvement:** compared the live menu and raw Simulator
+captures with `ref/harkinianpad/docs/readme/simulator-settings.jpg`. Each of the
+six editable controller binding chips now has a labeled × removal action with a
+44-point target. It uses the existing `setBinding(.unbound, for:)` path; the
+button disappears when unbound and returns when reassigned. No game, touch
+mixer, controller mapper or audio change. This closes the extra-picker-step
+difference for removing a single binding; multiple bindings, other reference
+settings and full menu parity are still open.
+
+The first iPhone candidate left the first binding at the bottom edge when
+expanding the group. Added a compact-only ScrollViewReader reveal of the group
+heading on expansion. Final screenshots show the heading and first binding rows
+in the iPhone viewport; iPad keeps its previous expansion position. This verifies
+automatic reveal, not manual touch-scroll feel or physical usability.
+
+**Final exact builds:** Simulator and unsigned device Release builds both exited
+zero (`work/menu-remove-chip-final-{sim,device}-build.log`). Executable SHA-256:
+Simulator `f33ebdfc39bd39f392b7778ee93f81e0dd4a282fb694e52807cd2348dabf2598`;
+device `7d6cd937ebf45d0a329964a5a0909da208dcd586958290bd8f2302379d243941`.
+No physical install, source replay or package-completion claim.
+
+Installed this same normal probe-OFF Simulator app in place, one destination at
+a time, on iPhone 16 Pro / iOS 18.5 and iPad M4 / iOS 18.5. On each, tapped
+Remove A binding, terminated and relaunched, reopened Controller Bindings and
+verified A remained Unbound with no remove action. Restored A via its Picker
+and verified the A chip and removal action returned. Existing iPad 116% and
+iPhone 100% control sizes remained. Private ROM/save data and other bindings
+were preserved; no blanket reset or container erase. Viewed raw captures:
+`work/evidence/menu-remove-chip-final-ipad-persisted.png`,
+`work/evidence/menu-remove-chip-final-iphone-persisted.png`,
+`work/evidence/menu-remove-chip-final-iphone-restored.png`.
+
+Next product work remains story progression and checkpoint/relaunch fidelity,
+plus the remaining reference-menu gaps. Do not turn this focused menu pass into
+full G4/G5/G6 acceptance. Chris still owns physical touch feel, controllers, audio
+routes/listening, sleep/interruptions and sustained-device play when hardware is
+available. Audio diagnosis remains deferred per his direction.
+
+Adjacent UI regression checks passed on the final build: after expanding
+bindings, Audio displayed its full pane on both classes (iPad volume 100%,
+iPhone volume 50%, unchanged). Close returned to the launcher on both. These
+were UI checks, with no audio recording/tuning or listening-quality claim. All
+native/build/launch sessions are terminal; both Simulators shut down.

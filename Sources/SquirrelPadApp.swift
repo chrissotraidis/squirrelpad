@@ -302,151 +302,174 @@ struct SquirrelPadApp: App {
 
                 Rectangle().fill(.white.opacity(0.6)).frame(width: 2)
 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: compact ? 10 : 24) {
-                        if settingsSection == .controls {
-                            Text("Controls")
-                                .font(.system(size: compact ? 23 : 29, weight: .semibold))
-                            Toggle("Touch Controls", isOn: $touchEnabled)
-                                .tint(.blue)
-                            Text("Show the N64 controls on the game screen.")
-                                .font(.subheadline)
-                                .foregroundStyle(.white.opacity(0.68))
-                            HStack {
-                                Text("Game Controller")
-                                Spacer()
-                                Text(controllerInput.connectedName ?? "Not connected")
+                ScrollViewReader { scrollProxy in
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: compact ? 10 : 24) {
+                            if settingsSection == .controls {
+                                Text("Controls")
+                                    .font(.system(size: compact ? 23 : 29, weight: .semibold))
+                                Toggle("Touch Controls", isOn: $touchEnabled)
+                                    .tint(.blue)
+                                Text("Show the N64 controls on the game screen.")
+                                    .font(.subheadline)
                                     .foregroundStyle(.white.opacity(0.68))
-                            }
-                            .font(.subheadline)
-                            Divider().overlay(.white.opacity(0.4))
-                            Button { bindingsExpanded.toggle() } label: {
-                                HStack(spacing: 10) {
-                                    Image(systemName: bindingsExpanded ? "chevron.down" : "chevron.right")
-                                    Text("Controller Bindings")
-                                    Rectangle()
-                                        .fill(.white.opacity(0.4))
-                                        .frame(height: 1)
-                                }
-                                .font(.headline)
-                                .padding(.vertical, 5)
-                                .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityValue(bindingsExpanded ? "Expanded" : "Collapsed")
-                            if bindingsExpanded {
-                                if controllerInput.connectedName != nil {
-                                    Text(controllerInput.rumbleAvailable ? "Rumble available" : "Rumble unavailable")
-                                        .font(.subheadline)
+                                HStack {
+                                    Text("Game Controller")
+                                    Spacer()
+                                    Text(controllerInput.connectedName ?? "Not connected")
                                         .foregroundStyle(.white.opacity(0.68))
                                 }
-                                VStack(spacing: compact ? 5 : 7) {
-                                    ForEach(ControllerInput.bindings.indices, id: \.self) { index in
-                                        let binding = ControllerInput.bindings[index]
-                                        HStack(spacing: 8) {
-                                            Text(binding.n64)
-                                                .frame(width: compact ? 86 : 120, alignment: .leading)
-                                                .padding(.horizontal, 10)
-                                                .padding(.vertical, 7)
-                                                .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: 4))
-                                            if let action = ControllerAction(rawValue: binding.n64) {
-                                                Picker("\(binding.n64) gamepad binding", selection: Binding(
-                                                    get: { controllerInput.binding(for: action) },
-                                                    set: { controllerInput.setBinding($0, for: action) }
-                                                )) {
-                                                    ForEach(GamepadButton.allCases, id: \.self) { button in
-                                                        Text(button.rawValue).tag(button)
-                                                    }
-                                                }
-                                                .pickerStyle(.menu)
-                                                .tint(.white)
-                                                .padding(.horizontal, 4)
-                                                .background(.blue.opacity(0.68), in: RoundedRectangle(cornerRadius: 4))
-                                            } else {
-                                                Text(binding.gamepad)
+                                .font(.subheadline)
+                                Divider().overlay(.white.opacity(0.4))
+                                Button { bindingsExpanded.toggle() } label: {
+                                    HStack(spacing: 10) {
+                                        Image(systemName: bindingsExpanded ? "chevron.down" : "chevron.right")
+                                        Text("Controller Bindings")
+                                        Rectangle()
+                                            .fill(.white.opacity(0.4))
+                                            .frame(height: 1)
+                                    }
+                                    .font(.headline)
+                                    .padding(.vertical, 5)
+                                    .contentShape(Rectangle())
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityValue(bindingsExpanded ? "Expanded" : "Collapsed")
+                                .id("controller-bindings")
+                                .onChange(of: bindingsExpanded) { expanded in
+                                    if compact && expanded {
+                                        withAnimation {
+                                            scrollProxy.scrollTo("controller-bindings", anchor: .top)
+                                        }
+                                    }
+                                }
+                                if bindingsExpanded {
+                                    if controllerInput.connectedName != nil {
+                                        Text(controllerInput.rumbleAvailable ? "Rumble available" : "Rumble unavailable")
+                                            .font(.subheadline)
+                                            .foregroundStyle(.white.opacity(0.68))
+                                    }
+                                    VStack(spacing: compact ? 5 : 7) {
+                                        ForEach(ControllerInput.bindings.indices, id: \.self) { index in
+                                            let binding = ControllerInput.bindings[index]
+                                            HStack(spacing: 8) {
+                                                Text(binding.n64)
+                                                    .frame(width: compact ? 86 : 120, alignment: .leading)
                                                     .padding(.horizontal, 10)
                                                     .padding(.vertical, 7)
+                                                    .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: 4))
+                                                if let action = ControllerAction(rawValue: binding.n64) {
+                                                    HStack(spacing: 0) {
+                                                        Picker("\(binding.n64) gamepad binding", selection: Binding(
+                                                            get: { controllerInput.binding(for: action) },
+                                                            set: { controllerInput.setBinding($0, for: action) }
+                                                        )) {
+                                                            ForEach(GamepadButton.allCases, id: \.self) { button in
+                                                                Text(button.rawValue).tag(button)
+                                                            }
+                                                        }
+                                                        .pickerStyle(.menu)
+                                                        .tint(.white)
+                                                        .padding(.horizontal, 4)
+                                                        if controllerInput.binding(for: action) != .unbound {
+                                                            Button {
+                                                                controllerInput.setBinding(.unbound, for: action)
+                                                            } label: {
+                                                                Image(systemName: "xmark")
+                                                                    .font(.system(size: 12, weight: .bold))
+                                                                    .frame(width: 44, height: 44)
+                                                            }
+                                                            .buttonStyle(.plain)
+                                                            .accessibilityLabel("Remove \(binding.n64) binding")
+                                                        }
+                                                    }
                                                     .background(.blue.opacity(0.68), in: RoundedRectangle(cornerRadius: 4))
+                                                } else {
+                                                    Text(binding.gamepad)
+                                                        .padding(.horizontal, 10)
+                                                        .padding(.vertical, 7)
+                                                        .background(.blue.opacity(0.68), in: RoundedRectangle(cornerRadius: 4))
+                                                }
+                                                Spacer(minLength: 0)
                                             }
-                                            Spacer(minLength: 0)
+                                            .font(.system(size: compact ? 14 : 17))
                                         }
-                                        .font(.system(size: compact ? 14 : 17))
+                                        Button("Restore Controller Bindings") { controllerInput.restoreBindings() }
+                                            .font(.subheadline)
+                                            .padding(.top, 4)
                                     }
-                                    Button("Restore Controller Bindings") { controllerInput.restoreBindings() }
-                                        .font(.subheadline)
-                                        .padding(.top, 4)
                                 }
-                            }
-                            Divider().overlay(.white.opacity(0.4))
-                            Text("Touch Layout")
-                                .font(.headline)
-                            VStack(alignment: .leading, spacing: 5) {
-                                HStack {
-                                    Text("Control Size")
-                                    Spacer()
-                                    Text("\(Int((controlScale * 100).rounded()))%")
-                                        .monospacedDigit()
-                                }
-                                Slider(value: $controlScale, in: 0.8...1.2)
-                                    .tint(.blue)
-                            }
-                            .disabled(!touchEnabled)
-                            Divider().overlay(.white.opacity(0.4))
-                            Toggle("Transparent Controls", isOn: $touchTransparency)
-                                .tint(.blue)
-                                .disabled(!touchEnabled)
-                            if touchTransparency {
+                                Divider().overlay(.white.opacity(0.4))
+                                Text("Touch Layout")
+                                    .font(.headline)
                                 VStack(alignment: .leading, spacing: 5) {
                                     HStack {
-                                        Text("Control Opacity")
+                                        Text("Control Size")
                                         Spacer()
-                                        Text("\(Int((touchOpacity * 100).rounded()))%")
+                                        Text("\(Int((controlScale * 100).rounded()))%")
                                             .monospacedDigit()
                                     }
-                                    Slider(value: $touchOpacity, in: 0.25...1.0)
+                                    Slider(value: $controlScale, in: 0.8...1.2)
                                         .tint(.blue)
                                 }
                                 .disabled(!touchEnabled)
-                            }
-                            Divider().overlay(.white.opacity(0.4))
-                            Text("Button Visibility")
-                                .font(.headline)
-                            Toggle("D-pad Buttons", isOn: $showDpad)
-                                .tint(.blue)
-                            Toggle("C Buttons", isOn: $showCButtons)
-                                .tint(.blue)
-                            Button("Edit Layout") { beginLayoutEdit(compact: compact) }
+                                Divider().overlay(.white.opacity(0.4))
+                                Toggle("Transparent Controls", isOn: $touchTransparency)
+                                    .tint(.blue)
+                                    .disabled(!touchEnabled)
+                                if touchTransparency {
+                                    VStack(alignment: .leading, spacing: 5) {
+                                        HStack {
+                                            Text("Control Opacity")
+                                            Spacer()
+                                            Text("\(Int((touchOpacity * 100).rounded()))%")
+                                                .monospacedDigit()
+                                        }
+                                        Slider(value: $touchOpacity, in: 0.25...1.0)
+                                            .tint(.blue)
+                                    }
+                                    .disabled(!touchEnabled)
+                                }
+                                Divider().overlay(.white.opacity(0.4))
+                                Text("Button Visibility")
+                                    .font(.headline)
+                                Toggle("D-pad Buttons", isOn: $showDpad)
+                                    .tint(.blue)
+                                Toggle("C Buttons", isOn: $showCButtons)
+                                    .tint(.blue)
+                                Button("Edit Layout") { beginLayoutEdit(compact: compact) }
+                                    .buttonStyle(.borderedProminent)
+                                    .disabled(!touchEnabled || !session.running)
+                                Button("Restore Defaults") {
+                                    touchEnabled = true
+                                    touchTransparency = false
+                                    touchOpacity = 1.0
+                                    controlScale = 1.0
+                                    showDpad = true
+                                    showCButtons = true
+                                    tabletLayout = ""
+                                    phoneLayout = ""
+                                }
                                 .buttonStyle(.borderedProminent)
-                                .disabled(!touchEnabled || !session.running)
-                            Button("Restore Defaults") {
-                                touchEnabled = true
-                                touchTransparency = false
-                                touchOpacity = 1.0
-                                controlScale = 1.0
-                                showDpad = true
-                                showCButtons = true
-                                tabletLayout = ""
-                                phoneLayout = ""
+                            } else {
+                                Text("Audio")
+                                    .font(.system(size: compact ? 23 : 29, weight: .semibold))
+                                HStack {
+                                    Text("Master Volume")
+                                    Spacer()
+                                    Text("\(Int((masterVolume * 100).rounded()))%")
+                                        .monospacedDigit()
+                                }
+                                Slider(value: $masterVolume, in: 0...1)
+                                    .tint(.blue)
+                                    .accessibilityLabel("Master Volume")
+                                Button("Restore Default Volume") { masterVolume = 1.0 }
+                                    .buttonStyle(.borderedProminent)
                             }
-                            .buttonStyle(.borderedProminent)
-                        } else {
-                            Text("Audio")
-                                .font(.system(size: compact ? 23 : 29, weight: .semibold))
-                            HStack {
-                                Text("Master Volume")
-                                Spacer()
-                                Text("\(Int((masterVolume * 100).rounded()))%")
-                                    .monospacedDigit()
-                            }
-                            Slider(value: $masterVolume, in: 0...1)
-                                .tint(.blue)
-                                .accessibilityLabel("Master Volume")
-                            Button("Restore Default Volume") { masterVolume = 1.0 }
-                                .buttonStyle(.borderedProminent)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(compact ? 14 : 30)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(compact ? 14 : 30)
                 }
                 .frame(height: size.height - (compact ? 120 : 128))
             }
