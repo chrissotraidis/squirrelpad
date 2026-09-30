@@ -1036,3 +1036,41 @@ bundle in place on iPad M4 / iOS 18.5; executable SHA-256
 `61656792bfbe6fb6d54933338c1b50b56b6c03796dd71cd0eae2aba27e865026`.
 The ordinary launcher and Continue Imported ROM were inspected. No audio behavior
 change retained, no private data reset, and no push.
+
+
+### 2026-09-30 — allow removing a controller binding
+
+**Pass, narrow reference behavior:** the reference Settings screenshot
+(`ref/harkinianpad/docs/readme/simulator-settings.jpg`) offers binding removal.
+Added **Unbound** to the six gamepad binding pickers. It emits no button and
+uses the existing persistence/reset path; game logic, touch mapping, controller
+axes and audio are unchanged. This is single-binding removal, not the reference's
+multiple bindings or complete menu parity.
+
+Release Simulator and unsigned device builds passed:
+`work/menu-unbound-{sim,device}-build.log`. Simulator executable SHA-256
+`1f8a3e154f83289fa2858bb802604b9200efa9c7e8b57c14ac26fce9f443fd1d`;
+unsigned device `01af861e1fab22726d1737671e48367d890b0007575f1b594e6a88559664442e`.
+Probe stays OFF. A current-source native GameController snapshot test checks all
+six actions: unbinding releases an already held action, persists on reload, and
+restore emits the held default again. Existing remap, two-trigger, combined mask,
+axis/C/D-pad and inactive-clear checks also passed
+(`work/menu-unbound-mapper.log`). Test copy only imports Combine and exposes
+controller/sample for injection; this is no physical-controller acceptance.
+
+Installed the same app in place on iPad M4, then iPhone 16 Pro, iOS 18.5, one
+Simulator at a time. Each ordinary menu selected Z → Unbound, then retained it
+after termination/relaunch. Inspected live and raw screenshots against the
+reference: `work/evidence/menu-unbound-{ipad,iphone}-persisted.png`. Compact
+scrolling reached the Z row and its picker; the longer label fit. Restored each
+Z binding to its original LT / RT through the picker. iPhone Audio retained 50%
+volume and X returned to the launcher. iPad Continue started the game core;
+Settings hid the complete touch overlay and X restored all 14 buttons plus stick.
+This turn does not claim a first-field or full-game route. Both apps terminated
+and Simulators shut down; ROM/saves and other settings preserved.
+
+**Still open:** full story/checkpoint routes, macOS visible control, wider menu
+fidelity and physical acceptance. Next work is ordinary gameplay progression;
+no routine audio investigation without a reproducible audible defect. Chris
+still owns hardware touch feel, controllers, listening/routes and long play
+when devices are available. Local commit only; never push.

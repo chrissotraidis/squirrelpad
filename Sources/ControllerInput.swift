@@ -7,6 +7,7 @@ private func setControllerState(_ buttons: UInt16, _ x: Float, _ y: Float)
 private func clearControllerState()
 
 enum GamepadButton: String, CaseIterable {
+    case unbound = "Unbound"
     case a = "A", b = "B", x = "X", y = "Y"
     case leftShoulder = "LB", rightShoulder = "RB"
     case leftTrigger = "LT", rightTrigger = "RT"
@@ -14,6 +15,7 @@ enum GamepadButton: String, CaseIterable {
 
     func isPressed(on pad: GCExtendedGamepad) -> Bool {
         switch self {
+        case .unbound: return false
         case .a: return pad.buttonA.isPressed
         case .b: return pad.buttonB.isPressed
         case .x: return pad.buttonX.isPressed
