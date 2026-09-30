@@ -32,6 +32,7 @@ apply_once "$checkout/tools/N64ModernRuntime" "$checkout/recomp/n64modernruntime
 apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-rsp-dma-address.patch"
 apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-ios-mods.patch"
 apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-ios-mod-load.patch"
+apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-ios-no-live-recomp.patch"
 apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-ios-qos.patch"
 apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-ios-clock.patch"
 apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-apple-save-atomic.patch"

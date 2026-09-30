@@ -1,0 +1,120 @@
+--- a/librecomp/CMakeLists.txt
++++ b/librecomp/CMakeLists.txt
+@@ -65,5 +65,10 @@
+ add_subdirectory(${PROJECT_SOURCE_DIR}/../thirdparty/miniz ${CMAKE_CURRENT_BINARY_DIR}/miniz)
+ add_subdirectory(${PROJECT_SOURCE_DIR}/../N64Recomp ${CMAKE_CURRENT_BINARY_DIR}/N64Recomp EXCLUDE_FROM_ALL)
+ 
+-target_link_libraries(librecomp PRIVATE ultramodern N64Recomp LiveRecomp)
++target_link_libraries(librecomp PRIVATE ultramodern N64Recomp)
++if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
++    target_compile_definitions(librecomp PUBLIC RECOMP_DISABLE_LIVE_RECOMP)
++else()
++    target_link_libraries(librecomp PRIVATE LiveRecomp)
++endif()
+ target_link_libraries(librecomp PUBLIC miniz)
+--- a/librecomp/include/librecomp/mods.hpp
++++ b/librecomp/include/librecomp/mods.hpp
+@@ -435,7 +435,9 @@
+             // to add hooks to any functions that weren't already replaced by a mod.
+             std::vector<bool> processed_hook_slots;
+             // Generated shim functions to use for implementing shim exports.
++#ifndef RECOMP_DISABLE_LIVE_RECOMP
+             std::vector<std::unique_ptr<N64Recomp::ShimFunction>> shim_functions;
++#endif
+             config::ConfigSchema empty_schema;
+             std::vector<char> empty_bytes;
+             size_t num_events = 0;
+@@ -598,7 +600,9 @@
+             GenericFunction get_function_handle(size_t func_index) final;
+         private:
+             uint32_t base_event_index;
++#ifndef RECOMP_DISABLE_LIVE_RECOMP
+             std::unique_ptr<N64Recomp::LiveGeneratorOutput> recompiler_output;
++#endif
+             void set_bad();
+             bool is_good = false;
+             std::unique_ptr<int32_t[]> section_addresses;
+--- a/librecomp/src/mods.cpp
++++ b/librecomp/src/mods.cpp
+@@ -485,6 +485,7 @@
+     }
+     base_event_index = inputs.base_event_index;
+ 
++#ifndef RECOMP_DISABLE_LIVE_RECOMP
+     N64Recomp::LiveGeneratorInputs recompiler_inputs{
+         .base_event_index = inputs.base_event_index,
+         .cop0_status_write = inputs.cop0_status_write,
+@@ -521,17 +522,23 @@
+     // Generate the code.
+     recompiler_output = std::make_unique<N64Recomp::LiveGeneratorOutput>(generator.finish());
+     is_good = !errored && recompiler_output->good;
++#endif
+ }
+ 
+ void recomp::mods::LiveRecompilerCodeHandle::set_imported_function(size_t import_index, GenericFunction func) {
++#ifndef RECOMP_DISABLE_LIVE_RECOMP
+     std::visit(overloaded {
+         [this, import_index](recomp_func_t* native_func) {
+             recompiler_output->populate_import_symbol_jumps(import_index, native_func);
+         }
+     }, func);
++#endif
+ }
+ 
+ recomp::mods::CodeModLoadError recomp::mods::LiveRecompilerCodeHandle::populate_reference_symbols(const N64Recomp::Context& context, std::string& error_param) {
++#ifdef RECOMP_DISABLE_LIVE_RECOMP
++    return CodeModLoadError::FailedToRecompile;
++#else
+     size_t num_reference_jumps = recompiler_output->num_reference_symbol_jumps();
+     for (size_t jump_index = 0; jump_index < num_reference_jumps; jump_index++) {
+         N64Recomp::ReferenceJumpDetails jump_details = recompiler_output->get_reference_symbol_jump_details(jump_index);
+@@ -549,10 +556,15 @@
+         recompiler_output->set_reference_symbol_jump(jump_index, cur_func);
+     }
+     return CodeModLoadError::Good;
++#endif
+ }
+ 
+ recomp::mods::GenericFunction recomp::mods::LiveRecompilerCodeHandle::get_function_handle(size_t func_index) {
++#ifdef RECOMP_DISABLE_LIVE_RECOMP
++    return GenericFunction{ static_cast<recomp_func_t*>(nullptr) };
++#else
+     return GenericFunction{ recompiler_output->functions[func_index] };
++#endif
+ }
+ 
+ void patch_func(recomp_func_t* target_func, recomp::mods::GenericFunction replacement_func) {
+@@ -2475,7 +2487,11 @@
+                 recomp_func_ext_t* func_ext_ptr = recomp::overlays::get_ext_base_export(imported_func.base.name);
+                 did_find_func = func_ext_ptr != nullptr;
+                 if (did_find_func) {
++#ifdef RECOMP_DISABLE_LIVE_RECOMP
++                    return CodeModLoadError::FailedToRecompile;
++#else
+                     func_ptr = shim_functions.emplace_back(std::make_unique<N64Recomp::ShimFunction>(func_ext_ptr, mod_index)).get()->get_func();
++#endif
+                 }
+             }
+             func_handle = func_ptr;
+@@ -2493,7 +2509,11 @@
+                 auto find_optional_it = mod.manifest.dependencies_by_id.find(dependency_id);
+                 if (find_optional_it != mod.manifest.dependencies_by_id.end()) {
+                     uintptr_t shim_argument = ((import_index & 0xFFFFFFFFu) << 32) | (mod_index & 0xFFFFFFFFu);
++#ifdef RECOMP_DISABLE_LIVE_RECOMP
++                    return CodeModLoadError::FailedToRecompile;
++#else
+                     func_handle = shim_functions.emplace_back(std::make_unique<N64Recomp::ShimFunction>(unmet_dependency_handler, shim_argument)).get()->get_func();
++#endif
+                     did_find_func = true;
+                 }
+                 else {
+@@ -2648,7 +2668,9 @@
+     loaded_mods_by_id.clear();
+     hook_slots.clear();
+     processed_hook_slots.clear();
++#ifndef RECOMP_DISABLE_LIVE_RECOMP
+     shim_functions.clear();
++#endif
+     recomp::mods::reset_events();
+     recomp::mods::reset_hooks();
+     num_events = recomp::overlays::num_base_events();
