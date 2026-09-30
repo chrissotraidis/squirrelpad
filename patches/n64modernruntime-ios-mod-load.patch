@@ -1,0 +1,16 @@
+diff --git a/librecomp/src/recomp.cpp b/librecomp/src/recomp.cpp
+--- a/librecomp/src/recomp.cpp
++++ b/librecomp/src/recomp.cpp
+@@ -724,4 +724,6 @@
+ 
+                 uint32_t mod_ram_used = 0;
++#if !defined(TARGET_OS_IPHONE) || !TARGET_OS_IPHONE
++                // iOS does not run LiveRecomp or apply native code patches.
+                 if (!game_entry.mod_game_id.empty()) {
+                     std::vector<recomp::mods::ModLoadErrorDetails> mod_load_errors;
+@@ -753,4 +755,5 @@
+                     }
+                 }
++#endif
+ 
+                 recomp::init_heap(rdram, recomp::mod_rdram_start + mod_ram_used);
