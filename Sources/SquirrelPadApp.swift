@@ -349,15 +349,32 @@ struct SquirrelPadApp: App {
                                                 .padding(.horizontal, 10)
                                                 .padding(.vertical, 7)
                                                 .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: 4))
-                                            Text(binding.gamepad)
-                                                .padding(.horizontal, 10)
-                                                .padding(.vertical, 7)
+                                            if binding.n64 == "A" || binding.n64 == "B" {
+                                                Picker("\(binding.n64) gamepad binding", selection: Binding(
+                                                    get: { controllerInput.binding(for: binding.n64) },
+                                                    set: { controllerInput.setBinding($0, for: binding.n64) }
+                                                )) {
+                                                    ForEach(GamepadButton.allCases, id: \.self) { button in
+                                                        Text(button.rawValue).tag(button)
+                                                    }
+                                                }
+                                                .pickerStyle(.menu)
+                                                .tint(.white)
+                                                .padding(.horizontal, 4)
                                                 .background(.blue.opacity(0.68), in: RoundedRectangle(cornerRadius: 4))
+                                            } else {
+                                                Text(binding.gamepad)
+                                                    .padding(.horizontal, 10)
+                                                    .padding(.vertical, 7)
+                                                    .background(.blue.opacity(0.68), in: RoundedRectangle(cornerRadius: 4))
+                                            }
                                             Spacer(minLength: 0)
                                         }
                                         .font(.system(size: compact ? 14 : 17))
-                                        .accessibilityElement(children: .combine)
                                     }
+                                    Button("Restore A/B Bindings") { controllerInput.restorePrimaryBindings() }
+                                        .font(.subheadline)
+                                        .padding(.top, 4)
                                 }
                             }
                             Divider().overlay(.white.opacity(0.4))

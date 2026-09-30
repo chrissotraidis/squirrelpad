@@ -6,6 +6,25 @@ private func setControllerState(_ buttons: UInt16, _ x: Float, _ y: Float)
 @_silgen_name("squirrelpad_controller_clear")
 private func clearControllerState()
 
+enum GamepadButton: String, CaseIterable {
+    case a = "A", b = "B", x = "X", y = "Y"
+    case leftShoulder = "LB", rightShoulder = "RB"
+    case leftTrigger = "LT", rightTrigger = "RT"
+
+    func isPressed(on pad: GCExtendedGamepad) -> Bool {
+        switch self {
+        case .a: return pad.buttonA.isPressed
+        case .b: return pad.buttonB.isPressed
+        case .x: return pad.buttonX.isPressed
+        case .y: return pad.buttonY.isPressed
+        case .leftShoulder: return pad.leftShoulder.isPressed
+        case .rightShoulder: return pad.rightShoulder.isPressed
+        case .leftTrigger: return pad.leftTrigger.isPressed
+        case .rightTrigger: return pad.rightTrigger.isPressed
+        }
+    }
+}
+
 @MainActor
 final class ControllerInput: ObservableObject {
     static let bindings: [(n64: String, gamepad: String)] = [
@@ -15,6 +34,26 @@ final class ControllerInput: ObservableObject {
         ("C buttons", "Right stick"), ("D-pad", "D-pad")
     ]
 
+    private static let bindingsKey = "SquirrelPad.PrimaryControllerBindings"
+    @Published private var primaryBindings: [String: String] = [:]
+
+    func binding(for action: String) -> GamepadButton {
+        GamepadButton(rawValue: primaryBindings[action] ?? "") ?? (action == "A" ? .a : .b)
+    }
+
+    func setBinding(_ button: GamepadButton, for action: String) {
+        guard action == "A" || action == "B" else { return }
+        primaryBindings[action] = button.rawValue
+        UserDefaults.standard.set(primaryBindings, forKey: Self.bindingsKey)
+        sample()
+    }
+
+    func restorePrimaryBindings() {
+        primaryBindings = [:]
+        UserDefaults.standard.removeObject(forKey: Self.bindingsKey)
+        sample()
+    }
+
     @Published private(set) var connectedName: String?
     @Published private(set) var rumbleAvailable = false
     private var controller: GCController?
@@ -22,6 +61,7 @@ final class ControllerInput: ObservableObject {
     private var observers: [NSObjectProtocol] = []
 
     init() {
+        primaryBindings = UserDefaults.standard.dictionary(forKey: Self.bindingsKey) as? [String: String] ?? [:]
         let center = NotificationCenter.default
         for name in [Notification.Name.GCControllerDidConnect,
                      Notification.Name.GCControllerDidDisconnect] {
@@ -71,8 +111,8 @@ final class ControllerInput: ObservableObject {
             return
         }
         var buttons: UInt16 = 0
-        if pad.buttonA.isPressed { buttons |= 0x8000 }
-        if pad.buttonB.isPressed { buttons |= 0x4000 }
+        if binding(for: "A").isPressed(on: pad) { buttons |= 0x8000 }
+        if binding(for: "B").isPressed(on: pad) { buttons |= 0x4000 }
         if pad.leftTrigger.isPressed || pad.rightTrigger.isPressed { buttons |= 0x2000 }
         if pad.buttonMenu.isPressed { buttons |= 0x1000 }
         if pad.leftShoulder.isPressed { buttons |= 0x0020 }
