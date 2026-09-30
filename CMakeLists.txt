@@ -50,6 +50,14 @@ add_executable(SquirrelPad MACOSX_BUNDLE
     Support/Conker/mobile_input.cpp
     ${rt64_bridge}
 )
+option(SQUIRRELPAD_SIM_INPUT "Enable the opt-in Simulator controller probe" OFF)
+if(SQUIRRELPAD_SIM_INPUT)
+    if(NOT CMAKE_OSX_SYSROOT MATCHES "iphonesimulator")
+        message(FATAL_ERROR "SQUIRRELPAD_SIM_INPUT is Simulator-only")
+    endif()
+    target_sources(SquirrelPad PRIVATE Sources/SimulatorInputProbe.swift)
+    target_compile_options(SquirrelPad PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:-DSQUIRRELPAD_SIM_INPUT>")
+endif()
 # Keep upstream notice texts with the local developer build. These paths are
 # resolved from the pinned source checkout, not from a distributable ROM.
 set(third_party_notices

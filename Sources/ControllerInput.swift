@@ -70,6 +70,9 @@ final class ControllerInput: ObservableObject {
             })
         }
         reconcile()
+#if SQUIRRELPAD_SIM_INPUT
+        SimulatorInputProbe.shared.start { [weak self] in self?.reconcile() }
+#endif
     }
 
     deinit {
@@ -89,7 +92,11 @@ final class ControllerInput: ObservableObject {
     }
 
     private func reconcile() {
+#if SQUIRRELPAD_SIM_INPUT
+        let next = SimulatorInputProbe.shared.controller ?? GCController.controllers().first { $0.extendedGamepad != nil }
+#else
         let next = GCController.controllers().first { $0.extendedGamepad != nil }
+#endif
         guard controller !== next else { return }
         controller?.extendedGamepad?.valueChangedHandler = nil
         clearControllerState()
