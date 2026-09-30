@@ -113,6 +113,7 @@ struct SquirrelPadApp: App {
     @State private var editedPositions: [String: CGPoint] = [:]
     @State private var settingsSection: SettingsSection = .controls
     @State private var bindingsExpanded = false
+    @State private var audioInterrupted = false
 
     var body: some Scene {
         WindowGroup {
@@ -212,7 +213,8 @@ struct SquirrelPadApp: App {
                     clearTouchInput()
                     editingLayout = false
                 }
-                updateCoreActivity()
+                reactivateAudioIfNeeded(whileActive: phase == .active)
+                updateCoreActivity(phase: phase)
             }
             .onChange(of: session.running) { running in
                 if !running {
@@ -220,6 +222,21 @@ struct SquirrelPadApp: App {
                     editingLayout = false
                 }
                 updateCoreActivity()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)) { note in
+                guard let raw = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+                      let type = AVAudioSession.InterruptionType(rawValue: raw) else { return }
+                switch type {
+                case .began:
+                    clearTouchInput()
+                    audioInterrupted = true
+                    updateCoreActivity()
+                case .ended:
+                    reactivateAudioIfNeeded(whileActive: scenePhase == .active)
+                    updateCoreActivity()
+                @unknown default:
+                    break
+                }
             }
         }
     }
@@ -440,10 +457,24 @@ struct SquirrelPadApp: App {
         menuOpen.toggle()
     }
 
-    private func updateCoreActivity() {
-        let active = scenePhase == .active && !menuOpen && !editingLayout
+    private func updateCoreActivity(phase: ScenePhase? = nil) {
+        let active = (phase ?? scenePhase) == .active && !menuOpen && !editingLayout && !audioInterrupted
         setCoreActive(active)
         controllerInput.setActive(active && session.running)
+    }
+
+    private func reactivateAudioIfNeeded(whileActive: Bool) {
+        guard audioInterrupted, whileActive else { return }
+        guard session.running else {
+            audioInterrupted = false
+            return
+        }
+        do {
+            try AVAudioSession.sharedInstance().setActive(true)
+            audioInterrupted = false
+        } catch {
+            NSLog("[mobile audio] interruption resume failed: %@", error.localizedDescription)
+        }
     }
 
     private func savedLayout(compact: Bool) -> [String: CGPoint] {
