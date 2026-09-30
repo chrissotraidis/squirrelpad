@@ -70,6 +70,25 @@ quiet run does not explain Chris's reported glitches or prove a device-only
 cause. Repeat only with a failing route or another concrete discriminating
 measurement; more quiet windows cannot close acceptance.
 
+### Live downstream positive control
+
+A native macOS harness used the same AudioQueue backend and temporary rolling
+recorder, with deterministic PCM and a deliberate 350 ms producer pause. It
+requested the built-in speaker device directly; no host routing preference was
+changed. The observed 388 ms submission gap emptied the queue, producing one
+underrun and 3,648 inserted zero frames (165.67 ms). Raw input versus filled
+buffers matched exactly. A simultaneous lossless system recording contained
+the expected silence: its central 135.67 ms was exactly zero, while adjacent
+PCM had nonzero RMS. The full paired-window comparison had initial correlation
+0.9979, minimum 0.9459 over 55 windows, and no fitted timing offset.
+
+This establishes that the paired capture can detect real backend-inserted
+silence reaching the system mix, independently of Conker and the Simulator.
+It is a deliberately induced native failure, not another natural reproduction
+or proof that a device causes Chris's glitches. No production change was made.
+Private harness, captures and results: `work/audio-live-positive*`,
+`work/evidence/audio-live-positive.{caf,wav}`.
+
 ### Diagnostic improvement
 
 The backend now reports the latest underrun's steady-clock timestamp in the
