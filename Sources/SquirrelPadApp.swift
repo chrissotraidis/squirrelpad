@@ -312,6 +312,13 @@ struct SquirrelPadApp: App {
                             Text("Show the N64 controls on the game screen.")
                                 .font(.subheadline)
                                 .foregroundStyle(.white.opacity(0.68))
+                            HStack {
+                                Text("Game Controller")
+                                Spacer()
+                                Text(controllerInput.connectedName ?? "Not connected")
+                                    .foregroundStyle(.white.opacity(0.68))
+                            }
+                            .font(.subheadline)
                             Divider().overlay(.white.opacity(0.4))
                             Button { bindingsExpanded.toggle() } label: {
                                 HStack(spacing: 10) {
@@ -328,13 +335,6 @@ struct SquirrelPadApp: App {
                             .buttonStyle(.plain)
                             .accessibilityValue(bindingsExpanded ? "Expanded" : "Collapsed")
                             if bindingsExpanded {
-                                HStack {
-                                    Text("Connected")
-                                    Spacer()
-                                    Text(controllerInput.connectedName ?? "None")
-                                        .foregroundStyle(.white.opacity(0.68))
-                                }
-                                .font(.subheadline)
                                 if controllerInput.connectedName != nil {
                                     Text(controllerInput.rumbleAvailable ? "Rumble available" : "Rumble unavailable")
                                         .font(.subheadline)
