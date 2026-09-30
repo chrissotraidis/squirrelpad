@@ -1009,3 +1009,30 @@ private data preserved. Local commit only, no push. Next audio measurement must
 capture a natural event with producer state, process telemetry and continuous
 output together. Full story/menu/checkpoint and hardware gates remain open;
 Chris still owns physical audio/routes, touch feel, controllers and long play.
+
+
+### 2026-09-30 — stop repetitive audio investigation after Chris's correction
+
+**Priority change:** Chris questioned whether the intermittent measured underruns
+represent a meaningful audible problem and called out two days of repeated loops.
+The measurements establish sample starvation in some intervals; they do not
+establish his symptom or a physical-device cure. Stop routine quiet captures and
+speculative audio tuning. Next work is ordinary gameplay and reference-menu
+fidelity. Reopen audio diagnosis for a specific reproducible audible defect.
+Audio acceptance remains **unverified**, and the full G0–G8 objective stays open.
+
+**Stopped/restored:** the temporary combined trace was terminated. Its SCK capture
+reached its 1,200-second limit (60,027 accepted buffers, zero rejected, writer
+completed without error); process telemetry also reached its 1,200-second limit.
+The app outlived those bounded captures while awaiting user input, so they do not
+cover its later events. The console has 86/96 ms submission gaps with queued
+reserve and no logged underrun. Only GAME1 selection was visibly inspected; this
+is not a gameplay or listening-quality pass. Private evidence is
+`work/audio-cause2-{run,capture}.log` and `work/audio-cause2-process.jsonl`.
+
+Production audio and RSP sources were restored byte-for-byte. Probe-OFF Release
+build passed (`work/audio-cause2-normal-build.log`). Installed the preserved normal
+bundle in place on iPad M4 / iOS 18.5; executable SHA-256
+`61656792bfbe6fb6d54933338c1b50b56b6c03796dd71cd0eae2aba27e865026`.
+The ordinary launcher and Continue Imported ROM were inspected. No audio behavior
+change retained, no private data reset, and no push.

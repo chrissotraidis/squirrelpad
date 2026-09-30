@@ -4,6 +4,15 @@ Audio acceptance is **open**. Measured underruns are real, but attributing all
 reported glitches to the Simulator or claiming physical iOS audio is fixed would
 go beyond the evidence.
 
+## Work priority
+
+Chris redirected work on 2026-09-30 after the investigation continued without
+establishing his audible symptom. Stop routine audio capture and speculative
+queue/priority tuning. Resume investigation only for a specific reproducible
+audible defect during ordinary play; counters alone do not make audio the next
+blocking task. Audio acceptance remains unverified. Continue gameplay and
+reference-menu work in the meantime.
+
 ## What is established
 
 | Question | Evidence | Conclusion |
@@ -20,7 +29,7 @@ Detailed experiment conditions, hashes, negative controls and limitations are in
 ring verification and paired system-output entries. Diagnostic recordings and
 private ROM data remain ignored under `work/`.
 
-## Next useful test
+## Deferred reproduction procedure
 
 ### Longer gameplay check, 2026-09-30
 
