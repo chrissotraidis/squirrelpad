@@ -300,11 +300,13 @@ struct SquirrelPadApp: App {
                                 HStack(spacing: 10) {
                                     Image(systemName: bindingsExpanded ? "chevron.down" : "chevron.right")
                                     Text("Controller Bindings")
-                                    Spacer()
+                                    Rectangle()
+                                        .fill(.white.opacity(0.4))
+                                        .frame(height: 1)
                                 }
                                 .font(.headline)
-                                .padding(10)
-                                .background(.white.opacity(0.12), in: RoundedRectangle(cornerRadius: 4))
+                                .padding(.vertical, 5)
+                                .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                             .accessibilityValue(bindingsExpanded ? "Expanded" : "Collapsed")
