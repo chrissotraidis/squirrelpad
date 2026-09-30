@@ -40,6 +40,28 @@ recording cannot yet localize the exact failing sample boundary. It is neither
 a listening-quality pass nor proof of a Simulator-only cause. No audio change
 was justified or retained.
 
+### Diagnostic improvement
+
+The backend now reports the latest underrun's steady-clock timestamp in the
+same units as PCM submission gaps, plus cumulative inserted silent frames at
+underrun and reserve-recovery reports. The total includes recovery silence and
+excludes zeros already present in game PCM. These are snapshots taken when the
+game queries queue depth, not a complete per-event trace; multiple events may
+be aggregated before reporting. Sample generation, buffering and pacing are
+unchanged. This improves failure correlation and is not an audio fix.
+
+The standalone check uses the production buffer filler without starting an
+audio device. It verifies authored silence, partial starvation, continued
+recovery silence, resume and reset:
+
+```sh
+xcrun --sdk macosx clang++ -std=c++20 \
+  -isysroot "$(xcrun --sdk macosx --show-sdk-path)" \
+  scripts/verify-audio-events.cpp -framework AudioToolbox \
+  -o work/audio-event-test
+work/audio-event-test
+```
+
 Capture a reproducible audible failure in an identified scene, with the same
 interval's submitted PCM, inserted-silence count and system output. Determine
 whether the defect first appears in generated PCM, late production, or downstream

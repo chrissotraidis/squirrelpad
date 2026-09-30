@@ -30,6 +30,8 @@ std::atomic<uint64_t> frames_read{0};
 std::atomic<bool> accepting_output{false};
 std::atomic<bool> rebuffering{true};
 std::atomic<size_t> underruns{0};
+std::atomic<int64_t> last_underrun_ns{0};
+std::atomic<uint64_t> inserted_silent_frames{0};
 std::atomic<size_t> resumes{0};
 std::atomic<size_t> completed_nonzero_buffers{0};
 std::atomic<size_t> completed_buffers{0};
@@ -83,13 +85,17 @@ void fill_buffer(AudioQueueBufferRef buffer) {
     if (frames_to_copy < output_frames) {
         std::memset(output + frames_to_copy * channels, 0,
                     (output_frames - frames_to_copy) * frame_bytes);
+        inserted_silent_frames.fetch_add(output_frames - frames_to_copy, std::memory_order_relaxed);
     }
     if (frames_to_copy > 0) {
         frames_read.store(read + frames_to_copy, std::memory_order_release);
     }
     if (playing && frames_to_copy < output_frames) {
         rebuffering.store(true, std::memory_order_relaxed);
-        underruns.fetch_add(1, std::memory_order_relaxed);
+        last_underrun_ns.store(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                                  std::chrono::steady_clock::now().time_since_epoch()).count(),
+                              std::memory_order_relaxed);
+        underruns.fetch_add(1, std::memory_order_release);
     }
     buffer->mUserData = has_sound ? buffer : nullptr;
     buffer->mAudioDataByteSize = output_frames * frame_bytes;
@@ -132,6 +138,8 @@ void stop_locked() {
     frames_read.store(0, std::memory_order_relaxed);
     rebuffering.store(true, std::memory_order_relaxed);
     underruns.store(0, std::memory_order_relaxed);
+    last_underrun_ns.store(0, std::memory_order_relaxed);
+    inserted_silent_frames.store(0, std::memory_order_relaxed);
     resumes.store(0, std::memory_order_relaxed);
     completed_nonzero_buffers.store(0, std::memory_order_relaxed);
     completed_buffers.store(0, std::memory_order_relaxed);
@@ -327,15 +335,18 @@ extern "C" size_t squirrelpad_audio_get_frames_remaining() {
         logged_completion = true;
         std::fprintf(stderr, "[mobile audio] output consumed nonzero PCM\n");
     }
-    const size_t drain_count = underruns.load(std::memory_order_relaxed);
+    const size_t drain_count = underruns.load(std::memory_order_acquire);
     if (drain_count != logged_underruns) {
         logged_underruns = drain_count;
-        std::fprintf(stderr, "[mobile audio] underrun %zu; collecting PCM reserve\n", drain_count);
+        std::fprintf(stderr, "[mobile audio] underrun %zu at %lld ms; collecting PCM reserve; inserted silence %llu frames total\n",
+                     drain_count, (long long)(last_underrun_ns.load(std::memory_order_relaxed) / 1000000),
+                     (unsigned long long)inserted_silent_frames.load(std::memory_order_relaxed));
     }
     const size_t resume_count = resumes.load(std::memory_order_relaxed);
     if (resume_count != logged_resumes) {
         logged_resumes = resume_count;
-        std::fprintf(stderr, "[mobile audio] reserve refilled %zu\n", resume_count);
+        std::fprintf(stderr, "[mobile audio] reserve refilled %zu; inserted silence %llu frames total\n",
+                     resume_count, (unsigned long long)inserted_silent_frames.load(std::memory_order_relaxed));
     }
     const OSStatus error = callback_error.exchange(noErr, std::memory_order_relaxed);
     if (error != noErr) std::fprintf(stderr, "[mobile audio] callback enqueue failed: %d\n", (int)error);
