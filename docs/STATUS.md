@@ -962,3 +962,50 @@ not prove that all Chris's glitches are underruns or that real hardware cures th
 Next: capture a natural failure with continuous downstream output plus event-time
 producer state, then repair only the failing boundary. Chris still owns physical
 listening/routes, touch feel, controllers and sustained hardware play when available.
+
+
+## Combined producer and output capture; process telemetry (2026-09-30)
+
+**Progress:** the previous turn verified repeated paired starvation capture.
+This turn combined that private backend recorder with the existing RSP wall/CPU
+and Mach thread-state tracer. Temporary probe-ON Release build succeeded,
+SHA-256 `86802cb5850b341f6101fe0f1a15bb2c17fca5ad54f20cd21b089ca276fff4c2`.
+iPad M4 / iOS 18.5, retained console 11:35:58–11:48:03 local; Continue ROM,
+GAME1/PLAY and first-field/camera/analog movement viewed. No logged underrun,
+>=80 ms submission gap, >=20 ms RSP task or >=30 ms sampled active task; no
+natural numbered PCM dump. Continuous system recording accepted 36,416 buffers,
+rejected zero and completed without error on stop-file request. Active app output
+was MacBook Air Speakers. This quiet ~12-minute run does not identify the natural
+failure cause or establish dialogue/story progress. Private evidence:
+`work/audio-combined-{run,capture}.log`, `work/evidence/audio-combined.caf`.
+
+**Pass, new read-only diagnostic:** added `scripts/audio-process-watch.cpp`.
+The prototype sampled exact game PID 43895 for 119.959 seconds: 591 samples,
+flags consistently `0x1404030`, zero page-in delta, 328,005 fault delta.
+No failure occurred in that sampled window; neither flags nor process-wide
+faults establish causation. Initial prototype CPU fields labeled ns held raw
+Mach ticks. Checked XNU's implementation and corrected the committed sampler's
+conversion through `mach_timebase_info`; the old private JSON CPU fields need
+conversion before use. Busy-process check measured 0.819 CPU seconds within a
+1.285-second parent CPU interval (sample endpoints cover less than the full
+interval), rejecting the unconverted tick scale. Missing args return 2, absent
+PID returns 1; bounded live sampling returns 0. Compile with `-Wall -Wextra`
+was clean. Evidence: `work/audio-combined-process.jsonl`,
+`work/audio-process-watch-final-test.log`. No sampling is added to game callbacks.
+
+**macOS control remains incomplete:** current replay Metal host ran 180 seconds,
+10,784 VIs, exit 0 (`work/audio-native-control-new.log`). Raw CLI executable
+could not be selected by Computer Use; a private bundle carrying the current
+binary still timed out on window inspection. Its `open -W` session completed,
+and no Conker process remained. These results are not visual/audio/input parity.
+
+**Restored:** backend byte-restored to HEAD; external runtime RSP source restored
+to its pre-experiment bytes; probe OFF normal Release build passed
+(`work/audio-combined-normal-{config,build}.log`). Installed preserved exact
+normal app in place, executable `61656792bfbe6fb6d54933338c1b50b56b6c03796dd71cd0eae2aba27e865026`,
+viewed launcher / Continue Imported ROM, terminated and shut down iPad. All
+sessions terminal; phone unchanged. No game, buffer, priority or routing change;
+private data preserved. Local commit only, no push. Next audio measurement must
+capture a natural event with producer state, process telemetry and continuous
+output together. Full story/menu/checkpoint and hardware gates remain open;
+Chris still owns physical audio/routes, touch feel, controllers and long play.

@@ -173,3 +173,24 @@ Private evidence: `work/audio-repeat-{synthetic,burst,live}*`,
 no buffering, priority, game logic or host routing change was retained. The next
 useful measurement remains a natural failure paired with continuous system output
 and event-time producer state. Physical-device causation remains unknown.
+
+### Event-time process telemetry
+
+`scripts/audio-process-watch.cpp` samples one exact macOS PID every 200 ms for
+at most 1,800 seconds. It records the steady clock, process flags, CPU time,
+fault/page-in counts, context switches and resident bytes; it stops on API
+failure or PID reuse. CPU totals are converted from Mach ticks using the host
+timebase, as required by [XNU's task-counter implementation](https://github.com/apple-oss-distributions/xnu/blob/main/osfmk/kern/bsd_kern.c).
+The busy-process positive control checked this conversion against its CPU clock.
+It is a read-only host diagnostic, not a device fix or real-time-safe callback.
+
+```sh
+xcrun --sdk macosx clang++ -std=c++20 scripts/audio-process-watch.cpp -o work/audio-process-watch
+work/audio-process-watch <verified-app-pid> 600 > work/audio-process.jsonl
+```
+
+Match its time window to the underrun before interpreting flags/page-ins.
+Process totals include all app threads, and 200 ms samples can miss short events.
+The first private capture mislabeled raw CPU ticks as nanoseconds; its CPU fields
+must not be interpreted without conversion. Flags and fault/page-in counters were
+unaffected. This capture was quiet, so it supports no failure-attribution claim.
