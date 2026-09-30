@@ -8,6 +8,12 @@ endif()
 set(CMAKE_OSX_DEPLOYMENT_TARGET "17.0" CACHE STRING "Minimum iOS version")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# Keep diagnostic __FILE__ strings and debug paths independent of the local
+# checkout location in C-family objects, including pinned subprojects.
+foreach(language C CXX OBJC OBJCXX)
+    set(CMAKE_${language}_FLAGS
+        "${CMAKE_${language}_FLAGS} -ffile-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=.")
+endforeach()
 set(CONKER_RT64 OFF CACHE BOOL "Build the current core without the desktop frontend" FORCE)
 set(SQUIRRELPAD_CONKER_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/work/CBFD-Recompiled"
     CACHE PATH "Pinned patched Conker checkout")
