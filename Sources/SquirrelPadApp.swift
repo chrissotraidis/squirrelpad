@@ -143,7 +143,7 @@ struct SquirrelPadApp: App {
                                               }
                                           })
                     }
-                    if !session.running {
+                    if !session.running && !menuOpen {
                         importPanel
                             .position(x: geometry.size.width / 2,
                                       y: geometry.size.height / 2)
