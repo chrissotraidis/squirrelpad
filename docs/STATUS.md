@@ -1120,3 +1120,33 @@ device `01af861e1fab22726d1737671e48367d890b0007575f1b594e6a88559664442e`
 (unchanged from the binding-removal build). No Simulator installed/launched this
 turn; both remain shut down with private data preserved. Full gameplay/menu and
 hardware gates remain open. Local commit only; never push.
+
+
+### 2026-09-30 — narrow native keyboard selection failure
+
+**Progress, diagnosis only:** started the inspectable native control from the
+previous startup fix. A temporary host-only trace logged Space/Enter state
+transitions after SDL event handling and changes in the existing N64 input
+callback. Through CUA, Return produced N64 mask 0x1000 then release, with game
+input enabled. Space taps, including a 30-tap attempt, produced no recorded
+0x8000 A mask (`work/macos-input-trace-run.log`). The traced process completed
+its 180-second limit, 9,667 VIs, exit zero. This does not establish whether
+Space is unbound or its brief state missed the polling window. No first-field
+or ordinary gameplay acceptance claimed.
+
+A separate minimal SDL event test received CUA Space, Return and X as SDL
+scancodes 44, 40 and 27 (`work/sdl-key-delivery.log`). Thus the UI tool can deliver
+Space to SDL; next inspect the actual loaded profile and compare event timing
+with N64 polling, rather than changing the game. Capitalized `Space` was rejected
+by CUA and a blank key was rejected; those invalid calls are not key-delivery
+evidence. The baseline window was closed early and its test PID explicitly
+terminated while its --seconds timer remained alive; no save state was reset.
+
+**Restored:** host frontend byte-restored; an initial Ninja no-op was caught
+because restoring the backup timestamp left a newer object file. Invalidated the
+frontend object via source timestamp, rebuilt it and relinked successfully
+(`work/macos-input-normal-build.log`), then independently verified the executable
+contains no `[native input]` marker. Updated the private native control bundle
+with that normal executable. All test processes terminal, Simulators shut down;
+mobile app/code and private ROM/saves untouched. No permanent input/game/audio
+behavior change, no push. G1 and full G6 remain open.
