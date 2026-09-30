@@ -40,6 +40,36 @@ recording cannot yet localize the exact failing sample boundary. It is neither
 a listening-quality pass nor proof of a Simulator-only cause. No audio change
 was justified or retained.
 
+### Rolling failure-capture attempt
+
+An environment-enabled temporary recorder kept a rolling raw-input and filled-
+output window, freezing 64 output buffers after the first starvation event.
+The roughly 30-minute iPad run (`work/audio-flight-ipad-run.log`, game startup
+09:06:42 to termination 09:37:21, local time) had no logged underrun, >=80 ms
+submission gap, callback gap, drop or stalled queue. Its route included startup,
+field/water movement, background/foreground, pause/quit/reload and the outside
+context pad. It did not repeat the full Birdy dialogue route. Output-device
+query again reported MacBook Air Speakers. No natural event means there is no
+paired failure window to analyze; this is not an audible-quality pass.
+
+The recorder's deliberate-starvation boundary check produced 1,536 injected
+zero frames, eight ring wraps, 1,000 output buffers and zero sample mismatches
+against separately stored raw input. That validates this capture format and
+verifier, not a natural cause. Private tooling/results remain under
+`work/audio-flight-{candidate.cpp,test.cpp,synthetic.bin,synthetic-result.json}`
+and `work/instrument-audio-flight.py`. System-mix recordings completed with
+zero rejected buffers: `work/evidence/audio-flight-ipad.caf` (600 seconds),
+`audio-flight-ipad-lifecycle.caf` (180 seconds) and
+`audio-flight-ipad-continuation.caf` (600 seconds). The last extends across
+restoration of the normal app and is not a single-build comparison.
+
+Temporary capture code was removed and byte-checked against the committed
+backend; normal input-probe-OFF build and installation were restored. The
+intermittent measured starvation remains established from earlier runs. This
+quiet run does not explain Chris's reported glitches or prove a device-only
+cause. Repeat only with a failing route or another concrete discriminating
+measurement; more quiet windows cannot close acceptance.
+
 ### Diagnostic improvement
 
 The backend now reports the latest underrun's steady-clock timestamp in the
