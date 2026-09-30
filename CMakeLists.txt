@@ -44,6 +44,45 @@ add_executable(SquirrelPad MACOSX_BUNDLE
     Support/Conker/mobile_input.cpp
     ${rt64_bridge}
 )
+# Keep upstream notice texts with the local developer build. These paths are
+# resolved from the pinned source checkout, not from a distributable ROM.
+set(third_party_notices
+    "CBFD-Recompiled|LICENSE"
+    "N64ModernRuntime|tools/N64ModernRuntime/COPYING"
+    "N64Recomp|tools/N64Recomp/LICENSE"
+    "RT64|tools/rt64/LICENSE"
+    "Plume|tools/rt64/src/contrib/plume/LICENSE"
+    "re-spirv|tools/rt64/src/contrib/re-spirv/LICENSE"
+    "zstd|tools/rt64/src/contrib/zstd/LICENSE"
+    "hlslpp|tools/rt64/src/contrib/hlslpp/LICENSE"
+    "o1heap|tools/N64ModernRuntime/thirdparty/o1heap/LICENSE"
+    "miniz|tools/N64ModernRuntime/thirdparty/miniz/LICENSE"
+    "xxHash|tools/N64ModernRuntime/thirdparty/xxHash/LICENSE"
+    "Rabbitizer|tools/N64ModernRuntime/N64Recomp/lib/rabbitizer/LICENSE"
+    "fmt|tools/N64ModernRuntime/N64Recomp/lib/fmt/LICENSE"
+    "sljit|tools/N64ModernRuntime/N64Recomp/lib/sljit/LICENSE"
+    "ddspp|tools/rt64/src/contrib/ddspp/LICENSE"
+    "stb|tools/rt64/src/contrib/stb/LICENSE"
+    "im3d|tools/rt64/src/contrib/im3d/LICENSE"
+    "ImGui|tools/rt64/src/contrib/imgui/LICENSE.txt"
+    "SPIRV-Cross|tools/rt64/src/contrib/spirv-cross/LICENSE"
+    "SPIRV-Headers|tools/rt64/src/contrib/re-spirv/external/SPIRV-Headers/LICENSE"
+    "metal-cpp|tools/rt64/src/contrib/plume/contrib/metal-cpp/LICENSE.txt"
+)
+foreach(notice IN LISTS third_party_notices)
+    string(REPLACE "|" ";" fields "${notice}")
+    list(GET fields 0 notice_name)
+    list(GET fields 1 notice_path)
+    set(notice_source "${conker_source}/${notice_path}")
+    if (NOT EXISTS "${notice_source}")
+        message(FATAL_ERROR "Missing pinned notice text: ${notice_source}")
+    endif()
+    set(notice_copy "${CMAKE_CURRENT_BINARY_DIR}/notices/${notice_name}.txt")
+    configure_file("${notice_source}" "${notice_copy}" COPYONLY)
+    set_source_files_properties("${notice_copy}" PROPERTIES
+        MACOSX_PACKAGE_LOCATION "Resources/ThirdPartyNotices")
+    target_sources(SquirrelPad PRIVATE "${notice_copy}")
+endforeach()
 target_link_libraries(SquirrelPad PRIVATE ConkerRecomp
     "-framework SwiftUI" "-framework UniformTypeIdentifiers" "-framework CryptoKit"
     "-framework AudioToolbox" "-framework Metal" "-framework MetalKit" "-framework QuartzCore" "-framework UIKit")
