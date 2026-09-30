@@ -1,0 +1,33 @@
+--- a/host/src/main.cpp
++++ b/host/src/main.cpp
+@@ -456,7 +456,9 @@
+ #endif
+ #if defined(CONKER_RT64)
+     if (!headless) {
++#if !defined(__APPLE__)
+         NFD_Init();
++#endif
+         // recompui loads assets/ (and looks for portable.txt) relative to the working
+         // directory: make that the executable's folder, wherever the game is started from.
+         std::filesystem::current_path(exe_directory(argv[0]));
+--- a/host/src/frontend.cpp
++++ b/host/src/frontend.cpp
+@@ -10,6 +10,7 @@
+ #include <SDL.h>
+ #if defined(__APPLE__)
+ #include <SDL_metal.h>
++#include <nfd.h>
+ #endif
+ #if defined(_WIN32) || defined(__APPLE__)
+ // Linux's SDL_syswm.h brings in X11's None macro, which breaks Device::None.
+@@ -52,6 +53,10 @@
+         if (SDL_Init(subsystems) != 0) {
+             std::fprintf(stderr, "[frontend] SDL_Init failed: %s\n", SDL_GetError());
+         }
++#if defined(__APPLE__)
++        // SDL must create its Cocoa application before the file dialog initializes AppKit.
++        NFD_Init();
++#endif
+         return nullptr;
+     }
+ 
