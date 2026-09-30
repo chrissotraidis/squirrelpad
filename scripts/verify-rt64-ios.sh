@@ -2,8 +2,10 @@
 set -euo pipefail
 
 project=$(cd "$(dirname "$0")/.." && pwd)
-source="$project/work/CBFD-Recompiled/tools/rt64"
-host_build="$project/work/CBFD-Recompiled/host/build-macos-metal"
+checkout=${SQUIRRELPAD_CHECKOUT:-"$project/work/CBFD-Recompiled"}
+build_tag=${SQUIRRELPAD_RT64_BUILD_TAG:-}
+source="$checkout/tools/rt64"
+host_build="$checkout/host/build-macos-metal"
 file_to_c="$host_build/rt64/src/tools/file_to_c/file_to_c"
 sdk=${1:-iphonesimulator}
 case "$sdk" in
@@ -16,8 +18,8 @@ if [ ! -x "$file_to_c" ]; then
     echo "Build the macOS Metal host first to generate RT64 shaders and file_to_c." >&2
     exit 1
 fi
-generated="$project/work/generated-rt64-$sdk"
-build="$project/work/build-rt64-$sdk"
+generated="$project/work/generated-rt64-$sdk$build_tag"
+build="$project/work/build-rt64-$sdk$build_tag"
 mkdir -p "$generated/src/shaders"
 rsync -a --include '*/' --include '*.spirv.c' --include '*.spirv.h' \
     --include '*.rw.c' --include '*.rw.h' --exclude '*' "$host_build/" "$generated/"
