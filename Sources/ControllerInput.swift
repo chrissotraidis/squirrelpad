@@ -10,6 +10,7 @@ enum GamepadButton: String, CaseIterable {
     case a = "A", b = "B", x = "X", y = "Y"
     case leftShoulder = "LB", rightShoulder = "RB"
     case leftTrigger = "LT", rightTrigger = "RT"
+    case bothTriggers = "LT / RT", menu = "Menu"
 
     func isPressed(on pad: GCExtendedGamepad) -> Bool {
         switch self {
@@ -21,6 +22,34 @@ enum GamepadButton: String, CaseIterable {
         case .rightShoulder: return pad.rightShoulder.isPressed
         case .leftTrigger: return pad.leftTrigger.isPressed
         case .rightTrigger: return pad.rightTrigger.isPressed
+        case .bothTriggers: return pad.leftTrigger.isPressed || pad.rightTrigger.isPressed
+        case .menu: return pad.buttonMenu.isPressed
+        }
+    }
+}
+
+enum ControllerAction: String, CaseIterable {
+    case a = "A", b = "B", z = "Z", start = "Start", l = "L", r = "R"
+
+    var defaultButton: GamepadButton {
+        switch self {
+        case .a: return .a
+        case .b: return .b
+        case .z: return .bothTriggers
+        case .start: return .menu
+        case .l: return .leftShoulder
+        case .r: return .rightShoulder
+        }
+    }
+
+    var mask: UInt16 {
+        switch self {
+        case .a: return 0x8000
+        case .b: return 0x4000
+        case .z: return 0x2000
+        case .start: return 0x1000
+        case .l: return 0x0020
+        case .r: return 0x0010
         }
     }
 }
@@ -35,21 +64,20 @@ final class ControllerInput: ObservableObject {
     ]
 
     private static let bindingsKey = "SquirrelPad.PrimaryControllerBindings"
-    @Published private var primaryBindings: [String: String] = [:]
+    @Published private var buttonBindings: [String: String] = [:]
 
-    func binding(for action: String) -> GamepadButton {
-        GamepadButton(rawValue: primaryBindings[action] ?? "") ?? (action == "A" ? .a : .b)
+    func binding(for action: ControllerAction) -> GamepadButton {
+        GamepadButton(rawValue: buttonBindings[action.rawValue] ?? "") ?? action.defaultButton
     }
 
-    func setBinding(_ button: GamepadButton, for action: String) {
-        guard action == "A" || action == "B" else { return }
-        primaryBindings[action] = button.rawValue
-        UserDefaults.standard.set(primaryBindings, forKey: Self.bindingsKey)
+    func setBinding(_ button: GamepadButton, for action: ControllerAction) {
+        buttonBindings[action.rawValue] = button.rawValue
+        UserDefaults.standard.set(buttonBindings, forKey: Self.bindingsKey)
         sample()
     }
 
-    func restorePrimaryBindings() {
-        primaryBindings = [:]
+    func restoreBindings() {
+        buttonBindings = [:]
         UserDefaults.standard.removeObject(forKey: Self.bindingsKey)
         sample()
     }
@@ -61,7 +89,7 @@ final class ControllerInput: ObservableObject {
     private var observers: [NSObjectProtocol] = []
 
     init() {
-        primaryBindings = UserDefaults.standard.dictionary(forKey: Self.bindingsKey) as? [String: String] ?? [:]
+        buttonBindings = UserDefaults.standard.dictionary(forKey: Self.bindingsKey) as? [String: String] ?? [:]
         let center = NotificationCenter.default
         for name in [Notification.Name.GCControllerDidConnect,
                      Notification.Name.GCControllerDidDisconnect] {
@@ -118,12 +146,9 @@ final class ControllerInput: ObservableObject {
             return
         }
         var buttons: UInt16 = 0
-        if binding(for: "A").isPressed(on: pad) { buttons |= 0x8000 }
-        if binding(for: "B").isPressed(on: pad) { buttons |= 0x4000 }
-        if pad.leftTrigger.isPressed || pad.rightTrigger.isPressed { buttons |= 0x2000 }
-        if pad.buttonMenu.isPressed { buttons |= 0x1000 }
-        if pad.leftShoulder.isPressed { buttons |= 0x0020 }
-        if pad.rightShoulder.isPressed { buttons |= 0x0010 }
+        for action in ControllerAction.allCases {
+            if binding(for: action).isPressed(on: pad) { buttons |= action.mask }
+        }
         if pad.dpad.up.isPressed { buttons |= 0x0800 }
         if pad.dpad.down.isPressed { buttons |= 0x0400 }
         if pad.dpad.left.isPressed { buttons |= 0x0200 }

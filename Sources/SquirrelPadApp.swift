@@ -349,10 +349,10 @@ struct SquirrelPadApp: App {
                                                 .padding(.horizontal, 10)
                                                 .padding(.vertical, 7)
                                                 .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: 4))
-                                            if binding.n64 == "A" || binding.n64 == "B" {
+                                            if let action = ControllerAction(rawValue: binding.n64) {
                                                 Picker("\(binding.n64) gamepad binding", selection: Binding(
-                                                    get: { controllerInput.binding(for: binding.n64) },
-                                                    set: { controllerInput.setBinding($0, for: binding.n64) }
+                                                    get: { controllerInput.binding(for: action) },
+                                                    set: { controllerInput.setBinding($0, for: action) }
                                                 )) {
                                                     ForEach(GamepadButton.allCases, id: \.self) { button in
                                                         Text(button.rawValue).tag(button)
@@ -372,7 +372,7 @@ struct SquirrelPadApp: App {
                                         }
                                         .font(.system(size: compact ? 14 : 17))
                                     }
-                                    Button("Restore A/B Bindings") { controllerInput.restorePrimaryBindings() }
+                                    Button("Restore Controller Bindings") { controllerInput.restoreBindings() }
                                         .font(.subheadline)
                                         .padding(.top, 4)
                                 }
