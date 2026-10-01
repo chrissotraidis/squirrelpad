@@ -131,7 +131,7 @@ struct SquirrelPadApp: App {
                         .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
 
                     if session.running && touchEnabled && (!menuOpen || editingLayout) {
-                        TouchControlsView(opacity: touchTransparency ? touchOpacity : 1.0,
+                        TouchControlsView(opacity: editingLayout ? 1.0 : (touchTransparency ? touchOpacity : 1.0),
                                           scale: controlScale,
                                           showDpad: showDpad, showCButtons: showCButtons,
                                           editing: editingLayout,

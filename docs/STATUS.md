@@ -1244,3 +1244,49 @@ place. Executable SHA-256 matches the verified menu build:
 `f33ebdfc39bd39f392b7778ee93f81e0dd4a282fb694e52807cd2348dabf2598`.
 Launch session is terminal and the iPad Simulator is shut down. Continue ordinary
 gameplay and reference-menu work; no production code changed in this attempt.
+
+### 2026-09-30 — visible controls while editing; opacity relaunch check
+
+**Pass, narrow reference behavior:** HarkinianPad's
+`docs/customizable-touch-controls.md` and
+`patches/shipwright-ios-touch-control-transparency.patch` restore visible controls
+to full opacity while editing, without changing the stored gameplay opacity.
+Reproduced SquirrelPad's mismatch on iPad: at 25%, the editor's controls were
+also faded. Changed only the overlay opacity expression to use 100% while
+`editingLayout` is true. No input mappings, game logic, audio or saved-value
+writes changed.
+
+**Pass, exact builds:** Simulator and unsigned device Release builds exited zero
+(`work/editor-opacity-{sim,device}-build.log`); both caches have
+`SQUIRRELPAD_SIM_INPUT=OFF`. Executable SHA-256:
+Simulator `b51a9e38ec9a938f52e80bdd4c517673383dd8bd655b44c35635b342ace4fbb4`;
+device `d3e1aa5da1a2e55cb82de3e17fbd6ff494fb94cb334c3cc5cb9e3de1b24c53fe`.
+Installed in place, one destination at a time, on iPad M4 and iPhone 16 Pro,
+both iOS 18.5. Started through Continue Imported ROM, changed Control Opacity
+to approximately 25% through the slider, and opened Edit Layout. Visually
+inspected full-strength labels, outlines and stick; Done restored the faded
+overlay and independent menu button. Compared these screenshots with the
+reference's documented editor-opacity behavior and corresponding patch.
+This is not an exact-artwork or complete editor-parity pass.
+
+**Pass, persistence:** terminated and relaunched each app; Controls still showed
+25%. The editor had not overwritten the saved preference. Viewed captures and
+saved raw images under `work/evidence/editor-opacity-`: `ipad-before.png`,
+`{ipad,iphone}-after.png`, `{ipad,iphone}-done.png`, and
+`{ipad,iphone}-persisted.png`. AX `setValue` alone moved the slider thumb without
+updating the SwiftUI value; actual touch adjustment and the displayed percentage
+were required for this check. Do not treat thumb position alone as persistence
+evidence.
+
+Restored opacity 100% and transparency off through the UI. After termination,
+iPad preferences exactly matched its pre-test backup. iPhone preferences matched
+apart from an explicit empty `LayoutPhone` override written by Done (same default
+positions). Existing control sizes (iPad 116%, phone 100%), controller mappings,
+volume and private data were preserved. Audio pane displayed normally on both;
+no audio listening/recording/tuning was performed. Both Simulators shut down.
+
+**Not run/open:** full story, meaningful checkpoint/relaunch fidelity, complete
+reference editor/menu parity and physical acceptance. Next reference work:
+compare selected-control feedback and individual size/visibility editing with
+the reference; keep gameplay progression and save acceptance open. Chris still
+owns physical touch feel, controllers, audio routes/listening and long play.
