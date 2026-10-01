@@ -1794,3 +1794,34 @@ independent evidence; it does not close all of G8 or redefine full completion.
 Next return to ordinary gameplay context and control comparison; do not repeat
 fresh builds or audio diagnostics without a new concrete failure. Local commit
 only, never push.
+
+### 2026-10-01 — Stop speculative audio diagnosis; restore ordinary build
+
+Chris questioned whether the prolonged audio investigation established a real
+problem. It did not establish a reproducible audible ordinary-play defect,
+its severity, or a Simulator/device cause. Earlier queue counters are evidence
+about queue behavior only. Audio diagnosis stays deferred until a specific
+audible reproduction exists; no audio source or configuration changed.
+
+Before stopping this session, a bounded existing Simulator controller probe
+reached the first field and moved Conker against a rock wall. Camera attempts
+did not establish a route to Birdy. No meaningful checkpoint accepted. The
+save changed from SHA256 `5cf41c680e7d9cd507da32f612738b5e209425212f4bb3dbcc7dd456c0271846`
+to `c4378506ed44a8685ac0ac5760e55a3ebc72d03a598a3d29359c248cab5c9d50`;
+this byte change does not establish checkpoint flags. User data preserved.
+Private log: `work/checkpoint-replay-run.log`.
+
+The macOS host mouse-button input branches are TODO in
+`RecompFrontend/recompinput/src/input_state.cpp`; no input workaround added.
+Ordinary macOS gameplay/save comparison remains unverified.
+
+Cleanup passed: probe disabled in the final Simulator CMake cache; normal
+Release rebuild exited zero (`work/checkpoint-normal-restore-build.log`).
+Reinstalled the preserved exact normal bundle in place and verified installed
+executable SHA256 `1759aaa2035b5b0acf49bb4135d95ebcfb9561ae51965493b76f15984726eed6`.
+Probe launch session 78200 and rebuild session 11152 are terminal. iPad shut
+down; phone unchanged. No game logic or app source changed; no push.
+
+Remaining app work is gameplay/checkpoint acceptance and remaining touch/menu
+behavior, not further speculative audio tuning. Chris still supplies signing
+credentials and eventual physical touch/controller/audio-route/long-play checks.
