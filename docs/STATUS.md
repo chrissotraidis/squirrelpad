@@ -2912,3 +2912,31 @@ Simulators remain shut down. This is not signing, rights clearance, a general
 secret scan, story completion or a physical-device pass. Original G1/G4/G5/G6
 acceptance and G7 hardware remain open. Next: gameplay and meaningful save
 progress, with the audit command available for subsequent final bundles.
+
+### 2026-10-01 — Gameplay landscape reversal on both Simulator classes
+
+**Pass, bounded orientation case:** normal Simulator executable `f6b8419e…`,
+probe OFF, sequential iPad 18.5 `605FB671…` then iPhone 18.5 `AE64D60E…`.
+Ordinary Continue Imported ROM → Start/L → GAME1 PLAY → first field.
+Simulator Device → Orientation → Landscape Right reversed the device bezel;
+game and controls remained upright. Start visibly opened PAUSED, A resumed,
+three-dot Settings opened without gameplay controls and Close restored them.
+On phone, returned to Landscape Left with Settings open, then Close restored
+the compact controls and first-field rendering. No source/input/game/audio
+change required; not a sustained-motion or held-input rotation pass.
+
+Private viewed captures: `orientation-pad-{before,right,paused,menu}.jpg`,
+`orientation-phone-{right,paused,menu,left-restored}.jpg` under work/evidence.
+Logs `work/memory-warning-pad.log` (name reflects the initially planned check)
+and `work/orientation-phone.log`. Both consoles exited 0 and both Simulators
+shut down. Existing slots/ROM preserved; no erase/reinstall/save replacement.
+
+**Not run:** this installed Simulator's inspected Device/Features menus and
+simctl command list did not expose memory-warning injection. No warning was
+sent, so continued rendering is not memory-pressure evidence. The bundle's
+Info.plist declares Landscape Left/Right for phone and tablet; unsupported
+portrait rejection was not exercised. Neither this orientation result nor
+the package audit closes story completion or progressed-save fidelity.
+Next remains gameplay progression and the outstanding lifecycle/input cases.
+Chris retains signing and physical touch feel, controllers, audio routes and
+long play.
