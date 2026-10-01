@@ -2050,3 +2050,41 @@ then gameplay/checkpoint and touch/menu acceptance. Full iPad story, two distinc
 progressed checkpoints, macOS gameplay/save comparison and hardware/signing
 remain open. Chris retains signing and eventual physical touch/controller,
 audio-route and sustained-play checks. Local commit only, never push.
+
+
+### 2026-10-01 — Fresh iPhone 18.5 import and initial save/reload
+
+**Progress:** previous turn supplied a verified native macOS packaging helper;
+G1 gameplay remains open. Revalidated full objective, clean `f629eb3`, pins and
+21 GiB available. No speculative audio work or source change this turn.
+
+**Pass, bounded ordinary flow:** created fresh iPhone 16 Pro / iOS 18.5 profile
+`AE64D60E-CE76-42D7-A50E-9E2179F23805` without erasing existing profiles.
+Installed `work/route-normal-6262093.app`; installed executable SHA256
+`b6cc43ee9ab0088d85fb2def757e227382fba29995e4c828b10fbab5f30d6f51`.
+Probe OFF, no save/config injected. Boot/install/launch exited zero;
+`work/fresh-phone-boot.log`. Initial launcher had Choose ROM and no Continue.
+Ordinary Files rejected a short invalid fixture, then a 64 MiB correct-header
+fixture with wrong checksum. Exact pinned-US-SHA1 ROM imported through Files.
+Touch Start/A selected empty GAME1 and NEW GAME. Viewed moving opening story
+through throne/pub/Panther/wakeup into first field. Touch Start/A paused/resumed
+both opening and field. A short stick drag did not prove sustained movement.
+
+**Pass, initial cold reload:** first-field EEPROM 2048 bytes, SHA256
+`39f3fe40697564b55f152fdbbaeaa131eff5faa5ad9a3032f018765545cb1bd9`,
+private fixture `work/fresh-phone-first-field-save.bin`. Cold terminate/launch
+retained Continue Imported ROM; touch Start/A showed GAME1 $0 / 0:06:03 PLAY,
+then loaded field directly without story replay. Save after reload SHA256
+`3834cb866ed8a3d00e2a4ff0f8b4a6c3ce05b53291f96d75283fc4ec8651a41e`.
+Three-dot Settings hid all gameplay controls; X restored 14 buttons and stick.
+Viewed private captures `work/evidence/fresh-phone-{invalid,checksum,field,
+saved-slot,reload}.png`. Unified log `work/fresh-phone-runtime.log` has no matches
+for the five recorded GPU/pipeline error terms in this bounded window; this is
+not comprehensive renderer acceptance. Original profiles remained shut down.
+Fresh app terminated and phone shut down; private fixtures/save retained.
+
+**Open / next:** progress fresh iPad beyond the river tutorial to a real level
+transition and cold-reload checkpoint; continue touch/menu comparison. Full
+story, representative phone chapters, two distinct progressed saves and ordinary
+macOS gameplay remain open. Chris retains signing identity and eventual physical
+touch/controller, audio-route and long-play checks. Local commit only; no push.
