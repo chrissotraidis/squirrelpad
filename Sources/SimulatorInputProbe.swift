@@ -10,6 +10,7 @@ final class SimulatorInputProbe {
     private var timer: Timer?
     private var sequence: Int64 = 0
     private var releaseAt: TimeInterval = 0
+    private var samplePending = false
     private let file = URL.documentsDirectory.appendingPathComponent("squirrelpad-sim-input.json")
     private let buttonElements = ["A": GCInputButtonA, "B": GCInputButtonB,
                                   "X": GCInputButtonX, "Y": GCInputButtonY,
@@ -46,6 +47,12 @@ final class SimulatorInputProbe {
 
     private func poll() {
         guard controller != nil else { return }
+        if samplePending, let pad = controller?.extendedGamepad {
+            NSLog("[sim input] sampled seq=%lld stick=%.2f,%.2f camera=%.2f,%.2f",
+                  sequence, pad.leftThumbstick.xAxis.value, pad.leftThumbstick.yAxis.value,
+                  pad.rightThumbstick.xAxis.value, pad.rightThumbstick.yAxis.value)
+            samplePending = false
+        }
         if releaseAt != 0 && ProcessInfo.processInfo.systemUptime >= releaseAt {
             release()
         }
@@ -61,6 +68,7 @@ final class SimulatorInputProbe {
             virtual?.setValue(command.buttons.contains(name) ? 1 : 0, forButtonElement: element)
         }
         releaseAt = ProcessInfo.processInfo.systemUptime + min(remaining, 10)
+        samplePending = true
         NSLog("[sim input] seq=%lld stick=%.2f,%.2f camera=%.2f,%.2f buttons=%@ duration=%.2f",
               sequence, command.x, command.y, command.cameraX, command.cameraY,
               command.buttons.joined(separator: ","), command.seconds)
@@ -71,6 +79,7 @@ final class SimulatorInputProbe {
         virtual?.setPosition(.zero, forDirectionPadElement: GCInputRightThumbstick)
         for element in buttonElements.values { virtual?.setValue(0, forButtonElement: element) }
         releaseAt = 0
+        samplePending = true
         NSLog("[sim input] released seq=%lld", sequence)
     }
 }

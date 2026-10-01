@@ -2739,3 +2739,48 @@ distinct progressed cold-save reloads, and sustained ordinary combined input.
 Full story remains open. Chris: eventual signing and physical touch feel,
 controllers, audio routes and long play. Audio investigation stays deferred
 until a reproducible audible fault warrants it.
+
+### 2026-10-01 — Verify delivered Simulator stick values
+
+Previous turn: progress (requested GitHub sync and cure-pad evidence). Full
+objective re-read; clean `a8eb54d`, 16 GiB free; upstream `c55359c…`, runtime
+`cdf5abb…`, frontend `b1a1477…`, RT64 `43373749…` rechecked.
+
+**Not passed:** iPad island crossing. Probe `73010fec…`, ordinary preserved
+GAME1 load, shorter X/Y pulses and jump combinations reached river-bank
+landmarks but returned to first-field bank/wall. Viewed private
+`river-island-{start,rightbank,upbank,resetbank,leftbank,entry,water,
+swim-diagonal,wide,bank-align,edge-align,cross-hold,swim-straight,wall-away,
+camera-reset,behind,heading}.png`. `water` shows airborne river entry;
+`swim-straight` shows wall, not successful swimming. No new checkpoint or
+port defect established. Log `work/island-route-current.log`. R was mistakenly
+used as a camera reset in this attempt; the game manual specifies C Down
+for following behind, R for looking/aiming. Subsequent C Down + Y=1 trial
+also did not establish a crossing. No game logic or audio changes.
+
+**Pass, diagnostic input scope:** added readback on the next 50ms probe poll
+after commands and release. Only `SimulatorInputProbe.swift` changed; default
+OFF / Simulator-only build guard and production input paths unchanged.
+An API-range concern prompted actual measurement: Apple's setPosition page
+documents 0…1, but on this iOS 18.5 runtime the existing signed inputs
+read back exactly, and zero reads neutral. Therefore do not remap coordinates
+from that documentation alone. Sources consulted:
+https://developer.apple.com/documentation/gamecontroller/gcvirtualcontroller/setposition(_:fordirectionpadelement:)
+https://www.videogamemanual.com/n64/Conker%27s%20Bad%20Fur%20Day%20%28USA%29.pdf
+
+Final opt-in arm64 Simulator build passed, executable SHA256
+`b054ccc52123555c4a72c6fbebf19aef23dbcdd6ffae8a3bf463dc45148dcccb`.
+Build logs `work/probe-axis-{build,final-build}.log`. Sequential iPad
+`605FB671…` then iPhone `AE64D60E…`, both iOS 18.5, launcher context only:
+commands (-.6,1)/camera(.8,-1), then (1,-1)/camera(-1,1), each 1s,
+read back exactly. After each expiry both stick pairs read (0,0). Logs
+`work/probe-axis-{pad,phone}-final.log`. This verifies probe delivery/release,
+not ordinary multitouch or story gameplay. Both consoles exited 0.
+
+Restored normal `f6b8419e…` app in place on both and shut down each Simulator;
+no erase/save replacement. No device rebuild necessary for this excluded
+probe source. Next: use verified delivery to qualify a camera-stable river
+approach and island lesson, then progressed save reloads; avoid sign changes
+or gameplay patches without a reproducible divergence. Full story remains
+open. Chris retains eventual signing/physical checks. Local commit only in
+this continuation; requested prior GitHub sync is already complete.
