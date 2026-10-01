@@ -2940,3 +2940,39 @@ the package audit closes story completion or progressed-save fidelity.
 Next remains gameplay progression and the outstanding lifecycle/input cases.
 Chris retains signing and physical touch feel, controllers, audio routes and
 long play.
+
+### 2026-10-01 — GitHub sync and normal-build menu lifecycle recheck
+
+**Pass, bounded menu lifecycle:** at Chris's explicit GitHub update request,
+synced the three local verified commits through `83a54b0` to private
+`chrissotraidis/squirrelpad` main. Restored normal Simulator executable
+`f6b8419e…` over the iPad's private probe in place, preserving its app data.
+Sequential iPad 18.5 `605FB671…`, then iPhone 18.5 `AE64D60E…`: cold launch,
+Continue Imported ROM, moving intro, three-dot Settings, Home, foreground
+return to the same process, and Close restored visible touch controls.
+Home was visually checked on each class; this is an intro/menu check,
+not gameplay-time, held-input, audio or progressed-save acceptance.
+
+Viewed private captures `work/evidence/sync-{pad,phone}-menu-foreground.jpg`
+and `sync-{pad,phone}-menu-closed.jpg`. Logs `work/sync-normal-{pad,phone}.log`;
+both console sessions exited 0 and both Simulators shut down. The normal
+bundle audit passed again (30 files, 24 notices), report
+`work/sync-package-audit.json`. No app/game/audio code changed.
+
+**Unverified:** iPhone content scroll and touch drag did not visibly expose
+the lower settings rows (`sync-phone-menu-{scroll,drag}.jpg`). This does not
+establish whether the cause is automation delivery or app scrolling; ordinary
+lower-row access needs a focused reproduction before changing gestures.
+
+**Previous private route trial, no progression pass:** `work/landing-route-pad.log`
+and viewed `landing-pad-{approach,bank,camera-reset,backaway,z-crouch}.jpg`
+show movement to a land wall and back to Birdy's fence, without reaching the
+island. The camera reset and LT crouch attempts had no clear visible result.
+Probe stick readback does not establish actual button delivery. Do not infer
+a game-logic defect or a new checkpoint from these trials. Probe is now
+removed from the installed iPad app; normal build is restored.
+
+Next: qualify lower iPhone menu access, then ordinary combined input and
+meaningful story/checkpoint progression. Full story and distinct progressed
+saves remain open. Chris retains signing and physical touch feel, controllers,
+audio routes and long play; routine speculative audio tuning stays deferred.
