@@ -1865,3 +1865,48 @@ defect is not established. No speculative scrolling or macOS mouse workaround
 added. Full gameplay/checkpoint, macOS control and physical gates remain open.
 Local commit only; never push. Next acceptance work remains meaningful game
 progress/save reload and sustained input, without resuming audio diagnostics.
+
+### 2026-10-01 — GAME1 garden approach, no new checkpoint
+
+**Progress:** prior turn `6262093` fixed slider accessibility and verified a
+phone setting across relaunch. Clean checkout, 26 GiB free; objective read.
+This turn used the existing opt-in controller probe against that revision;
+no game, audio or production source changes. Probe build terminal exit zero,
+`work/birdy-route-{configure,build}.log`; launch `work/birdy-route-run.log`.
+Preserved exact normal bundle privately as `work/route-normal-6262093.app`.
+
+**Pass, bounded navigation only:** GAME1 still displayed $0 / 1:55:56 before
+PLAY. Initial diagonal-left/forward approach hit the closed fence/rock corner;
+backed away, traversed the water side, then combined diagonal stick with A to
+enter the plot. Visually inspected Birdy, vegetables, sign and inner B pad.
+This does not establish that the entry used a jump rather than the opening.
+Touch B and bounded controller B attempts at several pad positions produced
+no observed lesson or beer sequence. Approaching Birdy directly also did not
+establish dialogue. Left the pad toward the water-side boundary; no outside
+pad cure or new checkpoint reached. Private captures viewed live:
+`work/evidence/birdy-route-current-{plot,stop}.png`.
+
+The older 2026-09-30 ledger explicitly records dialogue, lesson, beer and helium
+actions on this saved slot, but not the cure/reload. This run's missing replay
+does not establish a port or input defect. Repeating GAME1's first-pad presses
+without establishing its saved progression is not the next useful test.
+Route guidance checked against the linked GameRevolution walkthrough above;
+it is guidance only, not app acceptance proof.
+
+Save preserved before/after without editing/resetting:
+`c4378506ed44a8685ac0ac5760e55a3ebc72d03a598a3d29359c248cab5c9d50` →
+`d3f150befb163aa0911fd6b73871682a9515bec0465a194e657a948f00f04515`.
+Elapsed-time writes can explain byte changes; no logical checkpoint claimed.
+
+**Cleanup passed:** launch session 98283 terminal; probe OFF; normal Release
+rebuild terminal exit zero (`work/birdy-route-restore-{configure,build}.log`,
+session 32576). Reinstalled preserved ordinary bundle in place and verified
+installed executable SHA256
+`b6cc43ee9ab0088d85fb2def757e227382fba29995e4c828b10fbab5f30d6f51`.
+iPad shut down, phone unchanged; user data retained. Local commit only, no push.
+
+**Next:** inspect the game selector for an actually unused slot before creating
+a fresh game; preserve all occupied slots. Use that fresh route to distinguish
+initial Birdy behavior from GAME1's earlier progress, then verify an actual
+checkpoint/relaunch. No further speculative audio investigation. Full story,
+macOS gameplay/save control, physical acceptance and signed install remain open.
