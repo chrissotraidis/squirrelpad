@@ -1,11 +1,11 @@
 # SquirrelPad evidence ledger
 
-Updated 2026-09-30. Work the lowest unmet goal in [GOAL_LOOP.md](GOAL_LOOP.md). The private ROM, generated game code, builds, logs, saves and gameplay captures stay under ignored `ref/` or `work/`.
+Updated 2026-10-01. Work the lowest unmet goal in [GOAL_LOOP.md](GOAL_LOOP.md). The private ROM, generated game code, builds, logs, saves and gameplay captures stay under ignored `ref/` or `work/`.
 
 | Gate | State | Measured result and remaining test |
 | --- | --- | --- |
 | G0 pinned inputs | Pass for source inputs | `sources.lock.json` pins Conker and its submodules. A fresh ignored checkout replayed every patch and regenerated 127 game files byte-for-byte identical to the existing output from the verified private US ROM. `docs/SOURCE_BOUNDARY.md` inventories the source/licensing boundary; independent tool/renderer builds and package audit remain G8. |
-| G1 macOS control | In progress | ARM64 N64RecompCLI/RSPRecomp/RecompModTool built; `python3 recomp/recompile.py` emitted 127 files. Headless host ran 15 seconds, 895 VIs and 446 display lists, exit 0. `patches/rt64-metal-sdk-scope.patch` fixed the RecompFrontend shader command; the macOS Metal rebuild passed and its host ran 120 seconds, 7174 VIs, exit 0 on Apple M1. A later macOS startup-order fix made the native window inspectable: moving intro, GAME1 file select and native Settings were viewed through CUA on 2026-09-30. Escape opened/closed Settings; ordinary keyboard selection has not reached gameplay. A bounded event trace found CUA key-down/key-up share a timestamp and SDL reports the key released when polling; loaded A/Start bindings are correct. This is an automation timing limitation, not a demonstrated input-mapping defect. Audio fidelity and save/relaunch remain unverified. |
+| G1 macOS control | In progress | ARM64 N64RecompCLI/RSPRecomp/RecompModTool built; `python3 recomp/recompile.py` emitted 127 files. Headless host ran 15 seconds, 895 VIs and 446 display lists, exit 0. `patches/rt64-metal-sdk-scope.patch` fixed the RecompFrontend shader command; the macOS Metal rebuild passed and its host ran 120 seconds, 7174 VIs, exit 0 on Apple M1. A later macOS startup-order fix made the native window inspectable: moving intro, GAME1 file select and native Settings were viewed through CUA on 2026-09-30. Escape opened/closed Settings; ordinary keyboard selection subsequently reached the first field (see the 2026-10-01 macOS entry). Sustained ordinary movement and save/relaunch remain open. A bounded event trace found CUA key-down/key-up share a timestamp and SDL reports the key released when polling; loaded A/Start bindings are correct. This is an automation timing limitation, not a demonstrated input-mapping defect. Audio fidelity and save/relaunch remain unverified. |
 | G2 mobile core and renderer | In progress | The Conker core, RSP audio path, runtime and RT64 Metal archives compile/link into an ARM64 `iphonesimulator` app and an unsigned ARM64 `iphoneos` app. Both SDK-specific RT64 closures force-link without desktop surface symbols. Metal blobs target iOS 17.0 and Metal 3.1; iOS 18.5 Simulator loaded them. iOS excludes mod scanning, LiveRecomp initialization and the game-start `load_mods` call. The latest iOS link excludes LiveRecomp entirely; neither final executable contains LiveGenerator, ShimFunction or sljit symbols, and the device map marks native mod protect/patch functions dead stripped. Runtime RDRAM still uses non-executable mmap/mprotect. Physical execution remains unverified. Both iPad and iPhone Simulators reached gameplay with the touch input bridge. This is not physical-device or audio proof. |
 | G3 Simulator frame | Partial | The iPad Pro 11-inch (M4) and iPhone 16 Pro, both iOS 18.5, reached moving intro, game select and the **first playable field** on RT64 Metal. Fresh iPad Pro 13-inch (M5) and iPhone 17 Pro iOS 26.5 runs rejected invalid and wrong-checksum files, imported the pinned US ROM through Files, reached the first field, and loaded a saved GAME1 slot after cold app relaunch. Touch Start/A paused/resumed in that field. Captures: `work/evidence/ipad26-fresh-import-relaunch-first-field.png`, `work/evidence/iphone26-fresh-import-relaunch-first-field.png`. macOS fidelity comparison, long play and audio quality remain open. |
 | G4 touch input and audio | Partial | The continuous stick and 14 N64 touch buttons feed Conker's mobile input callback for player 0. A separate GameController state maps extended-gamepad buttons and sticks into the same callback; a hidden virtual controller supplied combined A, C-right and left-stick input in the first playable field on both Simulators, then cleared on disconnect. Individual actions, controller title navigation and physical hardware remain unverified. On both Simulators, touch Start opened the game's pause screen and A resumed at the first field. Short stick/C taps changed the picture but do not establish sustained analog feel. The three-dot menu opened/closed and hid/restored the controls in the iPad field. Opacity, control size, D-pad/C-button visibility and separate iPad/iPhone touch positions persisted across full app relaunch; Restore Defaults returned the defaults. The iOS Audio Queue consumed nonzero stereo PCM on both Simulators. After Chris reported heavy glitches, a five-buffer reserve reduced measured restarts in separate Simulator runs, but did not eliminate them and adds about 100 ms of nominal buffering. A later queue-depth trace confirmed real underruns and the restored iPad build still restarted twice through display list #4620; intermittent sample starvation remains measured, but its relationship to the audible complaint and its practical severity are unverified. Routine audio diagnosis is deferred following Chris's 2026-09-30 correction. Pausing the queue with scene inactivity removed the immediate resume underrun in two short cycles on each Simulator; this does not establish general audio quality. Audible quality, interruptions/routes, simultaneous touches and controller play remain open; Settings now pauses game time. |
@@ -2784,3 +2784,39 @@ approach and island lesson, then progressed save reloads; avoid sign changes
 or gameplay patches without a reproducible divergence. Full story remains
 open. Chris retains eventual signing/physical checks. Local commit only in
 this continuation; requested prior GitHub sync is already complete.
+
+
+### 2026-10-01 — Paused river observations and final GitHub refresh
+
+**Diagnostic observation, not a story pass:** iPad 18.5 `605FB671…`,
+opt-in probe executable `b054ccc…`, preserved GAME1. Source input trace
+(`host/src/main.cpp` → `Support/Conker/mobile_input.cpp` → runtime input)
+confirmed no extra Y-axis inversion; no mapping change justified.
+`work/heading-route.log` records the run. Viewed private captures
+`river-heading-{field,approach,orbit,orbit-right,target,forward,forward-two,
+water,swim,swim-left,slope-back}.png` and `heading-paused-step1` through
+`step8.jpg`. Surface swimming was visible, followed by bank/wall endpoints.
+The island lesson and a new checkpoint were not reached.
+
+Neutral time between tool observations lets the river current move Conker.
+Using the existing three-dot Settings pause between short diagnostic trials
+made observations easier to compare. A brief Start click did not visibly
+pause this attempt; it is not a pause pass. Direct bounded probe commands,
+close Settings, capture, and reopen Settings still leave several seconds of
+movement, so captures do not prove exact trajectories or ordinary multitouch.
+No port defect, game-logic change or audio change established.
+
+**Pass, normal restoration:** terminated the probe (console exited 0),
+installed normal Simulator executable `f6b8419e…` in place, launched without
+probe environment and selected Continue Imported ROM. Viewed private
+`heading-normal-restored.jpg` shows rendered N64 intro with touch controls.
+Terminated normally and shut down iPad. Saves and ROM access preserved;
+no erase or save replacement. iPhone was not rerun in this route; its
+stick delivery/release check is recorded above.
+
+User's requested GitHub refresh includes the diagnostic readback commit and
+this evidence update. Repository remains private; ROMs, generated game code,
+saves, builds and gameplay captures remain ignored. No release published.
+Full story and progressed save reloads remain our open Simulator work.
+Chris still needs eventual signing and physical touch feel, controllers,
+audio routes and long play. Audio remains unverified/deferred.
