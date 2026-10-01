@@ -2443,3 +2443,35 @@ Next: continue ordinary gameplay toward the island lesson with confirmed axis
 directions; record a newly reached checkpoint and cold reload before claiming
 progression/save acceptance. Full story, meaningful save fidelity and physical
 signing/device gates remain open. Local commits only; never push.
+
+### 2026-10-01 — Tutorial attempt: jump works, island not reached
+
+Previous turn: progress in diagnostic axis evidence/profile setup, no story
+progress. Read full objective; clean `0411fff`, runtime/RT64 pins unchanged,
+17 GiB free. Audio remains deferred. Existing iPad M4 / iOS 18.5 probe build
+`73010fec…` installed in place; normal ROM Continue and touch A loaded GAME1
+$0 / 0:46:56. Preserved 2048-byte EEPROM in ignored
+`work/island-route-save-before.bin`, SHA256
+`ecc47d1349c2309c25f0493a2d5ae3052bee9bc3d159e98866d5fbb40b9bf272`.
+
+**Pass, diagnostic inputs only:** short stick commands reached the river;
+C-down restored the field view after an initial wall approach; A/0.5s visibly
+jumped on land. Stick X=-1 plus A/1s moved into water. Ordinary touch Start
+paused and ordinary touch A resumed. **Not achieved:** island lesson, new
+checkpoint or full-story progression. No reproducible port defect established;
+no game/input/save patch. These controller-probe actions do not prove ordinary
+held-touch acceptance.
+
+Inspected `work/evidence/river-island-{bank,back,camera,right,water,approach,
+bank2,straight,swim,land-camera,jump,turnback,wall-exit,stick-a}.png`.
+Recorded `work/evidence/island-wall-observation.mov`; inspected its sampled
+`island-wall-contact.png`: the bounded backward command moves out from the
+wall to the water edge; it does not show a respawn. Do not infer a death or a
+broken trigger from endpoint images. Log: `work/island-route-run.log`.
+
+Terminated probe (console exit zero), restored normal icon build `2fe63a72…`
+in place, shut down iPad; no reset or save replacement. Next route attempt
+must use a short continuous video of the crossing and inspect its trajectory,
+rather than another sequence of endpoint guesses. Full-story/save-fidelity
+requirements remain open; Chris retains signing and eventual physical checks.
+Local evidence commit only; never push.
