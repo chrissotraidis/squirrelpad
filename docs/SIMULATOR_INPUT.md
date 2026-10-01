@@ -29,6 +29,14 @@ python3 scripts/simulator-input.py <UDID> --button LT --button A --seconds 0.3
 
 Axes are -1...1; buttons are physical gamepad A/B/X/Y, LB/RB and LT/RT and respect saved controller mappings. By default LT/RT map to N64 Z, LB to L and RB to R. Repeat `--button` to combine inputs. Duration is 0.05...10 seconds. A new command replaces all axes/buttons, and timeout releases them. Commands are written atomically into the app's Documents directory; expired files are ignored after relaunch. Logs identify connection, command and release. Use screenshots/video to verify actual movement, not just command logs. Settings/background still disable controller input through the ordinary activity path.
 
+For navigation, capture immediately after each short command, then use ordinary
+touch Start and visually confirm the in-game PAUSED screen before inspecting
+the capture. Resume through the game's Continue selection before the next
+command. The game otherwise runs during inspection, so a screenshot can become
+a stale starting position. Pause preserves the location; animation may continue.
+Refresh Simulator accessibility indices after UI changes. A command/release log
+proves delivery only, and a failed route does not establish an input or save bug.
+
 After testing, terminate/shut down the Simulator and restore the normal build:
 
 ```sh

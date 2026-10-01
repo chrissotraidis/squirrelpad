@@ -2292,3 +2292,33 @@ precise game-clock suspension, simultaneous touch and audio acceptance remain
 open. Console session exited zero; phone shut down, none booted. Chris retains
 signing and eventual physical touch/controller, audio-route and long-play
 acceptance. Local commit only; never push.
+
+### 2026-10-01 — Tutorial route observation method corrected
+
+Read the full objective, clean `2e379ae`, pins and 18 GiB free. Previous turn
+restored the normal app after the user's audio correction. Audio is unverified
+and deferred: no tuning, capture or counter sweep in this turn.
+
+On iPad M4 / iOS 18.5 `605FB671-1720-4C19-A3BE-AE425323D052`, installed
+the existing private controller probe in place, preserving saves/preferences.
+GAME1 $0 / 0:46:56 loaded; short stick/A commands visibly entered surface
+swimming, and C commands changed the camera. Island arrival, the jump lesson
+and a new checkpoint were **not achieved**. No input, save or game-logic defect
+was established; no implementation was changed.
+
+The observation method allowed gameplay to continue while captures were being
+inspected. Added a documented capture-then-ordinary-Start-pause procedure.
+Visually confirmed PAUSED between the final measured commands and during later
+inspection; the location remained at the same bank/wall while animation could
+continue. This is a harness correction, not gameplay acceptance. Viewed private
+captures `work/evidence/river-short-{select,bank,turn,forward,water,swim,look,
+lookleft,away,behind,upstream,along,offwall,left,channel,cross,controlled,chase}.png`
+and `river-short-paused.jpg`; log `work/river-short-route.log`.
+
+Terminated runtime (console session exit zero), restored the normal app in
+place and verified executable SHA256
+`b6cc43ee9ab0088d85fb2def757e227382fba29995e4c828b10fbab5f30d6f51`;
+iPad shut down. Next: reload the preserved tutorial checkpoint and use paused
+observations from the island-facing bank, rather than repeating unpaused river
+holds. Full story and distinct progressed saves remain open. Chris retains
+signing and physical touch/controller, audio-route and long-play checks.
