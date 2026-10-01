@@ -1290,3 +1290,52 @@ reference editor/menu parity and physical acceptance. Next reference work:
 compare selected-control feedback and individual size/visibility editing with
 the reference; keep gameplay progression and save acceptance open. Chris still
 owns physical touch feel, controllers, audio routes/listening and long play.
+
+
+### 2026-09-30 — touch editor selection and tap-position protection
+
+**Pass, narrow reference behavior:** compared the local HarkinianPad
+`docs/customizable-touch-controls.md` and selection implementation in
+`patches/shipwright-ios-customizable-touch-controls.patch`. The reference names
+and highlights the selected control. SquirrelPad now shows an amber outline,
+selected accessibility trait, and control name with a drag instruction. Reset,
+Done, and a new editing session clear selection. This uses an outline instead
+of the reference's glow; complete artwork/editor parity is not claimed.
+
+**Fix:** a tap previously wrote its endpoint as a new control center. Editing
+now selects on touch and moves only after more than two points of drag travel.
+An off-center tap leaves the control in place. Gameplay button masks, stick
+axes, runtime and game logic are unchanged.
+
+**Pass, builds:** Simulator and unsigned device Release builds exited zero,
+`work/editor-selection-{sim,device}-build.log`; both caches remain
+`SQUIRRELPAD_SIM_INPUT=OFF`. Executable SHA-256:
+Simulator `eab1c1a08e141851d2dc8894d097255df0059135be175839926b3251048d63f6`;
+device `c08e3f05ed9c5687ec3763866fba6a65303b6df23fa5f135af6735bc46f8f8e5`.
+
+**Pass, viewed integration:** installed in place on iPad M4, then iPhone 16 Pro,
+both iOS 18.5, one Simulator at a time. Continue Imported ROM → three-dot menu
+→ Controls → Edit Layout. Selected A and Control Stick, inspected the amber
+outline and readable header, tapped A off-center without displacement, dragged
+A visibly, then Reset restored its default position and cleared selection.
+Selected A with another off-center tap and Done restored the ordinary overlay
+and permanent menu with no selection highlight. Normal A opened the game slot
+preview and B returned on both destinations. A stale iPhone AX target caused
+no-op attempts; a fresh full accessibility tree resolved them. This is not a
+new game-input defect or a full gameplay/multitouch acceptance pass.
+
+Before/after and regression captures were visually inspected through Simulator
+and saved under ignored `work/evidence/editor-selection-`: `{ipad,iphone}-before.png`,
+`{ipad,iphone}-A.png`, `ipad-drag.png`, `iphone-stick.png`, and
+`{ipad,iphone}-normal-input.png`. Preference backups are
+`work/editor-selection-{ipad,iphone}-preferences-before.plist`. After Reset,
+selection-only taps, Done and termination, both complete preference dictionaries
+exactly matched their backups. No private ROM/save reset, mappings or volume
+change. Both Simulators are shut down. Local commit only; never pushed.
+
+**Open:** individual control resizing/visibility and Z latch remain reference
+gaps; full story and meaningful checkpoint/relaunch acceptance remain open.
+Next UI step is per-control 70–150% resizing with separate phone/tablet storage,
+without replacing existing position profiles. Audio investigation stays deferred;
+no recordings/tuning were performed. Chris still owns physical touch feel,
+controller hardware, audio routes/listening and long play.

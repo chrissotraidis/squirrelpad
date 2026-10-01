@@ -24,6 +24,8 @@ private struct TouchButton: View {
     let compact: Bool
     let scale: Double
     let editing: Bool
+    let selected: Bool
+    let select: (String) -> Void
     let move: (String, CGPoint) -> Void
     @State private var held = false
 
@@ -38,23 +40,27 @@ private struct TouchButton: View {
             .background(control.tint.opacity(held ? 0.70 : 0.30),
                         in: RoundedRectangle(cornerRadius: size / 2))
             .overlay(RoundedRectangle(cornerRadius: size / 2)
-                .stroke(.white.opacity(held ? 0.9 : 0.72), lineWidth: 2))
+                .stroke(selected ? Color(red: 1, green: 0.78, blue: 0.16) : .white.opacity(held ? 0.9 : 0.72),
+                        lineWidth: selected ? 3 : 2))
             .contentShape(RoundedRectangle(cornerRadius: size / 2))
             .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .named("touchLayout"))
                 .onChanged { _ in
-                    if editing { return }
+                    if editing { select(control.id); return }
                     guard !held else { return }
                     held = true
                     setTouchButton(control.mask, 1)
                 }
                 .onEnded { value in
-                    if editing { move(control.id, value.location) }
+                    if editing && hypot(value.translation.width, value.translation.height) > 2 {
+                        move(control.id, value.location)
+                    }
                     release()
                 })
             .onDisappear { release() }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(control.id)
             .accessibilityAddTraits(.isButton)
+            .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     private func release() {
@@ -67,6 +73,8 @@ private struct TouchButton: View {
 private struct TouchStick: View {
     let size: CGFloat
     let editing: Bool
+    let selected: Bool
+    let select: (String) -> Void
     let center: CGPoint
     let move: (String, CGPoint) -> Void
     @State private var offset = CGSize.zero
@@ -74,7 +82,8 @@ private struct TouchStick: View {
     var body: some View {
         Circle()
             .fill(.black.opacity(0.30))
-            .overlay(Circle().stroke(.white.opacity(0.42), lineWidth: 2))
+            .overlay(Circle().stroke(selected ? Color(red: 1, green: 0.78, blue: 0.16) : .white.opacity(0.42),
+                                     lineWidth: selected ? 3 : 2))
             .overlay {
                 Circle()
                     .fill(Color(red: 0.20, green: 0.52, blue: 0.73).opacity(0.80))
@@ -86,7 +95,7 @@ private struct TouchStick: View {
             .contentShape(Circle())
             .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .named("touchLayout"))
                 .onChanged { value in
-                    if editing { return }
+                    if editing { select("Stick"); return }
                     let radius = size * 0.35
                     let dx = value.location.x - center.x
                     let dy = value.location.y - center.y
@@ -97,12 +106,15 @@ private struct TouchStick: View {
                                   Float(-offset.height / radius))
                 }
                 .onEnded { value in
-                    if editing { move("Stick", value.location) }
+                    if editing && hypot(value.translation.width, value.translation.height) > 2 {
+                        move("Stick", value.location)
+                    }
                     reset()
                 })
             .onDisappear { reset() }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("Control Stick")
+            .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     private func reset() {
@@ -117,6 +129,8 @@ struct TouchControlsView: View {
     let showDpad: Bool
     let showCButtons: Bool
     let editing: Bool
+    let selectedControl: String?
+    let onSelect: (String) -> Void
     let layout: [String: CGPoint]
     let onMove: (String, CGPoint) -> Void
 
@@ -182,6 +196,8 @@ struct TouchControlsView: View {
                                                         y: compact ? 0.752 : 0.81)
                 TouchStick(size: (compact ? 116 : 150) * scale,
                            editing: editing,
+                           selected: editing && selectedControl == "Stick",
+                           select: onSelect,
                            center: CGPoint(x: width * stick.x, y: height * stick.y),
                            move: move)
                     .position(x: width * stick.x, y: height * stick.y)
@@ -191,7 +207,9 @@ struct TouchControlsView: View {
                         let normalized = layout[control.id] ?? (compact ? control.phone : control.tablet)
                         let center = CGPoint(x: width * normalized.x, y: height * normalized.y)
                         TouchButton(control: control, compact: compact, scale: scale,
-                                    editing: editing, move: move)
+                                    editing: editing,
+                                    selected: editing && selectedControl == control.id,
+                                    select: onSelect, move: move)
                             .position(center)
                     }
                 }

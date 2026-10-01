@@ -111,6 +111,7 @@ struct SquirrelPadApp: App {
     @State private var editingLayout = false
     @State private var editingCompact = false
     @State private var editedPositions: [String: CGPoint] = [:]
+    @State private var selectedControl: String?
     @State private var settingsSection: SettingsSection = .controls
     @State private var bindingsExpanded = false
     @State private var audioInterrupted = false
@@ -135,6 +136,8 @@ struct SquirrelPadApp: App {
                                           scale: controlScale,
                                           showDpad: showDpad, showCButtons: showCButtons,
                                           editing: editingLayout,
+                                          selectedControl: selectedControl,
+                                          onSelect: { selectedControl = $0 },
                                           layout: editingLayout && editingCompact == compact
                                               ? editedPositions : savedLayout(compact: compact),
                                           onMove: { id, center in
@@ -158,8 +161,12 @@ struct SquirrelPadApp: App {
                     }
                     if editingLayout {
                         HStack(spacing: 14) {
-                            Text("Drag controls to move them")
-                            Button("Reset Layout") { editedPositions = [:] }
+                            Text(selectedControl.map { "\($0 == "Stick" ? "Control Stick" : $0) · Drag to move" }
+                                 ?? "Tap a control to select")
+                            Button("Reset Layout") {
+                                editedPositions = [:]
+                                selectedControl = nil
+                            }
                             Button("Done") { finishLayoutEdit() }
                         }
                         .font(.system(size: compact ? 14 : 17, weight: .semibold))
@@ -531,6 +538,7 @@ struct SquirrelPadApp: App {
     private func beginLayoutEdit(compact: Bool) {
         clearTouchInput()
         editedPositions = savedLayout(compact: compact)
+        selectedControl = nil
         editingCompact = compact
         menuOpen = false
         editingLayout = true
@@ -543,5 +551,6 @@ struct SquirrelPadApp: App {
             if editingCompact { phoneLayout = text } else { tabletLayout = text }
         }
         editingLayout = false
+        selectedControl = nil
     }
 }
