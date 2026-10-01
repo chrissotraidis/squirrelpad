@@ -1742,3 +1742,55 @@ directories using this source and corresponding fresh archives, probe OFF,
 then perform package audit and sequential Simulator acceptance. Final mobile
 replay/install/signing, meaningful checkpoints, full story and physical checks
 remain open. Never push.
+
+### 2026-10-01 — Fresh mobile builds, bundle audit and first-field replay
+
+**Progress:** previous turn `9d5d5b0` completed fresh source/tools/generation
+and host build, leaving renderer session 44279 running. Re-polled that exact
+handle: terminal exit zero; no restart. Both fresh renderer SDKs succeeded,
+including 56 Metal shader compilations per SDK and ARM64 force-loaded closure
+checks. Logs `work/final-replay-rt64-{simulator,device}.log`.
+
+**Pass, independent build:** configured new `work/build-app-final-<sdk>` Xcode
+projects against `work/source-final-replay` and the respective
+`work/build-rt64-<sdk>-final-replay` archives. Probe OFF. Both Release builds
+terminal exit zero, confirmed BUILD SUCCEEDED; logs
+`work/final-replay-app-{simulator,device}-{configure,build}.log`.
+No existing app objects/renderer archives reused. Simulator executable SHA256
+`1759aaa2035b5b0acf49bb4135d95ebcfb9561ae51965493b76f15984726eed6`;
+unsigned device executable
+`8c446ce78107d56106159ed146ed37457f6a2fc59a709805620916af570de03c`.
+Disk remains 26 GiB available. No app/game/audio source edits.
+
+**Pass, bounded audit:** each bundle contains 27 files, including 24 third-party
+notices, byte-identical across SDKs. ARM64, identifier
+`com.chrissotraidis.squirrelpad`, version 0.1.0. Full file inventories/hashes and
+`nm -a` output recorded privately by `work/final-replay-audit.py` in
+`work/final-replay-package-audit.json` and SDK symbol logs. No flagged
+ROM/save/key/profile files; no Simulator-input/touch trace markers or personal
+home-path string in executables; no LiveGenerator, ShimFunction or sljit_emit_
+symbols. These specific scans do not prove exhaustive secret absence or complete
+license compliance. Compiled game/RSP/TLB code remains ROM-derived; app is not
+therefore rights-cleared or freely distributable. Device output remains unsigned.
+
+**Pass, bounded ordinary replay:** installed the same fresh Simulator bundle
+in place on iPad M4 then iPhone 16 Pro / iOS 18.5, one booted at a time.
+Independently verified installed executable bytes match on both. Continue
+Imported ROM → moving intro → touch Start → GAME1/PLAY → touch A reached the
+first field. Touch Start visibly paused it; A visibly resumed. Three-dot
+Settings opened/closed and removed/restored gameplay controls; persisted
+Control Size remained 116% on iPad, 100% on phone. Existing ROM/saves/preferences
+not reset. No new meaningful checkpoint or sustained movement acceptance.
+Live CUA screenshots inspected; private captures:
+`work/evidence/final-replay-{ipad,iphone}-{settings,gameplay}.png`.
+Both apps terminated and Simulators shut down; all build handles terminal.
+
+**Still open:** signed developer install (no valid signing identity found last
+preflight), remaining notice/licensing review, macOS ordinary gameplay/save
+comparison, two meaningful in-level checkpoints/reloads, full iPad story and
+representative iPhone chapters, remaining menu/swipe acceptance, physical touch
+feel/controllers/audio routes/long play. Fresh build reproducibility now has
+independent evidence; it does not close all of G8 or redefine full completion.
+Next return to ordinary gameplay context and control comparison; do not repeat
+fresh builds or audio diagnostics without a new concrete failure. Local commit
+only, never push.
