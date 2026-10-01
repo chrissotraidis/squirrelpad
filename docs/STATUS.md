@@ -2704,3 +2704,38 @@ its interaction before another swim; use the same saved state on macOS if a
 divergence appears. Full story and distinct progressed reload gates remain
 open. Audio deferred; physical/signing checks remain Chris's. Local evidence
 commit only in this continuation; prior explicit GitHub sync already completed.
+
+### 2026-10-01 — Cure-pad revisit and requested GitHub refresh
+
+User requested the repository be current on GitHub and continued testing.
+Fetched origin; private repository, local main ahead by the previous macOS
+comparison evidence commit. This request authorizes the source/evidence sync.
+
+**Observed, diagnostic scope:** iPad 18.5 `605FB671…`, opt-in probe
+`73010fec…`, preserved GAME1. Pre-test EEPROM backup
+`work/cure-revisit-before.bin`, 2048 bytes, SHA256
+`6e900594b2375deeae2aab54db347a6419b9f483185f8c64357edd1b05f0dd49`.
+Reached outer context pad upright; ordinary B and bounded probe B did not
+replay cure animation. Consistent with an already cured state, but no internal
+flag or persistence proof. Viewed `river-cure-{initial,approach,pad,center,
+onpad,b-result,bank,swim-held,forward-held,backaway}.png` privately.
+
+Forward-held capture (Y=1 for 10s, screenshot delay 2s) showed Conker against
+a wall, not swimming. Y=-1 for 3s visibly moved away. Capturing during held
+input therefore did not establish a crossing or an input defect. No new
+checkpoint, story-progress pass, game-logic patch or audio change. Log:
+`work/cure-revisit-run.log`. Avoid treating these navigation attempts as
+completion evidence.
+
+**Pass, restoration only:** installed normal `f6b8419e…` in place, launched
+without probe environment, ordinary Continue Imported ROM displayed game
+intro with controls (viewed CUA screenshot). Subsequent saved capture
+`github-sync-normal-restored.jpg` caught a black transition and is not
+a gameplay proof. Terminated normally and shut down iPad; no erase or save
+replacement. iPhone not rerun in this check; no source change.
+
+Next meaningful acceptance remains tutorial island/hover progression, two
+distinct progressed cold-save reloads, and sustained ordinary combined input.
+Full story remains open. Chris: eventual signing and physical touch feel,
+controllers, audio routes and long play. Audio investigation stays deferred
+until a reproducible audible fault warrants it.
