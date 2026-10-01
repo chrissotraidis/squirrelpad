@@ -11,7 +11,7 @@ Updated 2026-09-30. Work the lowest unmet goal in [GOAL_LOOP.md](GOAL_LOOP.md). 
 | G4 touch input and audio | Partial | The continuous stick and 14 N64 touch buttons feed Conker's mobile input callback for player 0. A separate GameController state maps extended-gamepad buttons and sticks into the same callback; a hidden virtual controller supplied combined A, C-right and left-stick input in the first playable field on both Simulators, then cleared on disconnect. Individual actions, controller title navigation and physical hardware remain unverified. On both Simulators, touch Start opened the game's pause screen and A resumed at the first field. Short stick/C taps changed the picture but do not establish sustained analog feel. The three-dot menu opened/closed and hid/restored the controls in the iPad field. Opacity, control size, D-pad/C-button visibility and separate iPad/iPhone touch positions persisted across full app relaunch; Restore Defaults returned the defaults. The iOS Audio Queue consumed nonzero stereo PCM on both Simulators. After Chris reported heavy glitches, a five-buffer reserve reduced measured restarts in separate Simulator runs, but did not eliminate them and adds about 100 ms of nominal buffering. A later queue-depth trace confirmed real underruns and the restored iPad build still restarted twice through display list #4620; intermittent sample starvation remains measured, but its relationship to the audible complaint and its practical severity are unverified. Routine audio diagnosis is deferred following Chris's 2026-09-30 correction. Pausing the queue with scene inactivity removed the immediate resume underrun in two short cycles on each Simulator; this does not establish general audio quality. Audible quality, interruptions/routes, simultaneous touches and controller play remain open; Settings now pauses game time. |
 | G5–G6 gameplay | Partial | Populated **GAME1** slots survived app reinstall on each Simulator and loaded the first field. On iPad, a new **GAME2** slot was created, and after cold relaunch it showed **PLAY** with a nonzero play time. The mobile VI gate stops display-list progression on Home. The iOS runtime patch froze `osGetTime()` and timer-message enqueues through two ten-second gameplay background cycles on each Simulator; both resumed rendering and touch Start/A. A subsequent Audio Queue pause change removed the immediate resume underrun in two more short cycles on each Simulator. Distinct in-level save fidelity, sleep/wake, long play and full-story G6 remain open. |
 | G7 hardware | Awaiting devices | `xcrun devicectl list devices` found no connected iPad or iPhone on 2026-09-26. Both physical acceptance rows remain open. |
-| G8 package | In progress | A separate checkout builds its own recompiler tools, generated game code, macOS shader inputs and both iOS RT64 archive closures. Both SDK app bundles carry 21 pinned upstream notice texts, and the latest executables have no absolute home path strings. The app contains ROM-derived executable code. Full notice/rights review, signing, installable handoff and hardware install remain. |
+| G8 package | In progress | A separate checkout builds its own recompiler tools, generated game code, macOS shader inputs and both iOS RT64 archive closures. Both SDK app bundles carry 24 upstream notice texts, including three previously omitted header notices, and the latest executables have no absolute home path strings. The app contains ROM-derived executable code. Full notice/rights review, signing, installable handoff and hardware install remain. |
 
 ## Fresh iPadOS and iOS 26.5 ROM imports (2026-09-28)
 
@@ -1385,3 +1385,51 @@ physical acceptance. Audio counters have not established a repeatable audible
 ordinary-play defect or its cause. Audio experiments remain deferred; no audio
 tuning or recordings in this step. Chris retains physical touch feel,
 controller hardware, audio routes/listening and long play.
+
+### 2026-09-30 — current bundle boundary and omitted header notices
+
+**Progress:** previous turn committed individual touch sizes as `787e4c2` and
+proved relaunch persistence on both classes. This step addresses G8 package
+accuracy, without claiming the lower gameplay gates are complete. Audio stays
+deferred; no audio or gameplay code changed.
+
+**Fail, corrected:** the existing 21-notice bundle omitted concurrentqueue,
+its lightweightsemaphore attribution/license, and sse2neon, although current
+device compiler dependency files include those headers. Added three verbatim
+pinned header excerpts under `Support/Notices/` and bundled them through CMake.
+Independently compared each excerpt with the controlled source headers. All
+manifest source commit pins match `work/source-replay`.
+
+**Pass, exact builds:** final Simulator and unsigned device Release builds
+exited zero (`work/package-notices-{iphonesimulator,iphoneos}-final-build.log`).
+The first build regenerated the Xcode projects after loading the old resource
+list, leaving 21 notices despite a successful exit. An actual bundle inspection
+caught this; rebuilding the regenerated projects produced 24 texts. The new
+bundled bytes match the source notice files. Both ARM64 executable hashes are
+unchanged from the preceding accepted size build: Simulator `c6edcad86ecf30d063a6a04b051eeb1aee099d9a0aac690dd386b7184fba28f3`,
+device `c10b8d19fc32d9d7bfc8db44f74397224cd0635f3a089aac95615c027107bdc8`.
+
+**Pass, bounded content audit:** full `nm -a` output contains no LiveGenerator,
+ShimFunction or sljit symbol matches on either SDK. Neither bundle contains a
+local home path in a byte scan; filename inventories contain no ROM/save/key or
+provisioning-profile input. Exact inventories and notice hashes are in ignored
+`work/package-notices-audit.json`. These scans do not prove exhaustive license
+coverage or distribution rights; ROM-derived executable code remains present.
+Updated `docs/SOURCE_BOUNDARY.md` to supersede the older LiveRecomp-containing
+binary observations and document the current evidence accurately.
+
+**Pass, in-place packaging installs:** iPhone 16 Pro then iPad M4 / iOS 18.5,
+one Simulator at a time. Each installed container contains 24 notices and the
+same accepted executable hash. Preference dictionaries remain as after the
+previous restored test: only the new empty class-specific size key differs from
+the pre-sizing backups. No ROM/save reset. Both Simulators shut down. No visual
+or new gameplay claim from this resource-only change; no physical installation.
+
+**Open / next:** G1 ordinary macOS gameplay/save control, G5 distinct in-level
+save fidelity, G6 full iPad story/representative iPhone play, remaining reference
+menu/editor gaps, and G7 physical acceptance remain incomplete. G8 still needs
+reproducible developer setup instructions and final clean replay/signing review.
+Next concrete handoff action: derive a root README's build commands from the
+verified replay commands in this ledger and the current CMake caches/scripts;
+check them against the actual source and output paths before committing. Chris
+retains physical touch feel, controllers, audio listening/routes and long play.

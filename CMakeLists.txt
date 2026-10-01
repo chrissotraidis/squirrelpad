@@ -97,6 +97,13 @@ foreach(notice IN LISTS third_party_notices)
         MACOSX_PACKAGE_LOCATION "Resources/ThirdPartyNotices")
     target_sources(SquirrelPad PRIVATE "${notice_copy}")
 endforeach()
+foreach(notice_name concurrentqueue lightweightsemaphore sse2neon)
+    set(notice_copy "${CMAKE_CURRENT_BINARY_DIR}/notices/${notice_name}.txt")
+    configure_file("Support/Notices/${notice_name}.txt" "${notice_copy}" COPYONLY)
+    set_source_files_properties("${notice_copy}" PROPERTIES
+        MACOSX_PACKAGE_LOCATION "Resources/ThirdPartyNotices")
+    target_sources(SquirrelPad PRIVATE "${notice_copy}")
+endforeach()
 target_link_libraries(SquirrelPad PRIVATE ConkerRecomp
     "-framework SwiftUI" "-framework UniformTypeIdentifiers" "-framework CryptoKit"
     "-framework AudioToolbox" "-framework Metal" "-framework MetalKit" "-framework QuartzCore" "-framework UIKit")
