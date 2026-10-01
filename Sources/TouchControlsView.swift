@@ -132,6 +132,7 @@ struct TouchControlsView: View {
     let selectedControl: String?
     let onSelect: (String) -> Void
     let layout: [String: CGPoint]
+    let controlSizes: [String: Double]
     let onMove: (String, CGPoint) -> Void
 
     // The normalized centers follow HarkinianPad's accepted phone/tablet grip
@@ -194,7 +195,7 @@ struct TouchControlsView: View {
             ZStack {
                 let stick = layout["Stick"] ?? CGPoint(x: compact ? 0.214 : 0.164,
                                                         y: compact ? 0.752 : 0.81)
-                TouchStick(size: (compact ? 116 : 150) * scale,
+                TouchStick(size: (compact ? 116 : 150) * scale * (controlSizes["Stick"] ?? 1),
                            editing: editing,
                            selected: editing && selectedControl == "Stick",
                            select: onSelect,
@@ -206,7 +207,8 @@ struct TouchControlsView: View {
                        (showCButtons || !control.id.hasPrefix("C ")) {
                         let normalized = layout[control.id] ?? (compact ? control.phone : control.tablet)
                         let center = CGPoint(x: width * normalized.x, y: height * normalized.y)
-                        TouchButton(control: control, compact: compact, scale: scale,
+                        TouchButton(control: control, compact: compact,
+                                    scale: scale * (controlSizes[control.id] ?? 1),
                                     editing: editing,
                                     selected: editing && selectedControl == control.id,
                                     select: onSelect, move: move)

@@ -1339,3 +1339,49 @@ Next UI step is per-control 70–150% resizing with separate phone/tablet storag
 without replacing existing position profiles. Audio investigation stays deferred;
 no recordings/tuning were performed. Chris still owns physical touch feel,
 controller hardware, audio routes/listening and long play.
+
+### 2026-09-30 — individual touch-control size and persistence
+
+**Pass, narrow reference behavior:** compared HarkinianPad's local customizable
+controls documentation and patch. The selected button or stick now has a
+70–150% Size slider, applied on top of the existing global size. Selection is
+required; selecting another control displays that control's own size. Phone
+and tablet sizes use separate persisted dictionaries without changing position
+profiles. Reset Layout clears positions and individual sizes; Restore Defaults
+also clears both size profiles. Gameplay input, runtime and game logic unchanged.
+The percentage has sufficient width to stay on one line. Complete reference
+artwork, visibility editing and three-dot menu parity remain open.
+
+**Pass, builds:** Simulator and unsigned device Release builds exited zero;
+`work/editor-size-{sim,device}-build.log`. Input probe remains OFF. SHA-256:
+Simulator `c6edcad86ecf30d063a6a04b051eeb1aee099d9a0aac690dd386b7184fba28f3`;
+device `c10b8d19fc32d9d7bfc8db44f74397224cd0635f3a089aac95615c027107bdc8`.
+Final installed executables on both Simulators match the Simulator hash.
+
+**Pass, viewed integration:** iPad M4 and iPhone 16 Pro, iOS 18.5, one at a time.
+Actual slider touches visibly resized A to 70% and 150%; B retained 100%.
+Done, app termination, cold relaunch and reopening the editor restored iPad A
+at 70% and iPhone A at 150%, matching saved preferences and rendered sizes.
+On iPhone, enlarged A opened the game-slot preview and B returned. This is
+menu input acceptance, not full gameplay acceptance. Raw Simulator captures:
+`work/evidence/editor-size-ipad-persisted-70.png`,
+`work/evidence/editor-size-iphone-persisted-150.png`, plus range/input captures
+under that same prefix. No running-reference screenshot comparison is claimed.
+
+**Evidence correction:** a desktop capture appeared to omit A's label. Raw
+Simulator screenshots of the original accepted build show the label present.
+Speculative label-rendering changes were reverted; no app defect established.
+AX thumb movement alone also did not update slider state: actual touch,
+displayed percentage, saved preferences and relaunch were required evidence.
+
+Reset and Done restored original settings on both. Complete preference
+comparisons differ only by a new empty size dictionary for each device class.
+ROM, saves, mappings, global size and volume preserved. Final normal build
+restored on iPhone; both Simulators shut down. Local commit only, never pushed.
+
+**Open:** full story progression, meaningful checkpoint/relaunch fidelity,
+macOS ordinary-play/save control, remaining reference menu/editor gaps and
+physical acceptance. Audio counters have not established a repeatable audible
+ordinary-play defect or its cause. Audio experiments remain deferred; no audio
+tuning or recordings in this step. Chris retains physical touch feel,
+controller hardware, audio routes/listening and long play.

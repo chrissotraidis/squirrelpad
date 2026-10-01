@@ -106,11 +106,14 @@ struct SquirrelPadApp: App {
     @AppStorage("SquirrelPad.MasterVolume") private var masterVolume = 1.0
     @AppStorage("SquirrelPad.LayoutTablet") private var tabletLayout = ""
     @AppStorage("SquirrelPad.LayoutPhone") private var phoneLayout = ""
+    @AppStorage("SquirrelPad.ControlSizesTablet") private var tabletControlSizes = ""
+    @AppStorage("SquirrelPad.ControlSizesPhone") private var phoneControlSizes = ""
     @State private var importing = false
     @State private var menuOpen = false
     @State private var editingLayout = false
     @State private var editingCompact = false
     @State private var editedPositions: [String: CGPoint] = [:]
+    @State private var editedControlSizes: [String: Double] = [:]
     @State private var selectedControl: String?
     @State private var settingsSection: SettingsSection = .controls
     @State private var bindingsExpanded = false
@@ -140,6 +143,8 @@ struct SquirrelPadApp: App {
                                           onSelect: { selectedControl = $0 },
                                           layout: editingLayout && editingCompact == compact
                                               ? editedPositions : savedLayout(compact: compact),
+                                          controlSizes: editingLayout && editingCompact == compact
+                                              ? editedControlSizes : savedControlSizes(compact: compact),
                                           onMove: { id, center in
                                               if editingLayout && editingCompact == compact {
                                                   editedPositions[id] = center
@@ -160,21 +165,41 @@ struct SquirrelPadApp: App {
                                       y: geometry.size.height / 2 - (compact ? 16 : 0))
                     }
                     if editingLayout {
-                        HStack(spacing: 14) {
-                            Text(selectedControl.map { "\($0 == "Stick" ? "Control Stick" : $0) · Drag to move" }
-                                 ?? "Tap a control to select")
-                            Button("Reset Layout") {
-                                editedPositions = [:]
-                                selectedControl = nil
+                        VStack(spacing: 8) {
+                            HStack(spacing: 14) {
+                                Text(selectedControl.map { "\($0 == "Stick" ? "Control Stick" : $0) · Drag to move" }
+                                     ?? "Tap a control to select")
+                                Button("Reset Layout") {
+                                    editedPositions = [:]
+                                    editedControlSizes = [:]
+                                    selectedControl = nil
+                                }
+                                Button("Done") { finishLayoutEdit() }
                             }
-                            Button("Done") { finishLayoutEdit() }
+                            HStack(spacing: 10) {
+                                Text("Size")
+                                Slider(value: Binding(
+                                    get: { selectedControl.flatMap { editedControlSizes[$0] } ?? 1 },
+                                    set: { value in
+                                        if let id = selectedControl { editedControlSizes[id] = value }
+                                    }), in: 0.7...1.5)
+                                    .frame(width: compact ? 180 : 240)
+                                    .disabled(selectedControl == nil)
+                                    .accessibilityLabel("Selected Control Size")
+                                Text(selectedControl.map {
+                                    "\(Int(((editedControlSizes[$0] ?? 1) * 100).rounded()))%"
+                                } ?? "—")
+                                    .monospacedDigit()
+                                    .fixedSize(horizontal: true, vertical: false)
+                                    .frame(width: 64, alignment: .trailing)
+                            }
                         }
                         .font(.system(size: compact ? 14 : 17, weight: .semibold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(.black.opacity(0.82), in: Capsule())
-                        .position(x: geometry.size.width / 2, y: compact ? 42 : 48)
+                        .background(.black.opacity(0.82), in: RoundedRectangle(cornerRadius: 18))
+                        .position(x: geometry.size.width / 2, y: compact ? 54 : 60)
                     } else if !menuOpen {
                         Button(action: toggleMenu) {
                             Text("•••")
@@ -456,6 +481,8 @@ struct SquirrelPadApp: App {
                                     showCButtons = true
                                     tabletLayout = ""
                                     phoneLayout = ""
+                                    tabletControlSizes = ""
+                                    phoneControlSizes = ""
                                 }
                                 .buttonStyle(.borderedProminent)
                             } else {
@@ -538,6 +565,7 @@ struct SquirrelPadApp: App {
     private func beginLayoutEdit(compact: Bool) {
         clearTouchInput()
         editedPositions = savedLayout(compact: compact)
+        editedControlSizes = savedControlSizes(compact: compact)
         selectedControl = nil
         editingCompact = compact
         menuOpen = false
@@ -550,7 +578,18 @@ struct SquirrelPadApp: App {
            let text = String(data: data, encoding: .utf8) {
             if editingCompact { phoneLayout = text } else { tabletLayout = text }
         }
+        if let data = try? JSONEncoder().encode(editedControlSizes),
+           let text = String(data: data, encoding: .utf8) {
+            if editingCompact { phoneControlSizes = text } else { tabletControlSizes = text }
+        }
         editingLayout = false
         selectedControl = nil
+    }
+
+    private func savedControlSizes(compact: Bool) -> [String: Double] {
+        let stored = compact ? phoneControlSizes : tabletControlSizes
+        guard let data = stored.data(using: .utf8),
+              let values = try? JSONDecoder().decode([String: Double].self, from: data) else { return [:] }
+        return values.filter { $0.value.isFinite }.mapValues { min(max($0, 0.7), 1.5) }
     }
 }
