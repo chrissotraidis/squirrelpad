@@ -2659,3 +2659,48 @@ camera-relative direction observations before another crossing attempt;
 compare macOS if a reproducible divergence appears. Audio remains deferred.
 Chris retains signing and eventual physical touch/controller/audio/long-play
 checks. Story progression remains ours; it is not a physical-device blocker.
+
+### 2026-10-01 — River trajectory compared with isolated macOS control
+
+Previous goal turn: progress (GitHub synchronized, combined jump evidence);
+full objective re-read. Clean `e60a6dc`, 16 GiB free; upstream `c55359c…`,
+RT64 `43373749…`. No implementation patch or audio tuning.
+
+**Observed, diagnostic scope:** iPad 18.5 `605FB671…`, probe `73010fec…`,
+preserved GAME1 $0 / 0:46:56. Used R .5s, X=-1 1s, X=1 3s, Y=-1 1s,
+two released C Down .2s pulses to establish the river/grass/platform landmark.
+Then X=.45/Y=.9 1.5s; X=-.65/Y=.75+A .8s entered water; Y=1 for 1s,
+2s and 6s. Recording `work/evidence/river-landmark-swim.mov` (28.49s)
+and viewed sampled contact sheet show swimming and downstream drift to the
+sloped bank, including neutral-input time. Y=1+A 1s exited onto that slope.
+No island lesson or new checkpoint; no respawn asserted. Viewed
+`river-landmark-{initial,left,right,wide,approach,enter,swim,upstream,long,
+exit-water}.png`, contact sheet; log `work/river-landmark-run.log`.
+
+**Scoped macOS comparison:** copied isolated existing profile into
+`work/macos-river-landmark` (normal profile untouched), installed exact
+pre-test EEPROM from `work/river-current-save-before.bin` (`3b067f30…`).
+Launched cached comparison bundle `4e6b0df…` with APP_FOLDER_PATH and opt-in
+SQUIRRELPAD_COMPARISON_INPUT, ordinary Return launcher, bounded Start/A menu
+commands. Same visible slot. Initial camera/position after command sequence
+was not identical, so this is not exact trajectory parity. At visually
+matched river bank, same diagonal+A entry and Y=1 1s/2s/6s sequence also
+ended in water at the downstream sloped bank. Viewed private
+`river-mac-landmark-{wide,enter,bank,swim}.jpg`; log
+`work/macos-river-landmark.log`. This does not establish an iOS-only movement
+defect. It also does not prove that the tutorial cure flag is set or persisted.
+
+Guide consulted: https://www.gamerevolution.com/guides/28824-conkers-bad-fur-day-walkthrough
+(paraphrased route only). StrategyWiki fetch returned 403; no claim from it.
+
+Restored normal `f6b8419e…` Simulator build in place and shut down iPad;
+macOS quit UI did not terminate the comparison process; stopped the verified
+exact test PID 40410 with SIGKILL after SIGTERM also left it live (console
+exit 137). Exit behavior of this private comparison bundle is not passed.
+No reset/erase or normal
+save replacement.
+**Next:** qualify current tutorial cure/context-pad state after load and verify
+its interaction before another swim; use the same saved state on macOS if a
+divergence appears. Full story and distinct progressed reload gates remain
+open. Audio deferred; physical/signing checks remain Chris's. Local evidence
+commit only in this continuation; prior explicit GitHub sync already completed.
