@@ -19,7 +19,7 @@ This is a source inventory for the local developer build, not a release clearanc
 
 HarkinianPad is a behavior and layout reference, not a linked dependency. Its project-specific code and art are not copied into this app. The Swift touch/menu code and mobile adapters are SquirrelPad sources; the Conker and runtime changes are recorded as local patches against the pinned checkout.
 
-## Current developer-bundle audit (2026-09-30)
+## Current developer-bundle audit (2026-10-01)
 
 Both SDK Release bundles contain 24 notice texts under `ThirdPartyNotices/`.
 The three header notices were absent from the previous 21-file set despite
@@ -29,8 +29,8 @@ source inventory correction, not a legal clearance or exhaustive license review.
 
 The current audited executables are ARM64:
 
-- Simulator: `c6edcad86ecf30d063a6a04b051eeb1aee099d9a0aac690dd386b7184fba28f3`.
-- Unsigned device: `c10b8d19fc32d9d7bfc8db44f74397224cd0635f3a089aac95615c027107bdc8`.
+- Simulator: `f6b8419e39a1b340483718691ab66d9fc83e1e03c2b9f3e629fab9e08aae1b70`.
+- Unsigned device: `0b520ebdf37db953b10d4b3f51470e0839de539d77cad7089912aaa9691a1387`.
 
 Neither executable's complete `nm -a` output contains LiveGenerator, ShimFunction
 or sljit symbols. `patches/n64modernruntime-ios-no-live-recomp.patch` excludes the
@@ -42,8 +42,14 @@ A bundle-wide byte scan found no local home path, and a file inventory found no
 original-ROM extension, EEPROM/save filename, private key or provisioning input.
 The app still contains ROM-derived native game code and TLB data: the absence of
 an original ROM file does not establish a distributable rights boundary. The
-ignored `work/package-notices-audit.json` records the exact file inventory,
-notice hashes, architecture and these narrowly scoped scan results.
+tracked `scripts/audit-app.py` reproduces the bundle checks. Current private
+reports `work/package-audit-final-{sim,device}.json` record 30 files each,
+their hashes, matching notice bytes, source revisions, ARM64/platform identity
+and the narrowly scoped scans. Normal builds contain no SimulatorInputProbe
+symbols; the existing opt-in probe build is deliberately rejected. Negative
+fixtures also verified rejection of wrong SDK, altered notice, private ROM
+filename and symlink. This does not scan all possible secrets or establish
+absence of compressed/extracted game assets; inventory review remains required.
 
 Before a signed handoff, complete the clean replay, final notice/rights review,
 signing and physical install acceptance. Public distribution remains a separate

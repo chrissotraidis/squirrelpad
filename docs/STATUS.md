@@ -2882,3 +2882,33 @@ No source, game logic or audio change required by these results.
 Still open: ordinary combined input, progressed checkpoints/full story,
 controller gameplay, and physical acceptance. Chris retains signing and
 physical touch feel, controllers, audio routes and long play.
+
+### 2026-10-01 — Reproducible current developer-bundle audit
+
+**Pass, scoped G8 tooling:** added `scripts/audit-app.py`, documented its
+command in README, and refreshed the stale executable hashes in
+`docs/SOURCE_BOUNDARY.md`. Ran against normal final Simulator `f6b8419e…`
+and unsigned device `0b520ebd…`, using `work/source-final-replay` as the
+source context. Both pass: ARM64, correct SDK platform, 30 files and 24
+byte-matching notices, matching declared source revisions, no excluded
+LiveRecomp/probe symbols, no flagged private names/content or symlinks.
+Private reports: `work/package-audit-final-{sim,device}.json`.
+
+**Verified rejection:** existing Simulator probe `b054ccc…` exits 1 for
+SimulatorInputProbe symbols (`work/package-audit-probe-rejected.json`).
+Temporary copies rejected wrong SDK, deliberately altered RT64 notice,
+non-ROM `.z64` filename fixture and symlink, each exit 1. Test copies were
+created and removed only inside the owned temporary audit directory.
+The audit also checks bundle ID and the exact original ROM digest even if
+renamed. Its source revision check measures the supplied checkout, not proof
+that an arbitrary app was compiled from that checkout.
+
+Manually inspected non-notice inventory: Info.plist, PkgInfo, executable,
+two AppIcon PNGs and Assets.car. `xcrun assetutil --info` reports AppIcon as
+the only named catalog asset on both SDKs; metadata retained in
+`work/package-audit-assets-{iphonesimulator,iphoneos}.json`.
+No app source/game/audio changed, so no runtime rebuild required. Both
+Simulators remain shut down. This is not signing, rights clearance, a general
+secret scan, story completion or a physical-device pass. Original G1/G4/G5/G6
+acceptance and G7 hardware remain open. Next: gameplay and meaningful save
+progress, with the audit command available for subsequent final bundles.

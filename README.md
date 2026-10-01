@@ -138,6 +138,24 @@ handoff. Signing and hardware installation remain pending. After changing
 CMake resources, explicitly configure before building: Xcode's regeneration
 phase can otherwise finish successfully using the old resource list.
 
+Audit each normal developer bundle before installation or handoff:
+
+```sh
+for sdk in iphonesimulator iphoneos; do
+  python3 scripts/audit-app.py \
+    "work/build-app-replay-$sdk/Release-$sdk/SquirrelPad.app" \
+    --sdk "$sdk" --source "$SQUIRRELPAD_CHECKOUT" \
+    --output "work/package-audit-$sdk.json"
+done
+```
+
+The audit checks pinned revisions, notice bytes, ARM64/SDK identity, excluded
+LiveRecomp/probe symbols, private filenames, the exact original ROM digest,
+home paths, private-key markers and symlinks. It records every bundled file's
+hash. A pass covers these checks only; compressed/extracted game assets or
+arbitrary secrets require separate review, and ROM-derived executable content
+remains. The command neither signs nor publishes the app.
+
 ## 4. Install and use one Simulator at a time
 
 Find an installed destination with `xcrun simctl list devices available`.
