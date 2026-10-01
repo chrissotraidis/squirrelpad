@@ -1695,3 +1695,50 @@ checks; local commit only, never push.
 full iPad story and representative iPhone gameplay, final replay/signing, and
 physical acceptance. Chris retains touch feel, controller hardware, audio
 listening/routes and sustained hardware play. App completion remains unproven.
+
+### 2026-10-01 — Independent source replay and signing preflight
+
+**Progress:** previous turn `e8a17d9` implemented and verified persistent menu
+placement. Current work began clean; full objective read, 29 GiB free. No audio
+investigation resumed. All Simulators remain shut down.
+
+**Blocked by input, signing only:** `security find-identity -v -p codesigning`
+reports **0 valid identities found** on this Mac. No signed iOS installable
+handoff can be claimed from the unsigned device output. Chris needs to make a
+valid development signing identity/profile available before signing/install
+acceptance; no certificate/account/keychain change attempted. This does not
+block the remaining source/Simulator work or close the overall goal.
+
+**Pass, fresh replay:** ran `scripts/setup-source.sh` with
+`SQUIRRELPAD_CHECKOUT=$PWD/work/source-final-replay` and the existing private
+ROM symlink target. New network clone/submodules and tracked patches succeeded
+(`work/final-replay-setup.log`); all seven manifest revisions independently
+matched. Existing patched checkout/builds untouched. ROM validated, linked
+privately; no ROM/save/profile copied to Git.
+
+Fresh N64RecompCLI, RSPRecomp and RecompModTool built, then `recompile.py`
+completed: `work/final-replay-generator-{configure,build}.log` and
+`work/final-replay-generation.log`. All **127** generated files byte-match the
+existing source replay, including the same relative inventory; private hash
+inventory `work/final-replay-generation-comparison.json`.
+
+Fresh macOS host configure/build exited zero using the full Xcode SDK and
+parallel 4: `work/final-replay-host-{configure,build}.log`. Executable is
+Mach-O arm64, SHA256
+`7e3a7bd8a2c94099e7891e6e2fa91b8d140b74b110164d2f6b06172797100d64`;
+56 Metal source inputs produced. No ordinary macOS runtime/gameplay/save pass
+claimed by this build. Disk afterward 26 GiB available.
+
+**Running, not passed:** fresh mobile renderer replay launched with
+`SQUIRRELPAD_CHECKOUT=$PWD/work/source-final-replay` and
+`SQUIRRELPAD_RT64_BUILD_TAG=-final-replay`. Simulator `verify-rt64-ios.sh`
+followed by device script under `set -e`; live exec session **44279**. Simulator
+configure completed; archive compilation still live on last poll. Logs:
+`work/final-replay-rt64-{simulator,device}.log`, internal build log
+`work/build-rt64-iphonesimulator-final-replay/build.log`. Continue polling this
+handle; do not restart because this ledger exists or because observation times
+out. If terminal success, build both apps in fresh `work/build-app-final-<sdk>`
+directories using this source and corresponding fresh archives, probe OFF,
+then perform package audit and sequential Simulator acceptance. Final mobile
+replay/install/signing, meaningful checkpoints, full story and physical checks
+remain open. Never push.
