@@ -2854,3 +2854,31 @@ defect justified a game/input/audio change. iPhone not rerun in this check.
 Next acceptance work remains distinct progressed saves and story progression;
 this session-time check does not close G5 or G6. Chris retains signing and
 physical touch feel, controllers, audio routes and long play.
+
+### 2026-10-01 — Controller binding menu persistence on both classes
+
+**Pass, menu/persistence scope:** normal Simulator executable `f6b8419e…`,
+probe OFF. Sequential iPhone 18.5 `AE64D60E…` then iPad 18.5 `605FB671…`;
+other class shut down. In launcher Settings → Controls → Controller Bindings,
+changed Z from LT / RT to RT using the picker. Terminated and relaunched the
+app, reopened the list, and visually verified RT on both. Private viewed
+captures `work/evidence/binding-{phone,pad}-rt-{before,cold}.jpg`.
+On both, Remove Z changed the row to Unbound and removed its X action;
+Restore Controller Bindings returned Z to LT / RT. Original mappings restored.
+Phone Unbound capture: `work/evidence/binding-phone-unbound.jpg`.
+
+Logs `work/binding-persistence-{phone-retry,phone-cold,pad,pad-cold}.log`.
+Initial phone launch was denied by SpringBoard immediately after boot;
+retrying the same launch succeeded without reinstall/reset. All successful
+console sessions exited 0, and both Simulators shut down. Ordinary scrolling
+gestures did not establish a lower-list scrolling pass; the accessibility
+Restore action brought lower rows into view and reset the mapping. This
+does not prove touch scrolling or gameplay/controller execution of RT.
+
+Reference check: the newer customizable-controls patch places Z left at
+tablet normalized (.193089,.612859), matching our default, despite the older
+design document's right-side Z description. No speculative layout change.
+No source, game logic or audio change required by these results.
+Still open: ordinary combined input, progressed checkpoints/full story,
+controller gameplay, and physical acceptance. Chris retains signing and
+physical touch feel, controllers, audio routes and long play.
