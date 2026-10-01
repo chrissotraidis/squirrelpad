@@ -2820,3 +2820,37 @@ saves, builds and gameplay captures remain ignored. No release published.
 Full story and progressed save reloads remain our open Simulator work.
 Chris still needs eventual signing and physical touch feel, controllers,
 audio routes and long play. Audio remains unverified/deferred.
+
+### 2026-10-01 — In-game Quit write and normal cold reload
+
+**Pass, session-time persistence; story checkpoint still open:** preserved
+GAME1 on iPad 18.5 `605FB671…`, probe build `b054ccc…`. Ordinary Start
+visibly opened PAUSED. A short ordinary stick drag did not select QUIT;
+bounded probe left selected QUIT, ordinary A opened confirmation, probe
+left selected Y, and ordinary A confirmed. Viewed private captures
+`camera-follow-{quit-selected,game-quit,quit-confirmed}.jpg` show the sequence.
+Slot time advanced from `0:46:56` to `0:48:50`, still $0/Hungover.
+
+EEPROM remains 2048 bytes. Before Quit SHA256
+`e28e8069028d725d8fcde0e4c56889ce7a9b6a776ac01992f9764239a0448026`;
+after confirmation SHA256
+`e6fe3ff0adf39910f51a812ab9c8979c348720c2145bd6a7c3b596b0fb4a279b`,
+four changed bytes. Opening confirmation alone did not change the file.
+Private fixtures `work/camera-follow-save-{before,after-quit,after-confirm}.bin`.
+These changes do not establish a checkpoint flag.
+
+Terminated probe (console exit 0), installed normal `f6b8419e…` in place,
+launched without probe environment, continued imported ROM, and navigated
+to GAME1 with ordinary controls. Viewed `quit-reload-normal-pad-slot.jpg`
+retains `0:48:50`; viewed `quit-reload-normal-pad-field.jpg` shows upright
+Conker in the playable first field. Log `work/quit-reload-normal-pad.log`.
+After PLAY the file hash differed at offsets 416, 417, 422 and 466; no
+byte-identical reload claim. Snapshot `work/quit-reload-normal-pad-save.bin`.
+Normal console exited 0 and iPad shut down. No erase or save replacement.
+
+**Not passed:** further camera/swimming trials in `work/camera-follow-route.log`
+did not reach the island lesson or a new checkpoint. No reproducible port
+defect justified a game/input/audio change. iPhone not rerun in this check.
+Next acceptance work remains distinct progressed saves and story progression;
+this session-time check does not close G5 or G6. Chris retains signing and
+physical touch feel, controllers, audio routes and long play.
