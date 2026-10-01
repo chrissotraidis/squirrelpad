@@ -2130,3 +2130,37 @@ and the next real transition; retain ordinary touch/menu checks. Full story,
 distinct progressed checkpoint reloads and macOS gameplay comparison remain
 open. Chris still supplies signing and eventual physical touch/controller,
 audio-route and sustained-play acceptance. Audio remains unverified/deferred.
+
+### 2026-10-01 — Normal iPhone background/foreground recovery
+
+**Progress:** preceding turn restored the normal iPad app and disabled the
+probe; it did not advance gameplay. Read the full objective, clean `43fb1f8`,
+source pins and 20 GiB available. Audio remains unverified/deferred at Chris's
+direction. No game, input or audio implementation changed.
+
+**Pass, bounded recovery:** fresh iPhone 16 Pro / iOS 18.5 profile
+`AE64D60E-CE76-42D7-A50E-9E2179F23805`, normal executable SHA256
+`b6cc43ee9ab0088d85fb2def757e227382fba29995e4c828b10fbab5f30d6f51`,
+probe OFF. Ordinary Continue/Start/A loaded preserved GAME1 ($0 / 0:06:03)
+into the first field. Simulator Home backgrounded gameplay at 10:14:26 UTC;
+opening its Home-screen icon returned to the same field at 10:16:02 UTC.
+Touch Start then visibly paused and resumed the game. Repeated Home/icon
+transition at 10:17:32–10:18:05 UTC returned to the field again. `launchctl list`
+confirmed the original PID 19771 during both background intervals. Viewed
+private screenshots `work/evidence/lifecycle-phone-{slot-before,before-home,
+home,return,pause-after-return,second-return}.png`. Runtime log:
+`work/lifecycle-phone-runtime.log`. This establishes basic recovery, not precise
+game-clock suspension, held-input release, audio or interruption acceptance.
+
+**Preserved:** private before/after EEPROM fixtures
+`work/lifecycle-phone-save-{before,after}.bin`, respective SHA256
+`6b63cde4fe5b166f9b0f2a9974b2e793e8392fd35e08425d5aa2b743b0a9d23a` /
+`f1d7f1f817e8df68dfdb144ea60fc546d7db6a70527961dd90141bfa24e2df3f`.
+The hashes differ; they do not prove a new gameplay checkpoint. No save or
+preference reset. App terminated and Simulator shut down; none remains booted.
+
+**Open / next:** complete the iPad river tutorial and checkpoint reload, then
+repeat phone input/lifecycle at progressed checkpoints. Full story, macOS
+ordinary gameplay comparison and the remaining G4/G5 matrix remain open.
+Chris retains signing and eventual physical touch/controller, audio-route and
+long-play checks. Local evidence commit only; never push.
