@@ -1910,3 +1910,51 @@ a fresh game; preserve all occupied slots. Use that fresh route to distinguish
 initial Birdy behavior from GAME1's earlier progress, then verify an actual
 checkpoint/relaunch. No further speculative audio investigation. Full story,
 macOS gameplay/save control, physical acceptance and signed install remain open.
+
+
+### 2026-10-01 — Fresh Files import and initial save reload
+
+**Progress:** the preceding audio reply was a status correction, not a new
+implementation or acceptance result. Revalidated the clean worktree at
+`56d15fc` and read the full objective. No audio investigation or source changes.
+
+All original iPad slots were occupied: GAME2 $0 / 0:04:25, GAME3 $0 / 0:06:04.
+Created a separate iPad M4 / iOS 18.5 Simulator, SquirrelPad Fresh Save Control,
+`605FB671-1720-4C19-A3BE-AE425323D052`, without resetting existing containers.
+Installed the ordinary `6262093` app, executable SHA256
+`b6cc43ee9ab0088d85fb2def757e227382fba29995e4c828b10fbab5f30d6f51`.
+The supported private ROM and synthetic invalid fixtures were made available in
+Documents; import itself used the ordinary Files picker.
+
+**Pass, iPad ordinary import:** missing-ROM launcher had no Continue option.
+A 20-byte fixture visibly produced the unsupported-size/header error. Selecting
+the supported US ROM through Files started the moving intro. Touch Start/A
+reached empty GAME1 and started the opening story; visually inspected advancing
+story scenes and the hungover field. Touch Start paused/resumed both the story
+and field. No sustained analog gameplay or listening-quality claim.
+
+**Pass, initial cold save reload:** a 2048-byte EEPROM existed before termination,
+SHA256 `39f3fe40697564b55f152fdbbaeaa131eff5faa5ad9a3032f018765545cb1bd9`.
+Cold launch displayed Continue Imported ROM. A synthetic 64 MiB file with the
+correct big-endian header but no game data produced the checksum-mismatch error;
+the stored supported ROM retained SHA1 `4cbadd3c4e0729dec46af64ad018050eada4f47a`.
+Continue, touch Start/A showed GAME1 $0 / 0:06:03 with PLAY, then loaded the
+hungover field directly. This is an initial save, not the two distinct progressed
+checkpoints required by G5. The fresh profile is retained for that next route.
+
+Private viewed captures: `work/evidence/fresh-import-{invalid,newgame,field,
+checksum,saved-slot,reload}.png`. Unified runtime log:
+`work/fresh-import-runtime.log`; no pipeline/GPU failure matched the bounded
+search, which is not a comprehensive rendering acceptance pass.
+
+**Cleanup:** Simulator probe OFF in CMake; Release rebuild terminal exit zero,
+`work/fresh-import-normal-{configure,build}.log`. Fresh profile always ran the
+normal preserved executable; no probe installed there. Original iPad save still
+`d3f150befb163aa0911fd6b73871682a9515bec0465a194e657a948f00f04515` and normal
+executable hash verified directly while shut down. Fresh app terminated and
+Simulator shut down; phone unchanged. Disk 22 GiB. Local evidence commit only.
+
+**Next:** continue fresh GAME1 through Birdy's lesson and cure, then establish a
+progressed checkpoint/reload; repeat fresh import on phone. Full story, ordinary
+macOS comparison and remaining matrix rows stay open. Chris retains signing
+identity and eventual physical touch/controller/audio-route/long-play checks.
