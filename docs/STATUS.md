@@ -2376,3 +2376,34 @@ disabled the probe configuration and shut down iPad. No reset/save replacement.
 Next action: establish actual stick direction/travel from a fixed camera on
 dry land against the macOS control before another river attempt. Full story,
 distinct progressed checkpoint reloads and physical/signing gates remain open.
+
+### 2026-10-01 — Refresh stale macOS comparison bundles explicitly
+
+Previous turn: no story progress; bounded navigation remained inconclusive.
+Read full objective, clean `0e69d0b`, pins unchanged and 18 GiB free.
+The packaged normal macOS control had executable SHA256 `7e3a7bd8…`, while
+the current host was `30c7fdc8…`. Added `--refresh` to the packaging script,
+with an ownership check and printed executable hash; documented closing the
+app before refreshing. Default overwrite refusal remains.
+
+**Pass, packaging:** refreshed bundle exactly matches host SHA256
+`30c7fdc86d28622325eeebfabe89611bdd3fc6c9f7e5b4f8e01eac1a593f0bd3`.
+Launcher visibly started and ordinary Exit closed it (session exit zero).
+Viewed `work/evidence/direction-refreshed-launcher.jpg`; logs
+`work/direction-refresh-result.log` and `work/direction-refreshed-control.log`.
+Default repeat packaging rejected; a disposable unrelated-bundle fixture was
+rejected with exit 2 before creating MacOS files.
+
+**Not achieved:** fixed-camera movement comparison. Initial old diagnostic
+executable was the wrong control; discarded its keyboard observations. The
+verified normal executable showed intro/slot menu, but brief automated taps
+did not establish slot selection or movement. These misses do not prove an
+input defect. Diagnostic and temporary normal processes required termination
+(exit 137); refreshed launcher subsequently exited cleanly. None remain.
+No Simulator or production game/input/audio changes.
+
+Next: use the correctly refreshed normal control for acceptance; establish a
+held-input observation before attempting movement parity. Upstream
+`host/src/conker_config.cpp` identifies R as camera centering, so use R when
+establishing a reproducible camera rather than assuming C-down centers it.
+Full story and checkpoint acceptance remain open; audio stays deferred.

@@ -93,7 +93,10 @@ Open the resulting `SquirrelPad macOS Control.app` and use its launcher. The
 bundle runs the native executable directly and links to that build's assets;
 keep it beside the build. It preserves the host's existing ROM and save profile,
 contains ROM-derived game code, and is a local comparison aid, not a release
-package. The script refuses to overwrite an existing bundle.
+package. The script refuses to overwrite an existing bundle by default. After
+rebuilding the host, close the comparison app and rerun the command with
+`--refresh` to update this script's bundle. Check the printed executable SHA256
+against the host build before using it for a comparison.
 
 ## 3. Build each mobile renderer and app
 
