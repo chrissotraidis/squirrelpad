@@ -45,11 +45,14 @@ add_executable(SquirrelPad MACOSX_BUNDLE
     Sources/RT64Surface.swift
     Sources/TouchControlsView.swift
     Sources/ControllerInput.swift
+    Resources/Assets.xcassets
     Support/Conker/mobile_entry.cpp
     Support/Conker/mobile_audio.cpp
     Support/Conker/mobile_input.cpp
     ${rt64_bridge}
 )
+set_source_files_properties(Resources/Assets.xcassets PROPERTIES
+    MACOSX_PACKAGE_LOCATION "Resources")
 option(SQUIRRELPAD_SIM_INPUT "Enable the opt-in Simulator controller probe" OFF)
 if(SQUIRRELPAD_SIM_INPUT)
     if(NOT CMAKE_OSX_SYSROOT MATCHES "iphonesimulator")
@@ -132,6 +135,7 @@ set_target_properties(SquirrelPad PROPERTIES
     XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
     XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO"
     XCODE_ATTRIBUTE_GENERATE_INFOPLIST_FILE "NO"
+    XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
     XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "17.0"
     XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.chrissotraidis.squirrelpad"
     XCODE_ATTRIBUTE_SUPPORTED_PLATFORMS "iphoneos iphonesimulator"

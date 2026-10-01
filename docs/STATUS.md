@@ -2322,3 +2322,27 @@ iPad shut down. Next: reload the preserved tutorial checkpoint and use paused
 observations from the island-facing bank, rather than repeating unpaused river
 holds. Full story and distinct progressed saves remain open. Chris retains
 signing and physical touch/controller, audio-route and long-play checks.
+
+### 2026-10-01 — Original app icon packaged and verified
+
+Added an original acorn icon, its editable Swift generator and the Xcode asset
+catalog setting. The opaque 1024x1024 PNG uses no game/reference artwork.
+Normal Release builds (Simulator input probe OFF) succeeded for both
+iphonesimulator and unsigned iphoneos; both packaged plists name AppIcon.
+Simulator executable SHA256:
+`2fe63a72a2b982168e7a32fdf7b67f2122a37d86aca21aa3c9a6ab97a23d312d`.
+
+Installed in place, preserving existing data. Visually verified the icon on
+iPad M4 / iOS 18.5 Home and iPhone / iOS 18.5 Spotlight, then opened the app
+through each icon and verified its ROM launcher. Viewed private screenshots
+`work/evidence/app-icon-pad-{home,launch}.jpg` and
+`work/evidence/app-icon-phone-{search,launch}.jpg`. Both Simulators shut down.
+This is icon/startup verification, not new gameplay acceptance.
+
+The preceding paused tutorial navigation attempt did not reach the island or
+establish a bug; no game logic or input change was warranted. Full story and
+distinct progressed checkpoint reloads remain open. Audio remains unverified
+and deferred following Chris's correction: counters alone do not demonstrate
+an audible defect or its cause. No audio changes or additional audio sweep.
+Chris retains signing and eventual physical touch/controller, audio-route and
+long-play checks. Local commit only; never push.
