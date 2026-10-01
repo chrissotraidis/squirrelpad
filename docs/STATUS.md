@@ -2346,3 +2346,33 @@ and deferred following Chris's correction: counters alone do not demonstrate
 an audible defect or its cause. No audio changes or additional audio sweep.
 Chris retains signing and eventual physical touch/controller, audio-route and
 long-play checks. Local commit only; never push.
+
+### 2026-10-01 — Bounded tutorial navigation did not close progression
+
+Previous turn: progress (original icon, both SDK builds and inspected icon
+launches). Read the full objective; clean `9be94dc`, upstream/runtime/RT64 pins
+unchanged, 18 GiB free. Audio remains deferred; no audio experiment.
+
+Built the existing opt-in controller probe, SHA256
+`73010fecab2d1b3f4dc9c325e0e3d9d6b1dd7f3859044ab9d7b8927f19354293`,
+and installed in place on iPad M4 / iOS 18.5
+`605FB671-1720-4C19-A3BE-AE425323D052`. Preserved GAME1 $0 / 0:46:56
+loaded. Short bank/alignment commands, forward holds of 2 and 10 seconds,
+then a 5-second diagonal command showed bank, surface swimming and a wall
+location. Ordinary Start visibly paused between observations. Island lesson
+and a new checkpoint: **Not achieved**. No reproducible port defect established;
+no input or game-logic patch. This is diagnostic navigation, not ordinary-touch
+story acceptance.
+
+Private logs: `work/tutorial-route-{config,build,run}.log`; inspected captures:
+`work/evidence/river-guided-{bank,align,long,cross}.png` and the paused CUA
+views. The walkthrough locates the lesson after reaching the island before the
+waterfall: https://gamefaqs.gamespot.com/n64/196973-conkers-bad-fur-day/faqs/13734
+Do not infer a broken trigger from failing to reach that location.
+
+Terminated runtime (console exit zero), restored normal icon build SHA256
+`2fe63a72a2b982168e7a32fdf7b67f2122a37d86aca21aa3c9a6ab97a23d312d`,
+disabled the probe configuration and shut down iPad. No reset/save replacement.
+Next action: establish actual stick direction/travel from a fixed camera on
+dry land against the macOS control before another river attempt. Full story,
+distinct progressed checkpoint reloads and physical/signing gates remain open.
