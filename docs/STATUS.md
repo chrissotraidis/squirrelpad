@@ -3046,3 +3046,44 @@ river/island route, then ordinary checkpoint reload; do not patch game logic
 from delayed screenshots. Full gameplay and physical gates remain open.
 Chris retains signing and physical touch feel, controllers, audio routes and
 long play.
+
+### 2026-10-01 — Slider cold-relaunch check and requested GitHub sync
+
+**Pass, settings persistence:** normal Simulator build `f6b8419e…`, probe OFF,
+sequential iPad 18.5 `605FB671…` then iPhone 18.5 `AE64D60E…`. Changed Control
+Size from 100% to 108%, terminated the process, launched again without probe
+environment, and reopened Settings. Each displayed 108% after cold relaunch.
+iPad slider readback stayed 0.6994012; phone stayed 0.6984586 before the
+accessibility click used to expose the offscreen row. That click slightly
+changed the phone value to 0.6974952 while still displaying 108%. Viewed
+`work/evidence/sync-slider-{pad,phone}-{changed,cold}.jpg`.
+
+**Automation limitation:** `setValue` alone moved the native slider thumb but
+left the app's percentage unchanged. A coordinate tap at the new thumb
+position applied the change. On phone, accessibility clicking the offscreen
+slider exposed it. This is a qualified combined automation path, not general
+finger-drag acceptance; no app persistence fix was needed. Returned both
+sliders to displayed 100% without resetting unrelated settings. Saves/ROM
+preserved; both normal apps installed and both Simulators shut down. Cold
+logs `work/sync-slider-{pad,phone}-cold.log`; console sessions exited 0.
+Normal package audit passed again: 30 files, 24 notices,
+`work/sync-slider-package-audit.json`. No production/game/audio source changed.
+
+**Private route observation, no checkpoint pass:** probe `c599ad44…` on iPad
+continued from preserved GAME1 into the first field. Short camera-relative
+pulses reached visible surface swimming. Viewed `island-short-01.jpg` through
+`island-short-04.jpg`, `island-short-camera.jpg`, and
+`island-short-{05-water,06-entry,07-bank,08-swim,09-upstream,10-left}.jpg`
+under `work/evidence`; filenames 05/06 describe intended actions, not successful
+water entry. The final left-only pulse read back -1,0 then neutral and visibly
+changed swimming direction. Island lesson and new story checkpoint were not
+reached. Log `work/island-immediate-pad.log`; console exited 0. Normal app
+restored in place afterward. These diagnostic actions do not close ordinary
+combined-touch or full-story acceptance.
+
+GitHub synchronization is explicitly requested in this turn. Publish the two
+verified local commits plus this evidence entry to existing `origin/main`;
+private captures, logs, ROM, generated code and saves remain ignored. Next:
+qualify sustained ordinary input and meaningful story/checkpoint progression.
+Chris retains signing and physical touch feel, controllers, audio routes and
+long play. Full G4/G5/G6 and device acceptance remain open; audio tuning deferred.
