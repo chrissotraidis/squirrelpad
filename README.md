@@ -83,6 +83,18 @@ directory. A window or VI count alone does not establish gameplay, audio or save
 acceptance. Brief automated keyboard taps can miss the host's input polling;
 this has not established a production mapping defect.
 
+For a local, inspectable macOS app window, package the same native host:
+
+```sh
+python3 scripts/package-macos-control.py "$SQUIRRELPAD_CHECKOUT/host/build-macos-metal"
+```
+
+Open the resulting `SquirrelPad macOS Control.app` and use its launcher. The
+bundle runs the native executable directly and links to that build's assets;
+keep it beside the build. It preserves the host's existing ROM and save profile,
+contains ROM-derived game code, and is a local comparison aid, not a release
+package. The script refuses to overwrite an existing bundle.
+
 ## 3. Build each mobile renderer and app
 
 ```sh

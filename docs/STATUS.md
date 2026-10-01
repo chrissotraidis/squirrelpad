@@ -2007,3 +2007,46 @@ transition, then cold-reload and compare visible progress. Two distinct progress
 save fixtures, full story, phone chapters and ordinary macOS comparison remain
 open. Chris retains signing identity and eventual physical touch/controller,
 audio-route and sustained-play acceptance.
+
+
+### 2026-10-01 — Reproducible native macOS control bundle
+
+**Progress:** previous turn restored the normal Simulator bundle and stopped
+speculative audio diagnosis; it did not advance gameplay acceptance. Read full
+objective, current pins and clean `04a4a8d`; disk 22 GiB. Audio remains deferred.
+
+**Pass, local comparison packaging:** current replay host SHA256
+`7e3a7bd8a2c94099e7891e6e2fa91b8d140b74b110164d2f6b06172797100d64`.
+An absolute ROM argument was necessary after the host changed its directory.
+The shell-launched comparison bundle timed out during CUA window inspection.
+The same executable, launched directly through CFBundleExecutable with assets
+under Contents/Resources, exposed its window immediately. This is a local test
+bundle observation, not a mobile renderer/input fix. Added
+`scripts/package-macos-control.py` and README command: native executable copy,
+local assets link, no shell launcher, no ROM/save copy, refuses existing output.
+It is a comparison aid with ROM-derived code, not a distributable package.
+
+**Pass, bounded runtime:** macOS 27.0 / Apple M1. Direct native bundle launcher
+responded to Return; viewed moving intro and GAME1 pub file-select scene.
+Escape opened/closed Settings. Pointer clicks selected Controls and its keyboard
+view, confirming Space=A, Return=Start and WASD movement. Two brief Space taps
+did not visibly select GAME1. The state-polling source and short automated taps
+do not establish a production mapping failure; G1 gameplay/save control remains
+open. No input workaround, game logic or audio change. Private viewed capture:
+`work/evidence/macos-keyboard-file-select.png`.
+
+**Pass, helper replay:** ran packaging command against
+`work/source-final-replay/host/build-macos-metal`; exact executable hash and
+resolved resource path matched. CUA inspected the resulting
+`SquirrelPad macOS Control.app` launcher; capture
+`work/evidence/macos-packaged-launcher.png`. Ordinary Exit quit the generated
+bundle. Re-running helper refused overwrite with exit 2, private log
+`work/macos-package-overwrite.log`. Temporary shell/raw tests had been stopped;
+one earlier keyboard test ignored TERM and was forcibly stopped at file select.
+No Simulator booted this turn; mobile saves and normal installed builds retained.
+
+**Next:** use the ordinary mobile flow to complete the fresh phone import row,
+then gameplay/checkpoint and touch/menu acceptance. Full iPad story, two distinct
+progressed checkpoints, macOS gameplay/save comparison and hardware/signing
+remain open. Chris retains signing and eventual physical touch/controller,
+audio-route and sustained-play checks. Local commit only, never push.
