@@ -1555,3 +1555,55 @@ check actual game-consumed B and the existing GAME1 progression before
 classifying the Birdy interaction as a port defect; remapping has been ruled
 out by the current preference/source inspection. Physical touch feel,
 controller hardware, audio routes/listening and long play remain for Chris.
+
+### 2026-10-01 — B delivery verified at the runtime callback
+
+**Progress:** previous goal turn produced `6c08b3a`, implementing and verifying
+individual Hide/Show. Current worktree began clean; disk had 28 GiB available.
+This turn tested the next gameplay hypothesis rather than repeating audio work.
+
+**Pass, bounded input boundary:** a temporary transition-only trace in
+`Support/Conker/mobile_input.cpp` logged the actual player-0 callback output.
+`ultramodern/src/input.cpp::osContGetReadData` copies that mask into the N64 pad
+data without remapping. On iPad M4 / iOS 18.5, ordinary touch Start produced
+`1000 → 0000`. A brief automated touch A did not appear in this trace, while
+one-second and half-second virtual-controller A produced `8000 → 0000` and
+visibly opened GAME1/PLAY/the first field. Touch B produced
+`buttons=4000 touch=4000 controller=0000` and release; one-second physical B
+through the virtual controller produced
+`buttons=4000 touch=0000 controller=4000` and release. C-left/right similarly
+reached the callback as `0002`/`0001`. Exact console:
+`work/story-b-callback-run.log`; build `work/story-b-probe-build.log`.
+This rules out dropped B at this boundary in this run. It does not prove the
+previous pad's context condition, actual game action, or all brief touch taps.
+
+**Not achieved, checkpoint:** GAME1 preview still displayed $0 and 1:55:56.
+The bounded route attempt moved around the wall/water/fence but did not
+establish the Birdy lesson/cure or a distinct logical save. Viewed raw final
+capture `work/evidence/story-b-route-stop.png`. No game defect classified; no
+flags decoded or edited. Before-test EEPROM preserved in
+`work/story-b-save-before.bin`, 2048 bytes, SHA256
+`e2156766ee0b6138e7952ca6f98def8c979842b551dd3d0dda1436e3c900e334`.
+Afterward it was still 2048 bytes, SHA256
+`dfa3be74bf72d8eafd59060747dda9be5770ba797bc39da5566d0b0240449e2f`;
+a byte change alone is not meaningful checkpoint evidence. No save restoration
+or reset performed.
+
+**Restored:** temporary input source byte-restored; Simulator probe explicitly
+OFF; Release rebuild exited zero (`work/story-b-normal-build.log`). Restored
+executable contains neither trace marker nor trace environment name. In-place
+iPad installation completed and installed bytes match the restored build:
+SHA256 `620e0700afbcac6f2a8a32976905773d3a5437bed48ab977e3109d7554fa2285`.
+No executable-equivalence claim to the prior build hash. Traced app/console
+terminal, iPad shut down, iPhone remained shut down. No retained app/game/audio
+source changes; local evidence commit only, never push.
+
+**Next / open:** stop treating B mapping/delivery as the demonstrated cause of
+the Birdy failure. Compare the saved route/context with the native macOS control
+before changing game behavior. Separately, a temporary touch-setter timestamp
+trace can distinguish a missing automated gesture from a press/release that
+falls between game polls; callback absence alone does not justify a latch fix.
+Full story, meaningful checkpoint saves, remaining menu/reference parity, final
+replay/signing and physical acceptance remain open. Chris retains physical touch
+feel, controller hardware, audio listening/routes and sustained play. Audio
+diagnosis remains deferred without a specific audible reproduction.
