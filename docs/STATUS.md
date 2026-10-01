@@ -1467,3 +1467,34 @@ the first field, and establish the Birdy lesson/cure interaction with viewed
 ordinary input before claiming a save fixture. Do not repeat audio counters or
 unbounded blind movement attempts. Physical touch feel, controllers, audio
 routes/listening and sustained-device play remain for Chris.
+
+### 2026-09-30 — stop speculative audio work
+
+**Audio unconfirmed:** Chris challenged the prolonged investigation. Queue
+counters have not established a repeatable audible ordinary-play defect or
+proved a Simulator/device cause. Stop audio tuning, counter sweeps and recording
+loops unless a specific audible reproduction supplies a falsifiable target.
+This is neither an audio pass nor evidence that a physical device fixes it.
+
+**Bounded gameplay diagnostic:** GAME1 loaded on iPad M4 / iOS 18.5. Brief
+automated touch drags showed no clear displacement; sustained opt-in virtual
+controller input moved Conker into the garden. Viewed raw capture:
+`work/evidence/checkpoint-controller-garden.png`. Birdy/pad interaction attempts
+did not establish a new logical checkpoint. Do not classify this as a game bug:
+controller mapping and existing slot progression have not been ruled out. No
+meaningful save/relaunch pass or ordinary touch-playability pass claimed.
+Existing EEPROM was backed up before the attempt in ignored
+`work/ordinary-checkpoint-before.bin`; no save or game-logic edits.
+
+**Next:** focus on ordinary gameplay/save acceptance and the reference menu.
+Physical touch feel, controller hardware, audio listening/routes and sustained
+play remain for Chris. No further audio experiment in this turn.
+
+**Restored:** probe OFF Release rebuild succeeded; in-place iPad install
+completed and installed executable hash matched the built normal binary,
+`60529bc5a861f83da1600f896eaf1370350669fe9a3015027bf3d1dc3e3287bc`.
+This rebuild's hash differs from the previously recorded normal build; no
+tracked app source changed, and no binary equivalence claim is made. Cache
+confirms probe OFF and `nm` found no SimulatorInputProbe symbols. Build log:
+`work/checkpoint-normal-final-build.log`. No runtime acceptance claim for this
+restoration. iPad shut down after installation; iPhone remained shut down.
