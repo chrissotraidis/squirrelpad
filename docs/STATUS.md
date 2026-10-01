@@ -1607,3 +1607,46 @@ Full story, meaningful checkpoint saves, remaining menu/reference parity, final
 replay/signing and physical acceptance remain open. Chris retains physical touch
 feel, controller hardware, audio listening/routes and sustained play. Audio
 diagnosis remains deferred without a specific audible reproduction.
+
+### 2026-10-01 — Brief touch delivery separated from automated drag timing
+
+**Previous turn: no progress toward app completion.** It acknowledged Chris's
+correction about speculative audio investigation. Audio remains deferred unless
+there is a specific reproducible audible defect; no audio change this turn.
+Current checkout began clean at `4fc66e7`, with 29 GiB available. Read the full
+objective and preserve G0–G8, including story/checkpoints and device acceptance.
+
+**Pass, bounded diagnosis:** temporary monotonic timestamps at the touch setter
+and player-0 callback distinguish actual touch edges from callback observations.
+Probe OFF, iPad M4 / iOS 18.5. Eleven CUA `click` presses (Start/A/B) lasted
+31.617–54.625 ms; all eleven were sampled as pressed and then released.
+One CUA four-pixel A `drag` generated a 7.535 ms press/release, both between
+polls: previous poll 1394213691394 us; press 1394213693371; release
+1394213700906; next poll 1394213724860 with mask zero. Thus the prior missing
+brief automated press can have a concrete polling explanation. This single
+synthetic drag does not establish missed ordinary finger input or justify
+extending every touch press. No input latch or game-logic fix retained.
+Use CUA clicks for button taps; do not use very short drags as equivalent
+button acceptance evidence or repeat this diagnostic without a new symptom.
+
+**Visible behavior:** touch navigation reached the first field; Start visibly
+paused it and A returned to gameplay. Final ordinary gameplay capture
+`work/evidence/touch-edge-gameplay.png` visually inspected. This is bounded
+navigation/resume evidence, not sustained touch play or a meaningful checkpoint.
+Console `work/touch-edge-run.log`; diagnostic build
+`work/touch-edge-build.log` exited zero. No controller or iPhone run needed for
+this nonretained diagnostic; those acceptance rows remain open.
+
+**Restored:** source byte-matches `work/touch-edge-original.cpp`; forced normal
+Release rebuild exited zero (`work/touch-edge-restored-build.log`). Probe OFF;
+executable lacks both trace markers/environment name. In-place installed bytes
+match restored executable SHA256
+`620e0700afbcac6f2a8a32976905773d3a5437bed48ab977e3109d7554fa2285`.
+Launch console terminal; iPad shut down, iPhone stayed shut down. No ROM, save
+or settings reset; no retained app source changes. Commit evidence locally only.
+
+**Next:** return to ordinary gameplay/context and macOS comparison before
+classifying Birdy's interaction as a port defect. G5 meaningful saves and G6
+full story remain unproven, alongside remaining reference-menu parity and
+final developer package acceptance. Chris owns physical touch feel, controllers,
+audio listening/routes and sustained hardware play. The app is not complete.
