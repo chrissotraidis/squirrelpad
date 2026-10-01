@@ -36,6 +36,9 @@ command. The game otherwise runs during inspection, so a screenshot can become
 a stale starting position. Pause preserves the location; animation may continue.
 Refresh Simulator accessibility indices after UI changes. A command/release log
 proves delivery only, and a failed route does not establish an input or save bug.
+The `sampled` line reads back axes and individually pressed buttons from the
+virtual controller on the following poll, including neutral state after expiry.
+It is not a readback of the final N64 input mask or proof of a gameplay action.
 
 After testing, terminate/shut down the Simulator and restore the normal build:
 

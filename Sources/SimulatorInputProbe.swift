@@ -48,9 +48,12 @@ final class SimulatorInputProbe {
     private func poll() {
         guard controller != nil else { return }
         if samplePending, let pad = controller?.extendedGamepad {
-            NSLog("[sim input] sampled seq=%lld stick=%.2f,%.2f camera=%.2f,%.2f",
+            let pressed = GamepadButton.allCases
+                .filter { $0 != .unbound && $0 != .bothTriggers && $0.isPressed(on: pad) }
+                .map(\.rawValue).joined(separator: ",")
+            NSLog("[sim input] sampled seq=%lld stick=%.2f,%.2f camera=%.2f,%.2f buttons=%@",
                   sequence, pad.leftThumbstick.xAxis.value, pad.leftThumbstick.yAxis.value,
-                  pad.rightThumbstick.xAxis.value, pad.rightThumbstick.yAxis.value)
+                  pad.rightThumbstick.xAxis.value, pad.rightThumbstick.yAxis.value, pressed)
             samplePending = false
         }
         if releaseAt != 0 && ProcessInfo.processInfo.systemUptime >= releaseAt {

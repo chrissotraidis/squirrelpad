@@ -3008,3 +3008,41 @@ No app/game/audio source change or rebuild. Next remains a qualified sustained
 ordinary input path and story progression with meaningful checkpoint reloads.
 Full G4/G5/G6 and hardware gates remain open. Chris retains signing and real
 hardware touch feel, controllers, audio routes and long play.
+
+### 2026-10-01 — Qualify private button readback before route diagnosis
+
+**Pass, probe instrumentation:** added individually pressed button readback to
+SimulatorInputProbe's existing following-poll axis snapshot, using the ordinary
+GamepadButton predicates. No game, production input or audio behavior changed.
+Probe-only build passed (`work/probe-buttons-build.log`), executable SHA-256
+`c599ad449d69db6d91313f21ff32ba78d8b477892cdb1b5b4c1c09d0e2ce50f6`.
+Sequential iPad 18.5 `605FB671…` then iPhone 18.5 `AE64D60E…` launcher commands
+LT+A for 1 second read back `buttons=A,LT`, then empty buttons and neutral axes
+after expiry. Logs `work/probe-buttons-{pad,phone}.log`. This measures virtual
+controller values, not the final N64 mask or ordinary simultaneous touch.
+
+**Bounded iPad gameplay observation:** ordinary Continue → Start/L → preserved
+GAME1 ($0, 0:48:50) → PLAY → upright first field. An immediate A/.8-second
+command/capture shows Conker airborne (`probe-buttons-pad-a-immediate.jpg`).
+LT/3-second command followed by immediate LT+A/.8-second command/capture shows
+a lowered pose (`probe-buttons-pad-lt{,-a}-immediate.jpg`); high-jump completion
+and crouch acceptance remain unproven. Matching readbacks show LT then A,LT and
+neutral release. Earlier separate command/capture calls with 10-second holds
+showed standing Conker (`probe-buttons-pad-lt.jpg`, `probe-buttons-pad-lt-a.jpg`),
+so those delayed stills do not prove no jump occurred. All captures under
+`work/evidence` were viewed. No island or new checkpoint reached. Phone
+readback was in launcher only; phone gameplay was not replayed.
+
+Initial immediate capture attempt used an old app-container URL and failed
+ENOENT before input. Re-resolved the current container using simctl and retried
+successfully. In-place installation can change the container URL; always resolve
+it anew instead of retaining a prior absolute fixture path.
+
+Audit correctly rejected the probe (`work/probe-buttons-audit-rejected.json`);
+normal `f6b8419e…` still passes (`work/probe-buttons-normal-audit.json`). Both
+consoles exited 0, normal app reinstalled in place on both, Simulators shut down.
+No save replacement/erase. Next: use immediate, qualified captures for the
+river/island route, then ordinary checkpoint reload; do not patch game logic
+from delayed screenshots. Full gameplay and physical gates remain open.
+Chris retains signing and physical touch feel, controllers, audio routes and
+long play.
