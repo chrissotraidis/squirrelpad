@@ -2625,3 +2625,37 @@ different progressed save reloads; qualify sustained ordinary combined input.
 Avoid interpreting failed short automation presses as broken game logic or
 rewriting polling solely for automation. Full G1/G4/G5/G6 and physical/signing
 acceptance remain open. Audio deferred; local evidence commit only, never push.
+
+### 2026-10-01 — GitHub synchronization and bounded movement recording
+
+User explicitly authorized updating GitHub, superseding the earlier local-only
+restriction for this synchronization. Verified origin is
+`chrissotraidis/squirrelpad`, private, initially without remote refs. Tracked
+files and object paths contain no ROM, EEPROM, generated game source, build
+or gameplay captures. Pushed main at `e64cc01`; no visibility change or binary
+release. This entry is included in the subsequent source synchronization.
+
+**Pass, diagnostic scope only:** iPad M4 iOS 18.5 `605FB671…`, cached opt-in
+Simulator probe executable `73010fec…`, ordinary Continue / Start / A loaded
+preserved GAME1 $0 / 0:46:56. Private EEPROM copied before movement to
+`work/river-current-save-before.bin`, 2048 bytes, SHA256
+`3b067f30720d15471faee8c69614a46d1474afe273750841cd72f6c01b4c6b1e`.
+Bounded X/Y and C Down commands visibly changed position/camera. Combined
+X=1 plus A, 0.8 seconds, captured Conker airborne beside Birdy's fence.
+This is controller-probe integration evidence, not ordinary multitouch proof.
+
+Viewed private captures `work/evidence/river-current-{start,bank,away,
+river,edge,water,combined}.png` and sampled contact sheet
+`river-current-contact.png` from `river-current-trajectory.mov`. Recording
+includes idle time and sideways frames; showed wall / first-field movement,
+not a successful river crossing. No respawn or new port defect established.
+Log: `work/river-current-run.log`. **Not passed:** island lesson, new checkpoint,
+two distinct progressed save reloads, full story. No game/input/audio changes.
+
+Restored normal Simulator app `f6b8419e…` in place, launched without probe
+environment, then terminated and shut down the Simulator. Private data
+preserved. Next work: establish a reproducible bank-to-island route with
+camera-relative direction observations before another crossing attempt;
+compare macOS if a reproducible divergence appears. Audio remains deferred.
+Chris retains signing and eventual physical touch/controller/audio/long-play
+checks. Story progression remains ours; it is not a physical-device blocker.
