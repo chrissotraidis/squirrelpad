@@ -2585,3 +2585,43 @@ control gate: ordinary macOS keyboard gameplay/save/relaunch with an isolated
 preserved profile, before more speculative input changes or island guesses.
 Chris retains signing and eventual touch feel, controllers, audio routes and
 long-play hardware checks. Local commit only; never push.
+
+### 2026-10-01 — Ordinary macOS keyboard loads preserved GAME1
+
+Previous turn: progress, touch focus safeguard `9cb0420`. Read full objective,
+current source/ledger and 17 GiB free. Clean checkout. No audio sweep or
+implementation change. User questioned continued small checks during this run;
+remaining high-value work is story progress, distinct checkpoint reloads and
+sustained ordinary combined input, not more startup/counter checks.
+
+**Pass, scoped normal keyboard route:** macOS bundle and host executable both
+SHA256 `30c7fdc86d28622325eeebfabe89611bdd3fc6c9f7e5b4f8e01eac1a593f0bd3`.
+Launched normal bundle executable with
+`APP_FOLDER_PATH="$PWD/work/macos-checkpoint-comparison"`, no input-probe
+environment or callback override. Ordinary Return started the launcher;
+12 brief ordinary Return presses reached game selection (intro timing means
+this does not prove which individual press skipped it). One Space press had
+no visible selection effect; 12 Space presses opened GAME1 $0 / 0:46:56,
+another 12 chose Play and visibly loaded the upright first field.
+This establishes normal keyboard-to-game loading, and rules out complete
+suppression. It does not establish reliable duration or sustained gameplay.
+
+Viewed private `work/evidence/ordinary-mac-{return-retry,a-once,a-retry,play,
+field,right,forward,pause,exit-menu,exit-action}.jpg`. Brief D/W and Return
+press batches after loading showed no clear movement/pause effect. **Not
+verified:** sustained movement, pause by keyboard, new save or cold relaunch.
+Current SDL mapper polls keyboard state; brief automation presses can miss
+polling. No reproducible mapping defect established and no input code patch.
+
+Ordinary Escape opened frontend Settings, mouse exit icon opened confirmation,
+Quit terminated the exact run normally (exec console exit zero). No forced
+kill required; post-exit CUA procNotFound is consistent with the ended process.
+Log `work/ordinary-mac-control.log`; isolated existing EEPROM SHA256
+`ac70f827ffa8cdad2544a6f7f1ad2d15103d5bb4f0c76675dae9c1199f246f22`.
+Normal user profile untouched, no reset/new-game selection. No Simulator run.
+
+Next: actual story progression with trajectory evidence and two genuinely
+different progressed save reloads; qualify sustained ordinary combined input.
+Avoid interpreting failed short automation presses as broken game logic or
+rewriting polling solely for automation. Full G1/G4/G5/G6 and physical/signing
+acceptance remain open. Audio deferred; local evidence commit only, never push.
