@@ -1,8 +1,9 @@
 # Audio diagnosis — 2026-09-30
 
-Audio acceptance is **open**. Measured underruns are real, but attributing all
-reported glitches to the Simulator or claiming physical iOS audio is fixed would
-go beyond the evidence.
+Audio acceptance is **unverified**, not an established release blocker. Some
+diagnostic runs recorded sample starvation, but those events have not been tied
+to Chris's audible symptom during ordinary play. They do not establish a
+reproducible user-facing defect or a Simulator-only cause.
 
 ## Work priority
 

@@ -1225,3 +1225,22 @@ bindings, Audio displayed its full pane on both classes (iPad volume 100%,
 iPhone volume 50%, unchanged). Close returned to the launcher on both. These
 were UI checks, with no audio recording/tuning or listening-quality claim. All
 native/build/launch sessions are terminal; both Simulators shut down.
+
+### 2026-09-30 — audio priority correction and bounded route attempt
+
+Chris questioned the prolonged audio investigation. Audio remains unverified;
+diagnostic starvation events have not established his audible symptom or a
+Simulator-only cause. No further audio tuning or recording is justified without
+a specific reproducible audible defect. This is not an audio acceptance pass.
+
+An opt-in Simulator controller probe reached the outside Birdy context pad on
+iPad M4 / iOS 18.5. B presses did not establish a visible cure sequence or a new
+checkpoint. A gameplay video was captured, but no reviewed jump or save/relaunch
+pass is claimed. This diagnostic route does not satisfy ordinary-touch or story
+acceptance. Private save data was preserved; no fixture reset or game-logic
+change was made. Restored `SQUIRRELPAD_SIM_INPUT=OFF`, rebuilt successfully
+(`work/checkpoint-normal-restore-build.log`) and installed the normal app in
+place. Executable SHA-256 matches the verified menu build:
+`f33ebdfc39bd39f392b7778ee93f81e0dd4a282fb694e52807cd2348dabf2598`.
+Launch session is terminal and the iPad Simulator is shut down. Continue ordinary
+gameplay and reference-menu work; no production code changed in this attempt.
