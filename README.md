@@ -98,6 +98,11 @@ rebuilding the host, close the comparison app and rerun the command with
 `--refresh` to update this script's bundle. Check the printed executable SHA256
 against the host build before using it for a comparison.
 
+For an isolated macOS comparison profile, launch the executable with
+`APP_FOLDER_PATH` set to an absolute private directory containing that profile.
+`SQUIRRELPAD_DATA_DIR` applies to the iOS adapter and does not select the macOS
+profile. Confirm the displayed slot and progress before comparing gameplay.
+
 ## 3. Build each mobile renderer and app
 
 ```sh

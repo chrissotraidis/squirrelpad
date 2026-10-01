@@ -2407,3 +2407,39 @@ held-input observation before attempting movement parity. Upstream
 `host/src/conker_config.cpp` identifies R as camera centering, so use R when
 establishing a reproducible camera rather than assuming C-down centers it.
 Full story and checkpoint acceptance remain open; audio stays deferred.
+
+### 2026-10-01 — Bounded axis-direction comparison
+
+Previous goal turn: no product progress; acknowledged the audio correction and
+closed the idle diagnostic launcher (exit zero). Revalidated clean `fa87284`,
+the full objective, upstream/runtime/RT64 pins and 17 GiB free. Audio deferred.
+
+Corrected this run's profile selection: macOS uses `APP_FOLDER_PATH`, not the
+iOS-only `SQUIRRELPAD_DATA_DIR`. The first run showed an empty slot and was
+discarded before starting a new game. Documented the selector in README.
+The correctly isolated profile displayed GAME1 $0 / 0:46:56 and loaded the
+upright field. Private macOS probe SHA256 `4e6b0df1…` used expiring direct N64
+commands: R (`16`) for 0.5 seconds, positive Y for 0.7, positive X for 0.7.
+Both axes visibly moved Conker in their expected screen-relative directions.
+
+**Pass, diagnostic direction only:** installed existing Simulator probe SHA256
+`73010fec…` in place on iPad M4 / iOS 18.5
+`605FB671-1720-4C19-A3BE-AE425323D052`, launched with
+`SIMCTL_CHILD_SQUIRRELPAD_SIM_INPUT=1`, and used ordinary Continue Imported ROM.
+Same displayed checkpoint loaded. `scripts/simulator-input.py` commands RB/0.5s,
+Y=1/0.7s and X=1/0.7s moved forward/right; ordinary touch Start visibly paused.
+No simple axis-sign divergence established. Cameras differed; this is not exact
+trajectory, timing, ordinary held-touch or full-story acceptance. No input patch.
+
+Viewed private captures `work/evidence/direction-{mac,pad}-{centered,y-positive,
+x-positive}.jpg`; logs `work/direction-calibration-{macos,pad}.log`. Mac probe
+processes terminated (exit 137); Simulator console ended zero. Restored normal
+icon app SHA256 `2fe63a72…` in place and shut down iPad; no Simulator remains
+booted. No game/save reset or audio tuning. Clarification to the prior entry:
+the old probe forwards ordinary input when its command environment is absent;
+brief keyboard misses did not demonstrate suppression by that probe.
+
+Next: continue ordinary gameplay toward the island lesson with confirmed axis
+directions; record a newly reached checkpoint and cold reload before claiming
+progression/save acceptance. Full story, meaningful save fidelity and physical
+signing/device gates remain open. Local commits only; never push.
