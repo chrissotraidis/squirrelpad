@@ -1433,3 +1433,37 @@ Next concrete handoff action: derive a root README's build commands from the
 verified replay commands in this ledger and the current CMake caches/scripts;
 check them against the actual source and output paths before committing. Chris
 retains physical touch feel, controllers, audio listening/routes and long play.
+
+### 2026-09-30 — developer setup instructions
+
+**Progress:** previous goal turn produced local commit `94d0dd8`, corrected
+missing runtime header notices and verified installed bundle contents. This
+turn adds the missing root `README.md` required by G8: prerequisites, exact ROM
+identity, pinned source/patch preparation, private game generation, macOS shader
+inputs, both SDK renderer/app commands and sequential in-place Simulator use.
+It also describes data locations, editing behavior, unsigned-device limitations,
+source boundaries and the remaining full-product gates. No app/source behavior
+change, audio experiment, private data reset or push.
+
+**Pass, command validation:** all six README shell blocks pass `bash -n`.
+Replayed the README's actual mobile `for sdk` configure/build block against the
+current controlled checkout and verified archives, rather than transcribing
+older default build paths. Both Release builds exited zero;
+`work/readme-mobile-build.{sh,log}`. CMake caches confirm ARM64, correct SDK,
+source/renderer paths and input probe OFF. All source pins match the manifest.
+Both bundles still contain 24 notices; executable hashes remain Simulator
+`c6edcad86ecf30d063a6a04b051eeb1aee099d9a0aac690dd386b7184fba28f3`, device
+`c10b8d19fc32d9d7bfc8db44f74397224cd0635f3a089aac95615c027107bdc8`.
+README bootstrap/generation/macOS commands were checked against current scripts,
+target definitions and the recorded replay; they were not rerun from a fresh
+clone this turn. No independent clean-replay or physical signing pass claimed.
+
+**Not run/open:** full story, meaningful distinct checkpoint/save acceptance,
+macOS ordinary-play/save control, reference-menu completion and G7 hardware.
+Both Simulators remain shut down; no new runtime or visual claim. G8 still needs
+final independent replay/signing/notice review. Next product action remains the
+first in-level story checkpoint: preserve the existing EEPROM before loading
+the first field, and establish the Birdy lesson/cure interaction with viewed
+ordinary input before claiming a save fixture. Do not repeat audio counters or
+unbounded blind movement attempts. Physical touch feel, controllers, audio
+routes/listening and sustained-device play remain for Chris.
