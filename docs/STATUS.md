@@ -2230,3 +2230,35 @@ Private probe remains isolated under ignored work/. No Simulator state changed.
 use this macOS scene control before attributing navigation to a port defect.
 Chris retains signing and physical touch/controller, audio-route and long-play
 acceptance. Audio tuning stays deferred unless an audible defect is reproduced.
+
+### 2026-10-01 — Current normal build on iPadOS 26.5
+
+**Progress:** previous turn produced the same-checkpoint macOS comparison.
+Read the full objective, clean `59b67e9`, pins and 19 GiB free. No audio, game
+logic or production input change. Normal iPad 18.5 replay loaded the tutorial
+slot through ordinary L/A and paused through Start. Brief automated stick
+drags did not establish sustained movement; existing sub-frame timing evidence
+still applies. No input fix is justified by those attempts.
+
+**Pass, bounded compatibility/recovery:** installed normal executable SHA256
+`b6cc43ee9ab0088d85fb2def757e227382fba29995e4c828b10fbab5f30d6f51`
+in place on iPad Pro 13-inch (M5), iPadOS 26.5,
+`68016FEA-1887-4E05-A7F4-B26EC8572B8A`, probe OFF. Preserved pre-install
+EEPROM/preferences privately under `work/pad26-compat-before/`; no reset.
+Continue Imported ROM, touch L, A, A loaded existing GAME1 $0 / 0:06:03
+into the first field. Rotating the initially portrait Simulator gave landscape.
+Touch Start paused; three-dot Settings hid gameplay controls; X restored
+controls and touch A resumed. Home backgrounded the app; it was confirmed
+backgrounded at 11:21:06 UTC, and its ordinary Home icon returned to the
+same field by 11:22:40 UTC. Original PID 24243 persisted through both checks.
+Viewed private screenshots `work/evidence/pad26-normal-{slot,field,pause,menu,
+resume,return}.jpg`; runtime `work/pad26-normal-compat.log`.
+
+**Limits / next:** this passes current-build startup, preserved import/save
+loading, pause/menu return and basic recovery on the newer iPad runtime. It
+does not establish exact game-clock suspension, held-input release, sustained
+stick play, distinct checkpoint fidelity, audio or full story. Repeat the
+current-build compatibility route on iPhone 17 Pro / iOS 26.5. Full-story
+progress remains open. Both runtime console sessions exited zero; iPads shut
+down, preferences/saves retained. Chris still supplies signing and eventual
+physical touch/controller, audio-route and long-play acceptance. Never push.
