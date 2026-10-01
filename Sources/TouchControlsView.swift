@@ -149,7 +149,7 @@ struct TouchControlsView: View {
               phone: .init(x: 0.242, y: 0.499), tabletSize: 79, phoneSize: 52,
               tint: .black),
         .init(id: "Start", title: "▶", mask: 0x1000, tablet: .init(x: 0.844, y: 0.440),
-              phone: .init(x: 0.830, y: 0.205), tabletSize: 54, phoneSize: 44,
+              phone: .init(x: 0.773, y: 0.205), tabletSize: 54, phoneSize: 44,
               tint: .red),
         .init(id: "L", title: "L", mask: 0x0020, tablet: .init(x: 0.924, y: 0.520),
               phone: .init(x: 0.925, y: 0.340), tabletSize: 54, phoneSize: 44,
@@ -170,16 +170,16 @@ struct TouchControlsView: View {
               phone: .init(x: 0.176, y: 0.409), tabletSize: 52, phoneSize: 44,
               tint: .black),
         .init(id: "C Up", title: "▲", mask: 0x0008, tablet: .init(x: 0.903, y: 0.805),
-              phone: .init(x: 0.827, y: 0.398), tabletSize: 55, phoneSize: 40,
+              phone: .init(x: 0.770, y: 0.398), tabletSize: 55, phoneSize: 40,
               tint: .orange),
         .init(id: "C Down", title: "▼", mask: 0x0004, tablet: .init(x: 0.902, y: 0.905),
-              phone: .init(x: 0.827, y: 0.570), tabletSize: 55, phoneSize: 40,
+              phone: .init(x: 0.770, y: 0.570), tabletSize: 55, phoneSize: 40,
               tint: .orange),
         .init(id: "C Left", title: "◀", mask: 0x0002, tablet: .init(x: 0.857, y: 0.854),
-              phone: .init(x: 0.784, y: 0.485), tabletSize: 55, phoneSize: 40,
+              phone: .init(x: 0.727, y: 0.485), tabletSize: 55, phoneSize: 40,
               tint: .orange),
         .init(id: "C Right", title: "▶", mask: 0x0001, tablet: .init(x: 0.948, y: 0.853),
-              phone: .init(x: 0.871, y: 0.486), tabletSize: 55, phoneSize: 40,
+              phone: .init(x: 0.814, y: 0.486), tabletSize: 55, phoneSize: 40,
               tint: .orange)
     ]
 
@@ -188,6 +188,20 @@ struct TouchControlsView: View {
             let compact = geometry.size.height < 560
             let width = geometry.size.width
             let height = geometry.size.height
+            // The overlay fills the screen, including unsafe areas. Keep each
+            // control's full hit target inside the window's safe bounds.
+            let safe = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .flatMap(\.windows)
+                .first(where: \.isKeyWindow)?.safeAreaInsets ?? .zero
+            let boundedCenter: (CGPoint, CGSize) -> CGPoint = { normalized, size in
+                let minX = safe.left + size.width / 2 + 4
+                let minY = safe.top + size.height / 2 + 4
+                let maxX = max(minX, width - safe.right - size.width / 2 - 4)
+                let maxY = max(minY, height - safe.bottom - size.height / 2 - 4)
+                return CGPoint(x: min(max(normalized.x * width, minX), maxX),
+                               y: min(max(normalized.y * height, minY), maxY))
+            }
             let move: (String, CGPoint) -> Void = { id, point in
                 onMove(id, CGPoint(x: min(max(point.x / width, 0.06), 0.94),
                                    y: min(max(point.y / height, compact ? 0.12 : 0.06),
@@ -196,19 +210,25 @@ struct TouchControlsView: View {
             ZStack {
                 let stick = layout["Stick"] ?? CGPoint(x: compact ? 0.214 : 0.164,
                                                         y: compact ? 0.752 : 0.81)
-                TouchStick(size: (compact ? 116 : 150) * scale * (controlSizes["Stick"] ?? 1),
+                let stickSize = (compact ? 116.0 : 150.0) * scale * (controlSizes["Stick"] ?? 1)
+                let stickCenter = boundedCenter(stick, CGSize(width: stickSize, height: stickSize))
+                TouchStick(size: stickSize,
                            editing: editing,
                            selected: editing && selectedControl == "Stick",
                            select: onSelect,
-                           center: CGPoint(x: width * stick.x, y: height * stick.y),
+                           center: stickCenter,
                            move: move)
-                    .position(x: width * stick.x, y: height * stick.y)
+                    .position(stickCenter)
                 ForEach(Self.controls) { control in
                     if editing || (!hiddenControls.contains(control.id) &&
                        (showDpad || !control.id.hasPrefix("D-pad")) &&
                        (showCButtons || !control.id.hasPrefix("C "))) {
                         let normalized = layout[control.id] ?? (compact ? control.phone : control.tablet)
-                        let center = CGPoint(x: width * normalized.x, y: height * normalized.y)
+                        let buttonSize = (compact ? control.phoneSize : control.tabletSize)
+                            * scale * (controlSizes[control.id] ?? 1)
+                        let center = boundedCenter(normalized, CGSize(
+                            width: control.shoulder ? buttonSize * 1.9 : buttonSize,
+                            height: buttonSize))
                         TouchButton(control: control, compact: compact,
                                     scale: scale * (controlSizes[control.id] ?? 1),
                                     editing: editing,

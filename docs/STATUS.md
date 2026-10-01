@@ -2475,3 +2475,64 @@ must use a short continuous video of the crossing and inspect its trajectory,
 rather than another sequence of endpoint guesses. Full-story/save-fidelity
 requirements remain open; Chris retains signing and eventual physical checks.
 Local evidence commit only; never push.
+
+### 2026-10-01 — Keep customized touch targets inside safe bounds
+
+Previous goal turn: no product progress; acknowledged that audio counters do
+not establish an audible defect. Audio remains unverified/deferred. Read the
+full objective, clean `d2ac697`, upstream/runtime/RT64 pins unchanged; 17 GiB
+free. Worked on the reference's concrete layout behavior, not another audio
+experiment or unsuccessful endpoint navigation loop.
+
+**Fixed:** `TouchControlsView` now clamps each rendered control's full scaled
+bounds inside the current window safe area, with 4-point padding. The stick's
+input center uses that same bounded center. Previously only normalized center
+percentages were constrained, so large controls could extend off-screen or
+into unsafe areas. Reference: HarkinianPad's
+`clampControlToSafeBounds:` and `docs/customizable-touch-controls.md`.
+No reference code/art copied; no game, audio or button-mask changes.
+
+The first iPhone screenshot exposed an adjacent regression: clamped wide
+shoulder buttons overlapped the default Start/C-up targets. Moved default
+phone Start and the C cluster inward by 0.057 normalized width, retaining
+C-cluster relative spacing; saved custom positions remain intact. The final
+phone screenshot shows separated Start/R and C-up/L. Individually selecting
+Start and C-up in the editor selected the intended control.
+
+**Pass, scoped UI checks:** incremental Release arm64 Simulator and unsigned
+device builds, normal input-probe OFF. Logs:
+`work/safe-bounds-build-{simulator,device}.log`, both BUILD SUCCEEDED/exit zero.
+Final Simulator executable SHA256
+`c8ae9699f106136bf3ff24ddda2b015f2b6bf7843f1493982b23ed63fa3400dc`;
+unsigned device executable
+`53e9e499be8d7d06cbe95e31acbd7f623fea76a7c698728794d98788ac45ac41`.
+Installed the final same Simulator build in place on iPad M4 iOS 18.5
+`605FB671…` and iPhone 16 Pro iOS 18.5 `AE64D60E…`, one at a time.
+Preserved imported ROM and EEPROM; used ordinary ROM Continue and three-dot
+menu/editor flows. Both normal apps remain installed, both Simulators shut down.
+
+**Pass, intermediate build `c436c252…`, identical tablet code:** on iPad,
+selected L, changed Size to displayed 150% (actual 1.498), dragged it to the
+bottom-right edge, Done, terminated/relaunched, ROM Continue, reopened editor:
+L retained its position and displayed 150%. Its full outline stayed above the
+home indicator. Viewed `work/evidence/safe-bounds-pad-{editor,relaunch}.jpg`.
+Reset only this controlled tablet layout through editor Reset/Done. Final
+build rechecked preserved defaults:
+`work/evidence/safe-bounds-pad-final-default.jpg` (viewed).
+
+**Pass, final phone build:** saved L at bottom-right, terminated, updated in
+place, relaunched and continued ROM: full outline remained in safe bounds.
+Viewed `work/evidence/safe-bounds-phone-relaunch.jpg`. Reset only the controlled
+phone layout via editor Reset/Done; viewed `safe-bounds-phone-default.jpg`.
+**Not verified:** phone 150% slider resize. Automation's slider setValue could
+change the AX value without changing the bound percentage, and fast drags did
+not establish a resize. Do not count that as successful input or a product bug.
+Phone edge persistence passed at approximately 100% size instead.
+
+This closes a touch-layout clipping defect, not full G4/G5/G6. Arbitrary custom
+control overlap is still possible (as in the reference); full story, sustained
+ordinary multitouch and distinct progressed saves remain open. Next: establish
+ordinary sustained stick/button acceptance before using it for story progress;
+avoid repeating unobserved endpoint guesses. Chris retains signing and eventual
+physical touch feel, controllers, audio routes and long play. Local commit only;
+never push. No physical-device acceptance claimed.
