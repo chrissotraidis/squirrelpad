@@ -32,6 +32,10 @@ private ROM data remain ignored under `work/`.
 
 ## Deferred reproduction procedure
 
+The experiments below are historical evidence, not an active work queue.
+Reopening audio work requires the reproducible audible defect described above;
+an additional counter event alone does not satisfy that condition.
+
 ### Longer gameplay check, 2026-09-30
 
 The Birdy route reproduced one further underrun followed by reserve recovery in

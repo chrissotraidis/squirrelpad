@@ -2164,3 +2164,37 @@ repeat phone input/lifecycle at progressed checkpoints. Full story, macOS
 ordinary gameplay comparison and the remaining G4/G5 matrix remain open.
 Chris retains signing and eventual physical touch/controller, audio-route and
 long-play checks. Local evidence commit only; never push.
+
+### 2026-10-01 — Cold-reload tutorial observation; audio work deferred
+
+**Progress:** preceding turn restored and hash-verified the normal app. Read the
+full objective, clean `12f62ef`, source pin and 19 GiB free. No audio experiment,
+game logic, save implementation or production input change. Historical audio
+procedures are explicitly marked as evidence rather than an active task queue.
+
+**Partial observation:** fresh iPad M4 / iOS 18.5 profile
+`605FB671-1720-4C19-A3BE-AE425323D052`, existing opt-in probe executable
+`f0049d11ffeea3e21d861c3006982c3cadba275ff8509f6c9853f5710a33d7cc`.
+Continue/Start and bounded controller commands loaded GAME1 $0 / 0:46:56.
+Short movement reached the outer B pad. Conker stood upright before ordinary
+touch B; the observed B window did not replay the cure sequence. LT+A and A
+captures showed airborne movement. These observations weaken the hypothesis
+that reload requires the cure again; they do not prove every saved ability,
+jump height, helicopter behavior or a distinct progressed checkpoint. No save
+patch is justified. Viewed private captures `work/evidence/river-cure-{menu,
+pad-on,highjump-check,normaljump-check}.png`; log `work/cure-reload-check.log`.
+The later movement attempt did not reach the island or a level transition.
+
+**Preserved/restored:** 2048-byte EEPROM retained privately at
+`work/cure-reload-save-after.bin`, SHA256
+`ac70f827ffa8cdad2544a6f7f1ad2d15103d5bb4f0c76675dae9c1199f246f22`.
+Terminated runtime, consumed console session (exit zero), reinstalled normal
+app in place and verified executable SHA256
+`b6cc43ee9ab0088d85fb2def757e227382fba29995e4c828b10fbab5f30d6f51`.
+Probe config remains OFF; Simulator shut down. Saves/preferences retained.
+
+**Next:** establish ordinary macOS gameplay with the same checkpoint before
+attributing navigation or save behavior to the port. Do not repeat speculative
+cure/save fixes or audio counter sweeps. Full story and remaining acceptance
+remain open. Chris retains signing and eventual physical touch/controller,
+audio-route and long-play checks. Local commit only; never push.
