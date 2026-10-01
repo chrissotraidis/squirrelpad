@@ -12,7 +12,9 @@ final class SimulatorInputProbe {
     private var releaseAt: TimeInterval = 0
     private let file = URL.documentsDirectory.appendingPathComponent("squirrelpad-sim-input.json")
     private let buttonElements = ["A": GCInputButtonA, "B": GCInputButtonB,
-                                  "X": GCInputButtonX, "Y": GCInputButtonY]
+                                  "X": GCInputButtonX, "Y": GCInputButtonY,
+                                  "LB": GCInputLeftShoulder, "RB": GCInputRightShoulder,
+                                  "LT": GCInputLeftTrigger, "RT": GCInputRightTrigger]
 
     private struct Command: Decodable {
         var sequence: Int64

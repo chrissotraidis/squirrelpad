@@ -23,9 +23,11 @@ Use the ordinary ROM/menu flow to the desired scene, then send a measured comman
 python3 scripts/simulator-input.py <UDID> --y 0.75 --seconds 2
 python3 scripts/simulator-input.py <UDID> --camera-x 0.8 --seconds 0.5
 python3 scripts/simulator-input.py <UDID> --y 0.75 --button A --seconds 0.3
+python3 scripts/simulator-input.py <UDID> --button LT --seconds 1
+python3 scripts/simulator-input.py <UDID> --button LT --button A --seconds 0.3
 ```
 
-Axes are -1...1; buttons are physical gamepad A/B/X/Y and respect the saved N64 A/B mappings. Duration is 0.05...10 seconds. A new command replaces all axes/buttons, and timeout releases them. Commands are written atomically into the app's Documents directory; expired files are ignored after relaunch. Logs identify connection, command and release. Use screenshots/video to verify actual movement, not just command logs. Settings/background still disable controller input through the ordinary activity path.
+Axes are -1...1; buttons are physical gamepad A/B/X/Y, LB/RB and LT/RT and respect saved controller mappings. By default LT/RT map to N64 Z, LB to L and RB to R. Repeat `--button` to combine inputs. Duration is 0.05...10 seconds. A new command replaces all axes/buttons, and timeout releases them. Commands are written atomically into the app's Documents directory; expired files are ignored after relaunch. Logs identify connection, command and release. Use screenshots/video to verify actual movement, not just command logs. Settings/background still disable controller input through the ordinary activity path.
 
 After testing, terminate/shut down the Simulator and restore the normal build:
 

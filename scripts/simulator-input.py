@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('udid')
 for axis in ('x', 'y', 'camera-x', 'camera-y'):
     parser.add_argument('--' + axis, type=float, default=0)
-parser.add_argument('--button', action='append', choices=['A', 'B', 'X', 'Y'], default=[])
+parser.add_argument('--button', action='append', choices=['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT'], default=[])
 parser.add_argument('--seconds', type=float, default=0.2)
 args = parser.parse_args()
 if not 0.05 <= args.seconds <= 10 or any(not -1 <= a <= 1 for a in (args.x, args.y, args.camera_x, args.camera_y)):

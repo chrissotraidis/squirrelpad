@@ -2088,3 +2088,45 @@ transition and cold-reload checkpoint; continue touch/menu comparison. Full
 story, representative phone chapters, two distinct progressed saves and ordinary
 macOS gameplay remain open. Chris retains signing identity and eventual physical
 touch/controller, audio-route and long-play checks. Local commit only; no push.
+
+### 2026-10-01 — Bounded Simulator trigger/shoulder commands
+
+**Progress:** preceding reply corrected the audio claim without implementing
+anything. Read full objective, clean `58cca06`, pins and 20 GiB free. No audio
+investigation. The baseline iPad close-icon edge tap already closed Settings;
+discarded the proposed hit-area edit rather than claim an established defect.
+
+**Pass, diagnostic boundary:** added physical LB/RB/LT/RT names to the opt-in
+virtual controller and CLI. Existing mappings, game logic and production UI
+are unchanged. Apple documents these configured elements at
+https://developer.apple.com/documentation/gamecontroller/gcvirtualcontroller/configuration/elements.
+Probe Release build exited zero (`work/trigger-probe-{configure,build}.log`);
+installed executable SHA256 on both fresh 18.5 profiles:
+`f0049d11ffeea3e21d861c3006982c3cadba275ff8509f6c9853f5710a33d7cc`.
+iPad ran first, then shut down before iPhone boot. Both connected without error;
+command/release logs `work/trigger-probe-{ipad,phone}-run.log`.
+
+**Partial visual evidence:** preserved iPad GAME1 loaded through ordinary
+Start/A. LT showed a lower crouched posture; timeout returned upright. RB
+changed the view in the captured sequence. Viewed private captures
+`work/evidence/trigger-ipad-{standing,held-lt,released}.png` and video contact
+sheet `trigger-ipad-contact.png`. Z+A jump/tutorial success is **not proven**.
+Phone GAME1 loaded normally; LT/RT/RB commands expired, but viewed images do
+not establish distinct crouch/camera behavior in that early scene. Settings hid
+14 gameplay buttons plus stick and X restored them; viewed
+`work/evidence/trigger-phone-{settings,return}.png`. This helper is not touch
+or hardware acceptance. No level transition or new checkpoint claimed.
+
+**Pass, restoration:** normal OFF configure/Release build exited zero
+(`work/trigger-normal-{configure,build}.log`). Reinstalled preserved normal app
+on both profiles, executable SHA256
+`b6cc43ee9ab0088d85fb2def757e227382fba29995e4c828b10fbab5f30d6f51`;
+both terminated and shut down. Pre-play private EEPROM backups retained:
+`work/trigger-probe-save-before.bin` and `work/trigger-phone-save-before.bin`.
+No saved preferences reset. Local commit only, never push.
+
+**Next:** use bounded held Z/A and shoulder commands to test the river tutorial
+and the next real transition; retain ordinary touch/menu checks. Full story,
+distinct progressed checkpoint reloads and macOS gameplay comparison remain
+open. Chris still supplies signing and eventual physical touch/controller,
+audio-route and sustained-play acceptance. Audio remains unverified/deferred.
