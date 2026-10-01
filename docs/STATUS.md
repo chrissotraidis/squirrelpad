@@ -2262,3 +2262,33 @@ current-build compatibility route on iPhone 17 Pro / iOS 26.5. Full-story
 progress remains open. Both runtime console sessions exited zero; iPads shut
 down, preferences/saves retained. Chris still supplies signing and eventual
 physical touch/controller, audio-route and long-play acceptance. Never push.
+
+### 2026-10-01 — Current normal build on iPhone 17 Pro / iOS 26.5
+
+**Progress:** previous turn verified current-build basic recovery on iPadOS 26.5.
+Read the full objective, clean `139f320`, pins and 18 GiB free. No implementation
+change or audio experiment. Installed normal executable SHA256
+`b6cc43ee9ab0088d85fb2def757e227382fba29995e4c828b10fbab5f30d6f51`
+in place on iPhone 17 Pro / iOS 26.5,
+`7B639924-AD8F-4D5C-AD29-71F47C768A0D`, probe OFF. Preserved private
+pre-install EEPROM/preferences under `work/phone26-compat-before/`.
+
+**Pass, bounded compatibility/recovery:** ordinary Continue Imported ROM, L
+and A navigation retained GAME1 $0 / 0:06:03 and loaded its first field.
+Start visibly paused; three-dot Settings hid gameplay controls; X restored them
+and A resumed. Home backgrounded gameplay, confirmed at 11:29:41 UTC; ordinary
+Home icon returned to the same field by 11:31:15 UTC. PID 25191 persisted
+through both checks. Viewed private captures `work/evidence/phone26-normal-
+{details,field,pause,menu,resume,return}.jpg`; log
+`work/phone26-normal-compat.log`. C-left produced only a small view change,
+insufficient to pass camera acceptance. No reset or save replacement.
+
+**Open / next:** current normal build now has basic startup/preserved-save/menu
+return/recovery observations on both 26.5 device classes. Do not repeat these
+checks without a new regression. Return to sustained input and tutorial
+progression: swim to the small island before attempting the learned high jump
+and helicopter route. Full story, distinct progressed checkpoint reloads,
+precise game-clock suspension, simultaneous touch and audio acceptance remain
+open. Console session exited zero; phone shut down, none booted. Chris retains
+signing and eventual physical touch/controller, audio-route and long-play
+acceptance. Local commit only; never push.
