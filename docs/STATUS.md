@@ -2536,3 +2536,52 @@ ordinary sustained stick/button acceptance before using it for story progress;
 avoid repeating unobserved endpoint guesses. Chris retains signing and eventual
 physical touch feel, controllers, audio routes and long play. Local commit only;
 never push. No physical-device acceptance claimed.
+
+### 2026-10-01 — Reset touch gesture state on focus loss
+
+Previous turn: progress, verified safe-bound layout fix `6f63ae7`. Read full
+objective and current sources; clean checkout, upstream/runtime/RT64 pins
+unchanged, 17 GiB free. Audio remains unverified/deferred; no audio measurement,
+tuning or diagnosis in this turn.
+
+**Code finding / safeguard:** native touch state was cleared on inactive scene
+and interruption, but the SwiftUI overlay stayed mounted with local `held` and
+stick-offset state. A cancelled gesture does not necessarily run `onEnded`.
+Now the overlay is present only while scenePhase is active and no interruption
+is pending. Removing it invokes the existing `onDisappear` button/stick cleanup;
+return recreates neutral local gesture state. This is a five-line shell change,
+not a reproduced claim of a Simulator stuck-input incident. Button masks,
+analog math, renderer, game logic and audio implementation are unchanged.
+
+**Pass:** incremental Release builds for arm64 iphonesimulator and unsigned
+iphoneos, both exit zero / BUILD SUCCEEDED, probe OFF in both caches. Logs:
+`work/touch-focus-build-{simulator,device}.log`. Executable SHA256:
+Simulator `f6b8419e39a1b340483718691ab66d9fc83e1e03c2b9f3e629fab9e08aae1b70`;
+device `0b520ebdf37db953b10d4b3f51470e0839de539d77cad7089912aaa9691a1387`.
+
+**Pass, scoped ordinary UI/lifecycle regression:** same normal Simulator build,
+in-place install, iPad M4 iOS 18.5 `605FB671…`, then iPhone 16 Pro iOS 18.5
+`AE64D60E…`. Used ordinary ROM Continue, Start, A to load preserved GAME1.
+iPad slot $0 / 0:46:56, iPhone slot $0 / 0:06:03. No save replacement/reset.
+Home via Simulator toolbar removed the touch controls from app accessibility
+state; inspected Home screen; tapped app icon to return. Controls reappeared
+with neutral visuals, same scene returned, ordinary Start produced PAUSED;
+ordinary A resumed, three-dot Settings opened on both classes. iPhone's first
+field cutscene was still running at Home; it returned there, subsequently
+reached the field and paused. This is not exact game-clock suspension proof.
+
+Viewed private captures:
+`work/evidence/touch-focus-{pad,phone}-{before,home,return-pause,settings}.jpg`.
+Terminated normal apps and shut down each Simulator; normal apps remain
+installed and private ROM/EEPROM/settings preserved. No macOS change; this
+lifecycle view boundary is specific to UIKit.
+
+**Not run / still open:** a sustained touch held across focus loss, simultaneous
+ordinary multitouch, interruption delivery, exact game-time matrix, distinct
+progressed checkpoints, full story, physical device checks. The view lifecycle
+and post-return input checks establish this safeguard's adjacent behavior;
+they do not close full G4/G5/G6. Next work should return to the lowest unfinished
+control gate: ordinary macOS keyboard gameplay/save/relaunch with an isolated
+preserved profile, before more speculative input changes or island guesses.
+Chris retains signing and eventual touch feel, controllers, audio routes and
+long-play hardware checks. Local commit only; never push.

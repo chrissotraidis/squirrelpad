@@ -137,7 +137,10 @@ struct SquirrelPadApp: App {
                             : max(geometry.size.width / 240, geometry.size.height / 135))
                         .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
 
-                    if session.running && touchEnabled && (!menuOpen || editingLayout) {
+                    // Discard local gesture state when focus is lost, as well
+                    // as clearing the native input state in the lifecycle handler.
+                    if session.running && touchEnabled && (!menuOpen || editingLayout)
+                        && scenePhase == .active && !audioInterrupted {
                         TouchControlsView(opacity: editingLayout ? 1.0 : (touchTransparency ? touchOpacity : 1.0),
                                           scale: controlScale,
                                           showDpad: showDpad, showCButtons: showCButtons,
