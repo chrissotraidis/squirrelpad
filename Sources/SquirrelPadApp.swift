@@ -463,6 +463,8 @@ struct SquirrelPadApp: App {
                                     }
                                     Slider(value: $controlScale, in: 0.8...1.2)
                                         .tint(.blue)
+                                        .accessibilityLabel("Control Size")
+                                        .accessibilityValue("\(Int((controlScale * 100).rounded())) percent")
                                 }
                                 .disabled(!touchEnabled)
                                 Divider().overlay(.white.opacity(0.4))
@@ -479,6 +481,8 @@ struct SquirrelPadApp: App {
                                         }
                                         Slider(value: $touchOpacity, in: 0.25...1.0)
                                             .tint(.blue)
+                                            .accessibilityLabel("Control Opacity")
+                                            .accessibilityValue("\(Int((touchOpacity * 100).rounded())) percent")
                                     }
                                     .disabled(!touchEnabled)
                                 }

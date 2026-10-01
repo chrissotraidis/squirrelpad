@@ -1825,3 +1825,43 @@ down; phone unchanged. No game logic or app source changed; no push.
 Remaining app work is gameplay/checkpoint acceptance and remaining touch/menu
 behavior, not further speculative audio tuning. Chris still supplies signing
 credentials and eventual physical touch/controller/audio-route/long-play checks.
+
+### 2026-10-01 — Settings slider accessibility and cold relaunch
+
+**Progress:** previous turn restored the normal build and stopped speculative
+audio investigation. Current worktree began clean; objective read, 26 GiB free.
+No audio investigation or game/input changes this turn.
+
+**Fixed:** Controls Size and Opacity sliders exposed no accessible name and
+only a normalized number. Added explicit names and percentage accessibility
+values matching their visible text. Four SwiftUI modifiers; bindings/ranges,
+layout and persistence unchanged.
+
+**Pass:** both final Release SDK builds exited zero, probe OFF. Logs:
+`work/settings-slider-labels-{sim,device}-build.log`. Executable SHA256:
+Simulator `b6cc43ee9ab0088d85fb2def757e227382fba29995e4c828b10fbab5f30d6f51`;
+unsigned device `8a3ce7e18d52f5b7625b2ec60626aa91dc214a3ca7da0a78090f2c646e16f15c`.
+Installed the same Simulator bundle in place on iPad M4 then iPhone 16 Pro,
+iOS 18.5, one booted at a time. Accessibility trees identify Control Size with
+116 percent on iPad and 100 percent on phone; enabling transparency identifies
+Control Opacity with 100 percent on both. Restored transparency OFF.
+Viewed screenshots confirm unchanged menu geometry and persistent three-dot
+placement against the reference's documented placement. No live reference
+app comparison claimed. iPhone binding expansion scrolls its header to the
+top; collapse exposes Touch Layout. Private captures:
+`work/evidence/settings-slider-labels-ipad.png` and
+`work/evidence/settings-slider-labels-iphone-{before,relaunch}.png`.
+
+**Pass, phone persistence regression:** AX setValue alone moved the native
+slider without updating the SwiftUI text/model; that is not persistence proof.
+After a pointer gesture, visible Size and accessible percentage both changed
+to 108 percent. Terminate/launch, reopen Settings: both still 108 percent.
+Restored displayed Size to 100 percent with another pointer gesture. No ROM,
+save or other layout profile reset. Both Simulators terminated/shut down.
+
+**Unverified:** native automated swipe/wheel still did not visibly move the
+Settings content. Programmatic binding-header scroll works; an ordinary swipe
+defect is not established. No speculative scrolling or macOS mouse workaround
+added. Full gameplay/checkpoint, macOS control and physical gates remain open.
+Local commit only; never push. Next acceptance work remains meaningful game
+progress/save reload and sustained input, without resuming audio diagnostics.
