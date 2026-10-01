@@ -2976,3 +2976,35 @@ Next: qualify lower iPhone menu access, then ordinary combined input and
 meaningful story/checkpoint progression. Full story and distinct progressed
 saves remain open. Chris retains signing and physical touch feel, controllers,
 audio routes and long play; routine speculative audio tuning stays deferred.
+
+### 2026-10-01 — Lower settings access and visibility application
+
+**Pass, accessibility/menu scope:** normal Simulator `f6b8419e…`, probe OFF,
+sequential iPhone 18.5 `AE64D60E…` then iPad 18.5 `605FB671…`.
+On phone, accessibility selection of offscreen D-pad Buttons and C Buttons
+scrolled each row into view and changed it to Off. A coordinate tap on the
+visible D-pad switch returned it to On. A later coordinate tap on C did not
+change it; Restore Defaults restored both and brought the bottom actions
+into view. Original default volume and touch settings restored.
+Viewed `work/evidence/menu-lower-phone-{dpad-off,c-off,restored}.jpg`.
+This proves accessibility access and bounded toggle behavior, not general
+finger scrolling or consistent coordinate delivery.
+
+On iPad, changed both visibility switches Off in launcher Settings, then
+Continue Imported ROM: D-pad and C controls were absent from the intro
+image and accessibility tree. Reopened Settings, restored both switches On,
+closed menu: both control groups reappeared. Other settings preserved.
+Viewed `menu-lower-pad-{off,hidden-controls,restored-controls}.jpg`.
+Logs `work/menu-scroll-phone.log`, `work/menu-lower-pad.log`; both console
+sessions exited 0 and both Simulators shut down. Saves/ROM preserved.
+
+**Unverified drag delivery:** phone coordinate clicks switched Controls/Audio
+correctly. Dragging the standard volume slider from (1320,450) to (880,450)
+left its value at 0.9996789, rather than about half. Volume restored to 1.
+Together with prior failed content drags this makes automation drag delivery
+suspect; it does not prove an app scrolling defect. The source already uses
+a vertical SwiftUI ScrollView; no speculative gesture replacement warranted.
+No app/game/audio source change or rebuild. Next remains a qualified sustained
+ordinary input path and story progression with meaningful checkpoint reloads.
+Full G4/G5/G6 and hardware gates remain open. Chris retains signing and real
+hardware touch feel, controllers, audio routes and long play.
