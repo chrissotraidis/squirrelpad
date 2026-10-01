@@ -137,7 +137,9 @@ Use **Choose ROM** and select your private ROM in Files. On later launches,
 **Continue Imported ROM** revalidates the app's private imported copy. Input,
 saves and settings acceptance should use this ordinary flow.
 
-The three-dot menu opens Controls/Audio settings and pauses the game. Controls
+The three-dot menu opens and closes Controls/Audio settings and pauses the game.
+It stays available with touch controls off, sits at the top center on iPhone,
+and moves below the panel while Settings is open. Controls
 includes controller bindings, global size/opacity, D-pad/C-button visibility
 and **Edit Layout**. Tap a control in the editor to select it, drag to move it,
 and use Size for its individual 70–150% scale. Hide/Show removes or restores an

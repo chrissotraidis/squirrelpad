@@ -1650,3 +1650,48 @@ classifying Birdy's interaction as a port defect. G5 meaningful saves and G6
 full story remain unproven, alongside remaining reference-menu parity and
 final developer package acceptance. Chris owns physical touch feel, controllers,
 audio listening/routes and sustained hardware play. The app is not complete.
+
+### 2026-10-01 — Persistent three-dot menu matches reference placement
+
+**Progress:** previous turn `2df2b89` distinguished sampled button clicks from
+sub-frame automated drags and restored the normal build. Current work began
+clean; objective read in full, disk 29 GiB. Audio investigation remains deferred.
+
+**Changed:** HarkinianPad's `docs/touch-controls-design.md` specifies an
+independent permanent three-dot button: upper right on iPad, top center in
+phone gameplay, bottom center while the phone menu is open. SquirrelPad hid
+that button when Settings opened and used the right corner on phone.
+The existing toggle now remains available outside layout editing and follows
+those positions. The first phone screenshot exposed an overlap with the panel;
+the final compact panel reserves 24 more points below itself and the button
+sits four points farther above the Home indicator. No game/input/audio changes.
+Comparison is to reference documentation/source, not a live reference app run.
+
+**Pass:** final Simulator and unsigned device Release builds exited zero:
+`work/persistent-menu-{sim,device}-final-build.log`. Probe remains OFF and input
+trace absent. Executable SHA256: Simulator
+`e64ab51e3fdd4f2caabb95043f1b3c3b0c2eadc7bc5ca993b307027b01287eba`,
+unsigned device
+`db45189f42a6c8953fdec0f3450488c3bd9bd091be2cfc7d148398c1c4d7e80b`.
+Final Simulator installed sequentially on iPhone 16 Pro then iPad M4 / iOS 18.5;
+iPad installed bytes independently matched the final build. Both ordinary
+Continue paths launched game rendering. On both, three-dot open/close works,
+opening Settings removes gameplay controls, touch disabled still permits
+open/close, enabling restores controls, entering editor removes permanent menu,
+and Done restores it. Phone's existing Close menu button also works. Touch
+Controls preference restored to on, no layout manipulation/reset or save reset.
+
+**Viewed captures:** `work/evidence/persistent-menu-ipad-final.png`,
+`work/evidence/persistent-menu-iphone-final.png`, and
+`work/evidence/persistent-menu-iphone-final-closed.png`; corresponding live CUA
+screenshots inspected. Final phone button clears the panel and Home indicator;
+Controls/Audio navigation/header remain readable. Automated wheel/drag attempts
+did not visibly scroll the compact panel; no ordinary swipe acceptance claim.
+Accessibility activation reached Edit Layout. Further ordinary scroll verification
+remains open, as does full reference parity. Both Simulators shut down after
+checks; local commit only, never push.
+
+**Open:** ordinary macOS gameplay comparison, meaningful save checkpoints,
+full iPad story and representative iPhone gameplay, final replay/signing, and
+physical acceptance. Chris retains touch feel, controller hardware, audio
+listening/routes and sustained hardware play. App completion remains unproven.

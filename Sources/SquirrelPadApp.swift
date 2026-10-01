@@ -167,7 +167,7 @@ struct SquirrelPadApp: App {
                         controlsPanel(compact: compact, size: geometry.size,
                                       sideMargin: menuSideMargin)
                             .position(x: geometry.size.width / 2,
-                                      y: geometry.size.height / 2 - (compact ? 16 : 0))
+                                      y: geometry.size.height / 2 - (compact ? 28 : 0))
                     }
                     if editingLayout {
                         VStack(spacing: 8) {
@@ -219,7 +219,7 @@ struct SquirrelPadApp: App {
                         .padding(.vertical, 8)
                         .background(.black.opacity(0.82), in: RoundedRectangle(cornerRadius: 18))
                         .position(x: geometry.size.width / 2, y: compact ? 54 : 60)
-                    } else if !menuOpen {
+                    } else {
                         Button(action: toggleMenu) {
                             Text("•••")
                                 .font(.system(size: compact ? 17 : 15, weight: .semibold))
@@ -232,7 +232,8 @@ struct SquirrelPadApp: App {
                         .buttonStyle(.plain)
                         .accessibilityLabel("Menu")
                         .accessibilityIdentifier("squirrelpad-menu")
-                        .position(x: geometry.size.width - (compact ? menuSideMargin : 32), y: 32)
+                        .position(x: compact ? geometry.size.width / 2 : geometry.size.width - 32,
+                                  y: compact && menuOpen ? geometry.size.height - 36 : 32)
                     }
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
@@ -526,12 +527,12 @@ struct SquirrelPadApp: App {
                         .padding(compact ? 14 : 30)
                     }
                 }
-                .frame(height: size.height - (compact ? 120 : 128))
+                .frame(height: size.height - (compact ? 144 : 128))
             }
         }
         .foregroundStyle(.white)
         .frame(width: size.width - sideMargin * 2,
-               height: size.height - (compact ? 64 : 56))
+               height: size.height - (compact ? 88 : 56))
         .background(Color.black.opacity(0.88), in: RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(.white.opacity(0.35)))
     }
