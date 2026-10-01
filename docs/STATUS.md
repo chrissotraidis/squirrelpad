@@ -2198,3 +2198,35 @@ attributing navigation or save behavior to the port. Do not repeat speculative
 cure/save fixes or audio counter sweeps. Full story and remaining acceptance
 remain open. Chris retains signing and eventual physical touch/controller,
 audio-route and long-play checks. Local commit only; never push.
+
+### 2026-10-01 — Same-checkpoint macOS comparison; no save fix warranted
+
+**Progress:** previous turn restored the original macOS frontend and rebuilt it;
+audio remains unverified/deferred, not an established blocker. Read the full
+objective, clean `48c31f0`, pins and 19 GiB free. No production code changed.
+
+**Pass, diagnostic comparison only:** isolated private macOS profile copied the
+preserved 2048-byte iPad tutorial EEPROM, with ordinary profiles left intact.
+Existing private probe executable SHA256
+`4e6b0df14a0b55599ee993ca5d867bcbe26b0f58252ba9319fe13a06171f9a2a`
+used expiring direct N64 callback commands (not ordinary keyboard acceptance).
+Ordinary Return started the game; held L skipped the intro; two separately
+observed A commands selected GAME1 $0 / 0:46:56 and loaded the field. Conker
+stood upright, matching the iPad cold-reload observation. Bounded analog
+movement reached the outer pad approach and river bank. Viewed private captures
+`work/evidence/macos-checkpoint-{title2,slot,field,movement,bank}.jpg`; log
+`work/macos-checkpoint-probe-run2.log`. This further weakens a port-specific
+cure/save regression; no save or game logic change is justified.
+
+**Not proved:** river crossing, helicopter action, new checkpoint, full story,
+ordinary macOS keyboard gameplay, or audio. The 180-second process ended
+(exit zero); the final river-attempt capture showed the launcher and does not
+prove the attempted action. No ConkerRecomp process remains. Original frontend
+bytes match the pre-experiment backup; restored build exited zero, executable
+SHA256 `30c7fdc86d28622325eeebfabe89611bdd3fc6c9f7e5b4f8e01eac1a593f0bd3`.
+Private probe remains isolated under ignored work/. No Simulator state changed.
+
+**Next:** continue visible ordinary iPad gameplay from the preserved checkpoint;
+use this macOS scene control before attributing navigation to a port defect.
+Chris retains signing and physical touch/controller, audio-route and long-play
+acceptance. Audio tuning stays deferred unless an audible defect is reproduced.
