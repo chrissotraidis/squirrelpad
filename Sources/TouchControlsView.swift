@@ -133,6 +133,7 @@ struct TouchControlsView: View {
     let onSelect: (String) -> Void
     let layout: [String: CGPoint]
     let controlSizes: [String: Double]
+    let hiddenControls: Set<String>
     let onMove: (String, CGPoint) -> Void
 
     // The normalized centers follow HarkinianPad's accepted phone/tablet grip
@@ -203,8 +204,9 @@ struct TouchControlsView: View {
                            move: move)
                     .position(x: width * stick.x, y: height * stick.y)
                 ForEach(Self.controls) { control in
-                    if (showDpad || !control.id.hasPrefix("D-pad")) &&
-                       (showCButtons || !control.id.hasPrefix("C ")) {
+                    if editing || (!hiddenControls.contains(control.id) &&
+                       (showDpad || !control.id.hasPrefix("D-pad")) &&
+                       (showCButtons || !control.id.hasPrefix("C "))) {
                         let normalized = layout[control.id] ?? (compact ? control.phone : control.tablet)
                         let center = CGPoint(x: width * normalized.x, y: height * normalized.y)
                         TouchButton(control: control, compact: compact,
@@ -212,6 +214,8 @@ struct TouchControlsView: View {
                                     editing: editing,
                                     selected: editing && selectedControl == control.id,
                                     select: onSelect, move: move)
+                            .opacity(editing && hiddenControls.contains(control.id) ? 0.4 : 1)
+                            .accessibilityValue(hiddenControls.contains(control.id) ? "Hidden" : "Visible")
                             .position(center)
                     }
                 }

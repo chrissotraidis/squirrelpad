@@ -1498,3 +1498,60 @@ tracked app source changed, and no binary equivalence claim is made. Cache
 confirms probe OFF and `nm` found no SimulatorInputProbe symbols. Build log:
 `work/checkpoint-normal-final-build.log`. No runtime acceptance claim for this
 restoration. iPad shut down after installation; iPhone remained shut down.
+
+### 2026-09-30 — individual touch-control Hide/Show
+
+**Progress:** preceding turn restored the normal build and committed the audio
+uncertainty correction (`4b68214`). This turn confirms the saved iPad controller
+map does not override B: only A=A and Z=LT/RT are stored, so B uses its default.
+Ordinary A eventually opened GAME1 and loaded the first field; brief automated
+coordinate taps/drags remained insufficient for a sustained gameplay claim.
+No controller mapping, game logic or audio behavior changed.
+
+**Implemented:** the reference's `docs/customizable-touch-controls.md` and
+`patches/shipwright-ios-customizable-touch-controls.patch` expose per-button
+Hide/Show, dimmed hidden controls in the editor, a protected stick, device-class
+profiles and Reset. SquirrelPad now implements that missing behavior through
+its existing three-dot menu → Edit Layout flow. Hidden buttons are absent from
+gameplay but selectable at 40% opacity in the editor; no selection and Stick
+disable/dim Hide. Done persists sorted hidden IDs separately for phone/tablet;
+Reset clears the current profile's hidden overrides along with positions/sizes.
+The existing global D-pad/C switches still govern gameplay, while the editor
+shows all controls so users can recover individual overrides. README updated.
+This is a behavioral comparison to the reference source/docs, not a side-by-side
+run of HarkinianPad or a complete menu-parity claim.
+
+**Pass, final builds:** ARM64 Simulator and unsigned-device Release builds exit
+zero; `work/hide-controls-{simulator,device}-final-build.log`. Both caches have
+probe OFF and all controlled source pins match `sources.lock.json`. Final
+Simulator executable SHA256:
+`00f8ff7b956b53b4318155b961889458f0b6678b76ee851b05c43bbfb8151eb1`;
+unsigned device executable:
+`eb0f30bd637a17ca346da42509090cfe0ea8bdf8d3d264e9be8fc561542c1648`.
+Both installed Simulator executables match the final Simulator hash.
+
+**Pass, iPad M4 and iPhone 16 Pro / iOS 18.5:** on the exact final Simulator
+build, select B → Hide → Done → terminate → relaunch → Continue Imported ROM
+leaves B absent from the overlay and accessibility tree. Reopen the editor:
+B is dimmed/selectable and Show restores it. Stick keeps Hide disabled; the
+final disabled action is visibly dimmer. Hide followed by Reset restores B on
+both classes. iPhone C-group OFF leaves C controls editable, while Done keeps
+them absent from gameplay until the group switch is restored. Menu access
+returns after Done. Viewed native screenshots and raw captures:
+`work/evidence/hide-controls-ipad-final-editor.png`,
+`work/evidence/hide-controls-ipad-final-relaunch.png`,
+`work/evidence/hide-controls-iphone-editor.png`,
+`work/evidence/hide-controls-iphone-relaunch.png`. Editor captures show readable
+Size/Show/Reset/Done without clipping. Existing layout/preferences restored
+through the UI: only each new class-specific empty hidden-ID key (`[]`) differs
+from the private before-test backups. No ROM/save reset; both Simulators shut
+down. No ordinary sustained movement, new logical checkpoint or full-story pass.
+
+**Open / next:** G1 ordinary macOS gameplay/save comparison, G5 meaningful
+checkpoint saves, G6 full iPad story/representative phone play, remaining menu
+parity and G7/G8 device/signing acceptance. Do not resume audio counter tuning
+without a specific audible reproduction. The next gameplay diagnostic must
+check actual game-consumed B and the existing GAME1 progression before
+classifying the Birdy interaction as a port defect; remapping has been ruled
+out by the current preference/source inspection. Physical touch feel,
+controller hardware, audio routes/listening and long play remain for Chris.

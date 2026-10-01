@@ -140,9 +140,11 @@ saves and settings acceptance should use this ordinary flow.
 The three-dot menu opens Controls/Audio settings and pauses the game. Controls
 includes controller bindings, global size/opacity, D-pad/C-button visibility
 and **Edit Layout**. Tap a control in the editor to select it, drag to move it,
-and use Size for its individual 70–150% scale. Done persists the current phone
-or tablet profile; Reset Layout clears that profile's positions and individual
-sizes. Full reference-menu parity remains unfinished.
+and use Size for its individual 70–150% scale. Hide/Show removes or restores an
+individual button during gameplay; hidden buttons remain dimmed in the editor
+so they can be restored. The stick cannot be hidden. Done persists the current
+phone or tablet profile; Reset Layout clears that profile's positions, individual
+sizes and hidden buttons. Full reference-menu parity remains unfinished.
 
 Before switching to iPhone, terminate and shut down the iPad:
 

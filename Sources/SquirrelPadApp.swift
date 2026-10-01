@@ -108,12 +108,15 @@ struct SquirrelPadApp: App {
     @AppStorage("SquirrelPad.LayoutPhone") private var phoneLayout = ""
     @AppStorage("SquirrelPad.ControlSizesTablet") private var tabletControlSizes = ""
     @AppStorage("SquirrelPad.ControlSizesPhone") private var phoneControlSizes = ""
+    @AppStorage("SquirrelPad.HiddenControlsTablet") private var tabletHiddenControls = ""
+    @AppStorage("SquirrelPad.HiddenControlsPhone") private var phoneHiddenControls = ""
     @State private var importing = false
     @State private var menuOpen = false
     @State private var editingLayout = false
     @State private var editingCompact = false
     @State private var editedPositions: [String: CGPoint] = [:]
     @State private var editedControlSizes: [String: Double] = [:]
+    @State private var editedHiddenControls: Set<String> = []
     @State private var selectedControl: String?
     @State private var settingsSection: SettingsSection = .controls
     @State private var bindingsExpanded = false
@@ -145,6 +148,8 @@ struct SquirrelPadApp: App {
                                               ? editedPositions : savedLayout(compact: compact),
                                           controlSizes: editingLayout && editingCompact == compact
                                               ? editedControlSizes : savedControlSizes(compact: compact),
+                                          hiddenControls: editingLayout && editingCompact == compact
+                                              ? editedHiddenControls : savedHiddenControls(compact: compact),
                                           onMove: { id, center in
                                               if editingLayout && editingCompact == compact {
                                                   editedPositions[id] = center
@@ -172,6 +177,7 @@ struct SquirrelPadApp: App {
                                 Button("Reset Layout") {
                                     editedPositions = [:]
                                     editedControlSizes = [:]
+                                    editedHiddenControls = []
                                     selectedControl = nil
                                 }
                                 Button("Done") { finishLayoutEdit() }
@@ -192,6 +198,19 @@ struct SquirrelPadApp: App {
                                     .monospacedDigit()
                                     .fixedSize(horizontal: true, vertical: false)
                                     .frame(width: 64, alignment: .trailing)
+                                Button(selectedControl.map { editedHiddenControls.contains($0) ? "Show" : "Hide" } ?? "Hide") {
+                                    guard let id = selectedControl, id != "Stick" else { return }
+                                    if editedHiddenControls.contains(id) {
+                                        editedHiddenControls.remove(id)
+                                    } else {
+                                        editedHiddenControls.insert(id)
+                                    }
+                                }
+                                .frame(minWidth: 44)
+                                .disabled(selectedControl == nil || selectedControl == "Stick")
+                                .opacity(selectedControl == nil || selectedControl == "Stick" ? 0.45 : 1)
+                                .accessibilityLabel("Selected Control Visibility")
+                                .accessibilityValue(selectedControl.map { editedHiddenControls.contains($0) ? "Hidden" : "Visible" } ?? "No selection")
                             }
                         }
                         .font(.system(size: compact ? 14 : 17, weight: .semibold))
@@ -483,6 +502,8 @@ struct SquirrelPadApp: App {
                                     phoneLayout = ""
                                     tabletControlSizes = ""
                                     phoneControlSizes = ""
+                                    tabletHiddenControls = ""
+                                    phoneHiddenControls = ""
                                 }
                                 .buttonStyle(.borderedProminent)
                             } else {
@@ -566,6 +587,7 @@ struct SquirrelPadApp: App {
         clearTouchInput()
         editedPositions = savedLayout(compact: compact)
         editedControlSizes = savedControlSizes(compact: compact)
+        editedHiddenControls = savedHiddenControls(compact: compact)
         selectedControl = nil
         editingCompact = compact
         menuOpen = false
@@ -582,6 +604,10 @@ struct SquirrelPadApp: App {
            let text = String(data: data, encoding: .utf8) {
             if editingCompact { phoneControlSizes = text } else { tabletControlSizes = text }
         }
+        if let data = try? JSONEncoder().encode(editedHiddenControls.sorted()),
+           let text = String(data: data, encoding: .utf8) {
+            if editingCompact { phoneHiddenControls = text } else { tabletHiddenControls = text }
+        }
         editingLayout = false
         selectedControl = nil
     }
@@ -591,5 +617,12 @@ struct SquirrelPadApp: App {
         guard let data = stored.data(using: .utf8),
               let values = try? JSONDecoder().decode([String: Double].self, from: data) else { return [:] }
         return values.filter { $0.value.isFinite }.mapValues { min(max($0, 0.7), 1.5) }
+    }
+
+    private func savedHiddenControls(compact: Bool) -> Set<String> {
+        let stored = compact ? phoneHiddenControls : tabletHiddenControls
+        guard let data = stored.data(using: .utf8),
+              let values = try? JSONDecoder().decode([String].self, from: data) else { return [] }
+        return Set(values).subtracting(["Stick"])
     }
 }
