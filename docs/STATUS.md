@@ -1958,3 +1958,52 @@ Simulator shut down; phone unchanged. Disk 22 GiB. Local evidence commit only.
 progressed checkpoint/reload; repeat fresh import on phone. Full story, ordinary
 macOS comparison and remaining matrix rows stay open. Chris retains signing
 identity and eventual physical touch/controller/audio-route/long-play checks.
+
+### 2026-10-01 — Fresh Birdy lesson, beer and cure; bounded reload
+
+**Progress:** the preceding audio reply was a status correction, not acceptance
+progress. Revalidated `84afae2`, clean worktree, pinned sources and full objective;
+22 GiB available. No audio investigation, game logic or production source edits.
+The fresh iPad M4 / iOS 18.5 profile `605FB671-1720-4C19-A3BE-AE425323D052`
+was live with the bounded controller bridge. Probe executable SHA256
+`44b6881c80791b2a115540df5d50233dd2d85009b8f5bad8a8c9179e4807a2d0`;
+configure/build logs `work/fresh-birdy-{configure,build}.log`, terminal exit zero.
+Pre-route private save retained as `work/fresh-birdy-save-before.bin`, SHA256
+`3834cb866ed8a3d00e2a4ff0f8b4a6c3ce05b53291f96d75283fc4ec8651a41e`.
+
+**Pass, bounded fresh route:** sustained movement used
+`scripts/simulator-input.py` with runtime opt-in, not held finger acceptance.
+Following the waterside perimeter to the rear torch entered the tilled corridor;
+approaching Birdy triggered the introduction. Moving onto the inner B pad
+triggered his context-sensitive lesson. Ordinary on-screen B produced the beer
+interaction; Birdy subsequently leaned asleep against his sign. Walking past
+Birdy through the fence gap reached the outer B pad. Centering and ordinary
+on-screen B started the cure animation; after it, Conker stood upright. Viewed
+captures: `work/evidence/fresh-birdy-{dialogue,lesson,beer,cured}.png`.
+This closes the earlier navigation uncertainty; no game patch was needed.
+
+**Partial, cold reload:** pre-termination EEPROM was 2048 bytes, SHA256
+`b8bcc9d8e7857b2b368c79330f7da989bf4f8fb578af93770c72dbc314573c5b`,
+retained privately as `work/fresh-birdy-cured-save.bin`. Terminated the app and
+consumed console session 20769 (exit zero). Installed the preserved ordinary
+`6262093` build in place; verified executable SHA256
+`b6cc43ee9ab0088d85fb2def757e227382fba29995e4c828b10fbab5f30d6f51`.
+Cold launch offered Continue Imported ROM; touch Continue/Start/A showed GAME1
+$0 / 0:46:56 with Birdy preview. Touch A loaded the field entrance. Updated slot
+metadata survived, but this observation did not prove the cured movement state
+persisted. A short touch-A observation did not settle that question. Do not call
+this a distinct progressed checkpoint or a port save bug. Viewed reload capture:
+`work/evidence/fresh-birdy-normal-reload.png`; save after reload SHA256
+`0404f5e4aee175176325da04408d08173dafcca05571455d01433adc7ede2e76`.
+The displayed time includes substantial idle time and is not a speed benchmark.
+
+**Cleanup:** CMake probe OFF; ordinary Release rebuild terminal exit zero,
+`work/fresh-birdy-normal-{configure,build}.log`. Preserved ordinary executable
+installed and verified. Fresh app terminated and Simulator shut down; other
+profiles unchanged. No push. Audio remains unconfirmed and deferred.
+
+**Next:** replay the now-known lesson/cure route as needed, reach an actual level
+transition, then cold-reload and compare visible progress. Two distinct progressed
+save fixtures, full story, phone chapters and ordinary macOS comparison remain
+open. Chris retains signing identity and eventual physical touch/controller,
+audio-route and sustained-play acceptance.
