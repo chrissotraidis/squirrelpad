@@ -2,6 +2,12 @@
 
 Updated 2026-10-01. Work the lowest unmet goal in [GOAL_LOOP.md](GOAL_LOOP.md). The private ROM, generated game code, builds, logs, saves and gameplay captures stay under ignored `ref/` or `work/`.
 
+**Current continuation:** the preserved iPad 18.5 profile `605FB671…` now has
+a fresh GAME2 tutorial control, created only after viewing NEW GAME. GAME1
+still displays $0 / 0:48:50. GAME2 cold-reloaded its initial field; Birdy's
+lesson/cure and the river crossing remain unqualified in this slot. Use GAME2
+for the next tutorial attempt; preserve both slots and never select ERASE.
+
 | Gate | State | Measured result and remaining test |
 | --- | --- | --- |
 | G0 pinned inputs | Pass for source inputs | `sources.lock.json` pins Conker and its submodules. A fresh ignored checkout replayed every patch and regenerated 127 game files byte-for-byte identical to the existing output from the verified private US ROM. `docs/SOURCE_BOUNDARY.md` inventories the source/licensing boundary; independent tool/renderer builds and package audit remain G8. |
@@ -3555,3 +3561,43 @@ cure in that same session before the crossing. Repeating the current saved
 slot's wall route would not answer the remaining tutorial-state question.
 Ordinary touch gestures/full story/progressed saves remain open. Chris still
 owns signing and eventual physical touch/controllers/audio/long-play checks.
+
+### 2026-10-01 — Requested GitHub sync and fresh GAME2 control
+
+Full objective reread; clean main at `16fb03f`, 9.7 GiB available. At Chris's
+explicit request, fetched origin and pushed the two pending evidence commits;
+remote main verified at `16fb03f`. No game/input/audio source changes or rebuild.
+
+**PASS, initial save/control scope:** preserved iPad 18.5 `605FB671…`, retained
+diagnostic executable `b2c4386…`. Viewed GAME1 $0 / 0:48:50, backed out without
+playing or erasing it, selected GAME2 with a short negative-X controller pulse,
+and visually confirmed NEW GAME. Retained private 2048-byte pre-route EEPROM
+`work/new-game2-save-before.bin`, SHA256
+`9d2094c8037668cd4df58cad1d9bdd8844c02684acd1197191820f6127e10cd4`.
+Ordinary touch A created GAME2; observed advancing opening story and initial
+field. Short controller land commands approached the fence/torch, but did not
+trigger Birdy's lesson, beer or cure. No swimming attempted in this slot.
+
+Cold installed normal executable `3e215625…` in place, viewed retained-ROM
+launcher and GAME1 with unchanged displayed $0 / 0:48:50. Ordinary stick drag
+and D-pad tap did not select GAME2; neither establishes held-touch behavior or
+a mapping defect. Reinstalled the retained diagnostic app in place, cold
+launched, selected GAME2 with a negative-X pulse, and viewed PLAY / $0 /
+0:06:03. Ordinary A loaded its initial field. This establishes initial slot
+creation/reload and preserved GAME1 metadata, not two distinct progressed
+checkpoints or ordinary held-touch acceptance. Post-route EEPROM retained at
+`work/new-game2-save-after.bin`, SHA256
+`02fe97b80609533b1801f7f8a7c467e6cb3d40c9fe039025e2a132a0f6041b65`.
+
+Private logs `work/fresh-slot-inspection.log`, `work/new-game2-reload.log`;
+both console sessions exited zero after termination. Viewed captures under
+`work/evidence/new-game2-{unused,field,torch,game1-retained,reloaded-slot,
+reloaded-field}.png`. Normal app restored again in place, retained-ROM launcher
+viewed, then iPad terminated/shut down. Phone stayed off with normal app.
+No private evidence/assets staged. Publish this evidence under Chris's current
+GitHub-update authorization.
+
+Next: load GAME2, qualify Birdy's lesson and cure in the same session before
+the river; do not repeat GAME1's wall route. Full story, progressed save
+fidelity and ordinary held-touch/menu gestures remain open. Chris retains
+signing and eventual real-device touch feel, controllers, audio and long play.
