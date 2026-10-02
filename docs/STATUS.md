@@ -3131,3 +3131,32 @@ terminated and shut down. Both console sessions exited 0. Saves/ROM were not
 replaced or erased. Full G1/G4/G5/G6 remain open. Audio tuning deferred; Chris
 retains signing and physical touch feel, controllers, audio routes and long play.
 Local evidence commit; the previous requested GitHub synchronization is complete.
+
+### 2026-10-01 — Stationary camera centering comparison
+
+**Pass, narrow camera behavior:** normal iPad 18.5 `605FB671…`, executable
+`f6b8419e…`, launched without probe environment. Retained ROM and GAME1
+$0 / 0:48:50 loaded the first field. Ordinary touch C Down centered the
+camera behind Conker. Viewed `work/evidence/camera-pad-before.jpg` and
+`camera-pad-cdown.jpg`. Early Start/L/A attempts during intro did not visibly
+activate the slot; after opening and closing Settings, A exposed PLAY and
+another A loaded the field. This does not establish the reason for the early
+missed actions. No container/save replacement, source change or audio tuning.
+
+**Diagnostic control:** isolated macOS profile `work/macos-camera-20261001`
+used a copy of the same primary EEPROM fixture (`65b0fbe2…`), preserving the
+original. Cached private macOS executable `4e6b0df1…`: mask 4 with neutral
+axes for one second visibly centered the camera; mask 4 with x=1/y=0 for
+0.6 seconds ended with Conker in profile near the river bank. Viewed
+`camera-mac-cdown.jpg` and `camera-mac-held-cdown.jpg`; log
+`work/macos-camera-20261001.log`. Native Settings Quit confirmation exited
+console session 92039 with code 0. This cached diagnostic is not exact-build
+ordinary-input or identical-trajectory fidelity acceptance.
+
+No iOS-only camera defect was demonstrated. Next: qualify sustained ordinary
+movement and simultaneous input before another river crossing attempt. Story
+progress, progressed checkpoint reload and full G4/G5/G6 remain open. Normal
+iPad app terminated and Simulator shut down; both classes retain normal builds.
+Chris retains signing, physical touch feel, controller hardware, audio routes
+and long play. Latest human request authorizes updating existing GitHub main;
+sync these text evidence records only, leaving private assets ignored.
