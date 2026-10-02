@@ -2,11 +2,12 @@
 
 Updated 2026-10-02. Work the lowest unmet goal in [GOAL_LOOP.md](GOAL_LOOP.md). The private ROM, generated game code, builds, logs, saves and gameplay captures stay under ignored `ref/` or `work/`.
 
-**Current continuation:** the preserved iPad 18.5 profile `605FB671…` now has
-a fresh GAME2 tutorial control, created only after viewing NEW GAME. GAME1
-still displays $0 / 0:48:50. GAME2 cold-reloaded its initial field; Birdy's
-lesson/cure and the river crossing remain unqualified in this slot. Use GAME2
-for the next tutorial attempt; preserve both slots and never select ERASE.
+**Current continuation:** preserved iPad 18.5 `605FB671…` GAME2 completed
+Birdy's lesson, beer and cure in-session, then saved through the game's Quit
+flow. Cold reload retained PLAY / $0 / 0:57:01 and upright Conker with sleeping
+Birdy (diagnostic controller build). GAME1 retains $0 / 0:48:50. Continue
+GAME2 toward the river and the next actual checkpoint; preserve both slots
+and never select ERASE. Normal build is restored; both Simulators are off.
 
 | Gate | State | Measured result and remaining test |
 | --- | --- | --- |
@@ -3635,3 +3636,64 @@ C-Down settling after a turn before choosing the next movement direction.
 Avoid repeating the wall-end fence attempt or speculative camera rewiring.
 Progressed save/reload, full story and ordinary held gestures remain open.
 Chris still owns signing and eventual physical touch/controllers/audio/long play.
+
+
+### 2026-10-02 — GAME2 Birdy lesson, cure and cold save reload
+
+**Progress; partial G5/G6.** Main `b5bce31` was clean and synchronized with
+GitHub at the start; 9.3 GiB available, pins unchanged. No source changes or
+rebuild. Preserved iPad iOS 18.5 `605FB671-1720-4C19-A3BE-AE425323D052`,
+diagnostic executable SHA-256
+`b2c4386aa82a16bee11726b3b73efae8f9dc484a3bb83b2f40b2e15f5617ed87`.
+
+**PASS, in-session tutorial scope:** the actual entrance is around the far
+waterside fence end, by the torch near the water cave. Earlier attempts used
+the wrong end. Traversing that gap reached awake Birdy and the inner B pad.
+Initial B attempts at the pad edge did not trigger interaction. A short
+centering movement (`--x 0.6 --y -1 --seconds 2`) triggered the lesson;
+“TING NOISE…” was visibly shown. After the lesson, ordinary on-screen B
+triggered the beer animation; Birdy subsequently slept against the sign.
+Exit past Birdy (`x=-0.4,y=1,2s`, then `x=-0.8,y=0.5,3s`), approach the
+outer pad (`x=0.2,y=1,3s`) and center (`x=-0.6,y=0.4,0.7s`). Ordinary B
+triggered the cure animation and dialogue, followed by upright gameplay.
+These commands are view-dependent route notes, not a deterministic replay.
+This does not support speculative touch/input/game-logic rewiring.
+
+**PASS, one tutorial save/reload scope:** bounded river movement reached
+water but did not establish the far bank or a level transition. Ordinary
+Start opened Pause; controller X=-1 for 0.2s selected Quit, ordinary A opened
+confirmation, a separate X=-1 for 0.2s selected Y, and ordinary A returned
+to GAME2 PLAY with $0 / 0:57:01 and a Birdy thumbnail. Private EEPROM fixture
+`work/game2-birdy-saved.bin` is 2,048 bytes, SHA-256
+`858f2a2769450ab625c01806a5a46c97569fb60ea53708dfdda51a65f762af0c`;
+20 bytes differ from the initial GAME2 fixture `02fe97b8…`.
+
+Cold terminate and in-place normal-build install retained Continue Imported
+ROM, moving intro and GAME1 $0 / 0:48:50. Brief native D-pad and stick-drag
+attempts did not select GAME2; held-touch selection remains unqualified.
+Reinstalled the same diagnostic build in place and cold-launched with
+`SIMCTL_CHILD_SQUIRRELPAD_SIM_INPUT=1`. From the room selector, separate
+controller X=-1 / 0.2s steps reached GAME2; ordinary A opened PLAY, still
+$0 / 0:57:01, and ordinary A loaded upright Conker in the tutorial with
+Birdy still sleeping. This qualifies that tutorial-state reload in the
+diagnostic build, not normal-build GAME2 navigation or two later checkpoints.
+
+Private logs `work/game2-entrance-control.log`,
+`work/game2-birdy-reload.log`; viewed captures
+`work/evidence/game2-{far-entrance,birdy-awake,birdy-lesson,cured,birdy-cold-reload}.png`.
+Read-only LLDB object snapshots detached normally with no writes; the first
+used an incorrect stride and is unqualified. The corrected 0x32C-stride
+snapshot read successfully but identified no Birdy trigger/flag; no gameplay
+conclusion depends on it.
+
+Normal executable `3e215625…` restored in place again; retained-ROM launcher
+visually verified, iPad terminated/shut down. Phone stayed off with normal
+build. Private ROM, fixtures, screenshots and logs remain ignored.
+
+Next: load saved GAME2 (room selector left from GAME1), preserve the now
+qualified cured state, cross toward the grassy far-bank route and reach the
+next actual checkpoint. Do not repeat fence discovery or retune audio from
+these observations. Full story, second distinct progressed save, phone
+chapters and ordinary held/simultaneous gestures remain open. Chris still
+owns signing and eventual physical touch feel, controllers, audio routes
+and sustained real-device play.
