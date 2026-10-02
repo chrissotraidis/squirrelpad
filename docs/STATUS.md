@@ -5,8 +5,9 @@ Updated 2026-10-02. Work the lowest unmet goal in [GOAL_LOOP.md](GOAL_LOOP.md). 
 **Current continuation:** clean replay now builds macOS and both mobile SDKs;
 package audits and real save-writer fault regression pass. The new normal app
 loaded retained GAME1 on iPhone 18.5 and passed bounded pause/menu/Home checks.
-Preserved iPad `605FB671…` hit a Simulator install/boot stall; its saves remain
-untouched. Fresh test iPad `0A04D7B6…` booted and installed the new app. Prior
+Old iPad `605FB671…` still stalls and its app-data directory is now absent.
+The separate verified GAME2 fixture was restored into healthy test iPad
+`0A04D7B6…`, whose prior save directory was backed up. Prior
 GAME2 tutorial/cure evidence remains diagnostic and does not establish full
 story progress. See the latest dated entry and [ACCEPTANCE.md](ACCEPTANCE.md).
 
@@ -4070,3 +4071,40 @@ push. Next substantive open work: qualify ordinary held/multitouch input,
 then progress and cold-reload two distinct checkpoints; iPad lock recovery
 and memory-pressure acceptance remain open. Physical sleep/audio/controller
 acceptance still requires Chris and hardware.
+
+### 2026-10-02 — Recover tutorial fixture into healthy normal iPad
+
+**Progress, recovery preparation:** previous turn added verified iPhone lock
+and cold-reload evidence. Read full objective; `c3bf1d5` clean, 51 GiB free.
+Retry of old iPad `605FB671…` remained at Waiting on BackBoard; sampled process
+45569 again waited for user preferences during BKHID initialization. Cancelled
+owned pending get_app_container client 45626 and shut down the destination;
+bootstatus ended on shutdown, not successful boot. Private sample:
+`work/preserved-pad-retry-backboard.txt`.
+
+**Correction to prior preserved-data assumption:** the old destination's
+`data/Containers/Data/Application` directory is now absent. Its historical
+app path cannot supply saves. No erase, reset or deletion was performed in
+this recovery; the cause is not established. The independent private fixture
+`work/game2-birdy-saved.bin` remains 2,048 bytes with recorded SHA-256
+`858f2a2769450ab625c01806a5a46c97569fb60ea53708dfdda51a65f762af0c`.
+Recomputed populated record 1/2/3 checksums using the previously inspected
+loader rule: 0x0bca / 0x0a6a / 0x0bb2, all equal stored checksums.
+
+Healthy iPad `0A04D7B6…` booted in 11 seconds. With app stopped, backed up
+its existing saves under `work/game2-normal-recovery-backup/saves`, then
+copied the intact fixture as its live EEPROM without altering its bytes.
+Installed executable hash independently confirmed `dd3771a…` (full identity
+in ACCEPTANCE), normal probe-free build. Ordinary Continue/Start/A showed
+restored GAME1 PLAY / $0 / 0:48:50; viewed capture:
+`work/evidence/game2-normal-recovery-game1-metadata.png`. B returned to room
+selection. This confirms fixture recognition, not GAME2 gameplay restoration.
+
+**Blocked by input for ordinary GAME2 selection:** one ordinary stick-left
+coordinate tap did not move the selector, consistent with prior unqualified
+brief-input evidence. No speculative input rewrite or repeated diagnostic
+route. Asked Chris for a brief held left-stick drag in this prepared Simulator,
+leaving it at GAME2; the available UI API has no timed hold. Healthy iPad left
+open at the room selector, PID 46030; all other Simulators off. Next verify
+GAME2 0:57:01 and cured tutorial in the normal build after held-input selection,
+then continue toward a distinct checkpoint. No source change or push.

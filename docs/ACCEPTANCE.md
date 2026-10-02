@@ -84,3 +84,10 @@ pause/resume. Cold relaunch loaded GAME1 and the first field again. Queue
 stop/start was logged; audible recovery and exact clock freeze were not
 measured. Memory-warning injection was not run. The iPad equivalent remains
 open; see the dated lock-recovery entry in STATUS.md.
+
+Recovery update: old iPad `605FB671…` no longer has its app-data directory.
+The independently preserved, checksum-valid GAME2 fixture was copied intact
+into healthy iPad `0A04D7B6…` after backing up that destination's saves.
+Normal build recognizes restored GAME1 metadata. GAME2 selection/reload is
+pending a manual held-stick gesture; the Simulator is prepared at the room
+selector. This is fixture restoration, not an in-place update acceptance.
