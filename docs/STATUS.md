@@ -1,6 +1,6 @@
 # SquirrelPad evidence ledger
 
-Updated 2026-10-01. Work the lowest unmet goal in [GOAL_LOOP.md](GOAL_LOOP.md). The private ROM, generated game code, builds, logs, saves and gameplay captures stay under ignored `ref/` or `work/`.
+Updated 2026-10-02. Work the lowest unmet goal in [GOAL_LOOP.md](GOAL_LOOP.md). The private ROM, generated game code, builds, logs, saves and gameplay captures stay under ignored `ref/` or `work/`.
 
 **Current continuation:** the preserved iPad 18.5 profile `605FB671…` now has
 a fresh GAME2 tutorial control, created only after viewing NEW GAME. GAME1
@@ -3601,3 +3601,37 @@ Next: load GAME2, qualify Birdy's lesson and cure in the same session before
 the river; do not repeat GAME1's wall route. Full story, progressed save
 fidelity and ordinary held-touch/menu gestures remain open. Chris retains
 signing and eventual real-device touch feel, controllers, audio and long play.
+
+
+### 2026-10-02 — GitHub parity and native C-Down delivery check
+
+Reread full objective; main `abb4839` clean and fetched origin/main identical
+(0 ahead / 0 behind); 9.3 GiB available. No source change or rebuild.
+Preserved iPad 18.5 `605FB671…`, diagnostic executable `b2c4386…`, GAME2.
+Short land commands traversed the starting fence and waterside perimeter;
+Birdy introduction/lesson/beer/cure did not trigger. No river crossing,
+new checkpoint, ordinary held-touch or full-story acceptance claim.
+
+**PASS, native controller delivery/release scope:** held camera-Y -1 with
+neutral movement; read-only LLDB memory snapshot of the exact executable's
+native `controller_buttons` atomic returned 4 (`0x0004`, C-Down), movement
+axes [0,0], read_error success. After expiry a second snapshot returned mask
+0 and axes [0,0], read_error success. Both attaches detached normally;
+no inferior expressions, game-memory writes or game-logic modifications.
+An initial unqualified symbol-name lookup failed and detached; the successful
+reads located the atomic using symbol-table offsets relative to crash_rdram.
+This establishes host input delivery and release, not game-side camera rules.
+Stationary held C-Down visibly settled behind Conker after the sideways turn.
+It does not support an input-mapping patch for the current navigation issue.
+
+Private logs `work/game2-birdy-route.log`,
+`work/game2-camera-{held,released}-mask.log`; viewed endpoint captured at
+`work/evidence/game2-camera-route-stop.png`. Normal executable `3e215625…`
+restored in place; retained-ROM launcher visually confirmed. iPad terminated
+and shut down; phone stayed off. Private assets/evidence remain ignored.
+
+Next: use the opposite fence entrance to qualify Birdy in GAME2, with neutral
+C-Down settling after a turn before choosing the next movement direction.
+Avoid repeating the wall-end fence attempt or speculative camera rewiring.
+Progressed save/reload, full story and ordinary held gestures remain open.
+Chris still owns signing and eventual physical touch/controllers/audio/long play.
