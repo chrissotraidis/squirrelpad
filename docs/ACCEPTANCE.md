@@ -77,3 +77,10 @@ Fresh iPad 18.5 `0A04D7B6…` imported the verified ROM through Files, rendered
 the intro, retained Continue Imported ROM across cold launch, and restored
 controls after closing Settings. No fresh-iPad first-field claim. Both test
 Simulators were shut down after this batch.
+
+On the same clean-replay iPhone build, Simulator Device → Lock followed by
+Home/unlock restored the same process, landscape controls and Start/A
+pause/resume. Cold relaunch loaded GAME1 and the first field again. Queue
+stop/start was logged; audible recovery and exact clock freeze were not
+measured. Memory-warning injection was not run. The iPad equivalent remains
+open; see the dated lock-recovery entry in STATUS.md.

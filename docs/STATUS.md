@@ -4035,3 +4035,38 @@ Close restored all touch controls. Viewed captures:
 retention and menu smoke coverage, not first-field or checkpoint acceptance.
 Terminated the app and shut down the fresh iPad after the checks. All tested
 Simulators are off; existing data and private fixtures are preserved.
+
+### 2026-10-02 — Normal iPhone lock recovery and cold reload
+
+**Pass, bounded Simulator lifecycle case:** read the full objective; previous
+turn classified as progress (independent builds and runtime evidence). At
+`62876f9`, tree clean, 45 GiB available; all seven checkout pins reverified.
+Installed iPhone 18.5 `AE64D60E…` executable hash matches clean replay
+`dd3771acd99d8a79e1c7e31733966cdfbd74053b1e24c34e049aa33ab973b936`.
+Ordinary Continue/Start/A loaded GAME1 ($0, 0:06:03) into the first field.
+Simulator Device → Lock reached the visible system lock screen. Home woke
+and unlocked it; after the transition the same process (42920) restored
+landscape gameplay and all touch controls. Start paused and A resumed.
+The lifecycle log records Audio Queue stop at 10:10:40 and start at 10:11:52;
+this is queue recovery evidence, not audible quality or exact game-clock proof.
+
+A cold terminate/launch (new PID 45084) retained the imported ROM and GAME1
+PLAY / $0 / 0:06:03, then loaded the first field again. Viewed captures:
+`work/evidence/phone-lock-recovery-{pause,resumed}.png` and
+`work/evidence/phone-lock-cold-reload-field.png`. Private build identity,
+EEPROM snapshots and unified lifecycle log are in `work/memory-warning-phone/`
+(the directory retains the initial proposed test name). EEPROM remained
+2,048 bytes; before SHA-256
+`9fdfbd211fb107dea50a14a0ea467285d26d05366ca1df81e4a3bba48afa9f0a`, after
+`baba9d36f826284ed116e2e7f53f578479910874d75271e15cc8f70125488645`.
+Only offsets 417 (34→42) and 422 (8→10) changed; their meaning is not inferred.
+Successful reload establishes this slot remains loadable, not distinct
+progressed-save fidelity. App terminated and phone shut down after testing.
+
+**Not run:** memory-warning injection. The inspected Device and Features
+menus exposed no such command; no memory warning was delivered, and the lock
+check does not substitute for it. No production edit, new audio diagnosis or
+push. Next substantive open work: qualify ordinary held/multitouch input,
+then progress and cold-reload two distinct checkpoints; iPad lock recovery
+and memory-pressure acceptance remain open. Physical sleep/audio/controller
+acceptance still requires Chris and hardware.
