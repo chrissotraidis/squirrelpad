@@ -3332,3 +3332,47 @@ with separate observed heading/camera adjustments; avoid repeated speculative
 cure/save changes. Full story, progressed saves, ordinary touch/menu swipes
 and hardware acceptance remain open. Chris still owns signing and physical
 touch feel, controllers, audio routes and sustained device play.
+
+### 2026-10-01 — Requested GitHub sync and cold-relaunch settings checks
+
+Chris requested another GitHub update, authorizing publication of the pending
+`6942c65` diagnostic change and this evidence entry. Fetched origin; no incoming
+commits or tracked edits. No production game/input/audio source change this cycle.
+
+The preceding diagnostic river route reached surface swimming by a wall, with
+no island/checkpoint proof. Combining A and movement from PAUSED opened Quit
+confirmation: that resume shortcut failed and must not be treated as qualified.
+Ordinary A canceled the selected No; D-pad Right did not establish Continue
+selection. Terminated the diagnostic process and restored the normal app in
+place, preserving ROM/save data. The existing instruction to use pause-after
+only from visually confirmed unpaused gameplay remains applicable.
+
+**PASS:** actual EEPROM writer fault harness rerun:
+`python3 scripts/verify-save-write.py work/source-final-replay/tools/N64ModernRuntime`.
+Short first/replacement writes preserved live/backup; normal retry succeeded.
+
+**PASS, bounded settings check:** normal Simulator executable SHA-256
+`3e215625cafd772fbca0cca0c073337f34ede0104ce0059815c22a8f4b73e31c`.
+iPad iOS 18.5 `605FB671…`: retained ROM launcher, Continue Imported ROM,
+three-dot Controls menu, ordinary Transparent Controls toggle from off to on,
+terminate/cold launch, reopen menu: value remained on, visually inspected.
+Restored off. Shut down iPad before booting iPhone iOS 18.5 `AE64D60E…`.
+iPhone repeated the toggle/cold-relaunch check: accessibility value remained on;
+post-relaunch screenshot showed the upper Controls pane with toggle below the
+viewport. Restored off through ordinary toggle and verified value zero.
+Viewed private captures and observations indexed by
+`work/evidence/oct01-update-{pad,phone}-setting-{before,after}.png`.
+Both normal apps terminated/shut down; no uninstall/container reset.
+
+**NOT QUALIFIED:** iPad Control Size accessibility setValue changed the native
+slider thumb/value transiently, but app percentage stayed 100%; the next state
+refresh restored the original slider value. Ordinary pointer tap did not
+establish an app value change. This does not pass slider persistence or prove
+a production slider defect. Do not replace SwiftUI gestures on this evidence.
+
+Next exact acceptance action: in the normal app, change Control Size with a
+real held pointer drag, confirm its percentage changes, then cold relaunch and
+compare that percentage on both classes. Ordinary held-stick/release and
+simultaneous stick/button, compact menu scrolling, progressed saves and full
+story remain open. Physical touch feel/controllers/audio routes/long play and
+signing remain Chris's follow-up. No audio tuning or private assets published.
