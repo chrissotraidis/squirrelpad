@@ -3472,3 +3472,47 @@ advance a measured gameplay route and cold-reload an actual new checkpoint.
 Full story acceptance remains open. Chris still owns signing and eventual
 physical touch feel, controllers, audio routes and sustained-device play.
 Publish this evidence and the two pending import evidence commits to origin/main.
+
+### 2026-10-01 — Uninterrupted swimming and live displacement control
+
+Previous turn made progress: GitHub synchronized at `c67c1c1` and bounded menu
+checks recorded. Full objective reread; clean main, 11 GiB free. No source/game
+logic/audio change, rebuild or save replacement this cycle.
+
+**FAIL, route only:** preserved iPad 18.5 `605FB671…`, diagnostic executable
+`b2c4386…`. GAME1 retained $0 / 0:48:50. An observed river/island heading followed
+by stick (0.2,1) for eight seconds, without A or a mid-water pause, ended beside
+the river wall. A later centered view followed by pure positive Y for six
+seconds also returned beside the wall. Neither reached the island lesson or
+checkpoint. This rules out mid-water pause/resume as the sole explanation; it
+does not establish an input, cure or save defect. Held C-Down (right-stick Y -1,
+0.5 seconds) did not visibly recenter that swimming view; held side-camera
+commands changed the view. Private log `work/uninterrupted-river-route.log` and
+viewed `work/evidence/uninterrupted-river-wall.png` plus live UI observations.
+
+**PASS, diagnostic displacement scope:** read-only LLDB snapshots, no expression
+execution or game-memory writes. Resolved the host's `crash_rdram` pointer;
+read gObjects slot zero at RDRAM + 0xCC2D0, xyz floats at +0x14/+0x18/+0x1C.
+Offsets match pinned datasyms and struct127 in the private source checkout.
+With Settings freezing gameplay, position was
+(2721.351074, -127.640625, 1201.913940). Closed Settings, sent pure negative Y
+for 0.5 seconds, viewed swimming response, reopened Settings: position was
+(2691.574707, -120.665382, 1148.980103). This measures displacement across that
+interval, including neutral time before reopening Settings, not pure stick
+velocity. Both snapshots had zero final xz velocity. Sending positive Y while
+Settings remained open left the next position/velocity snapshot identical.
+The three successful-read snapshots and assertions are private under
+`work/river-displacement-{before,after,menu-held}.log`. Debugger attachment itself
+pauses the process; the held-menu result is bounded and is not game-time or
+ordinary touch acceptance. Input release was logged after detach.
+
+Restored normal executable `3e215625…` in place, visually confirmed retained-ROM
+launcher, terminated and shut down iPad. Phone stayed off with the normal app.
+No new checkpoint/full-story result. Local evidence commit only.
+
+Next: use live displacement snapshots to calibrate short pure X/Y movement on
+land with a fixed observed camera, then navigate toward the island; do not
+repeat long diagonal/wall trials or infer lost cure state from them. Ordinary
+held touch/slider/menu scrolling still awaits a qualifying Simulator gesture.
+Chris's signing and eventual physical touch/controllers/audio/long-play gates
+remain open; the full goal remains active.
