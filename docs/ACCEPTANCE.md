@@ -55,4 +55,8 @@ matrix. Deployment target 17.0 is a build setting, not verified 17.0 execution.
 Chris's immediate input is the brief manual **Simulator** hold/release
 observation, because the available UI API exposes neither a timed hold nor
 simultaneous touches. Signing and physical-device rows remain separate.
-Audio tuning stays deferred until a specific audible reproduction exists.
+A compact Settings drag also failed in Apple’s native Settings control on
+2026-10-02, while the native accessibility scroll action worked. Treat the
+automated drag as unqualified; verify ordinary scrolling before changing
+SquirrelPad’s gesture path. Audio tuning stays deferred until a specific audible
+reproduction exists.

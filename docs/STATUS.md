@@ -3859,3 +3859,34 @@ current-build secondary-runtime coverage and physical/signing gates open.
 Simulator remains prepared in first-field gameplay for that observation; phone
 remains off. Next actions are in ACCEPTANCE.md. No source/input/save/audio
 changes and no publication; package audit is not a substitute for gameplay.
+
+### 2026-10-02 — Compact scroll failure qualified against native Settings
+
+Previous turn was a status restatement: **no progress**. Read the complete
+objective, clean `d63966b`, unchanged pins and 7.8 GiB available. No source
+change or rebuild. Only the phone 18.5 Simulator was booted during the control.
+Installed normal executable verified as `3e215625…`.
+
+**Evidence changes the next action:** the compact Controls pane did not move
+after CUA `drag([1050,653],[1050,355])`; the lower Control Size row remained
+clipped. The same API in Apple's Settings app also failed to move the list
+with `drag([500,1250],[500,700])`. Both visually inspected screenshots showed
+the pointer at the drag start. Apple's exposed accessibility `Scroll Down`
+action did move its list, revealing Apps and Developer; `Scroll Up` returned
+it toward the top. This is evidence of an automation-path limitation, not
+proof that SquirrelPad's ScrollView is broken. SquirrelPad's current tree
+does not expose an equivalent scroll action. Do not rewire gestures from this
+failed drag alone. Ordinary compact scrolling remains **Not verified**.
+
+Private captures: `work/evidence/native-settings-drag-control-20261002.png`
+and `work/evidence/compact-controls-drag-control-20261002.png`; live UI
+screenshots also inspected for the successful native accessibility control.
+No settings, controller mappings, ROM or save fixtures changed by this check.
+
+Terminated the phone app and shut down the phone before booting the preserved
+iPad. Launched normal iPad process 13335, verified installed `3e215625…`, and
+used ordinary Start/A to restore GAME1 first-field gameplay. Visually verified
+the field and left it running for the pending ordinary held-input observation. The next useful input check is a manual Simulator stick hold and
+release plus an ordinary swipe through compact Settings; diagnostic movement
+and accessibility actions do not substitute for those gestures. Full-story,
+progressed saves, audible quality and device/signing gates remain open.
