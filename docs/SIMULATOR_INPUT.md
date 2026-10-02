@@ -52,15 +52,21 @@ python3 scripts/simulator-input.py <UDID> --camera-x 0.8 --seconds 0.5
 python3 scripts/simulator-input.py <UDID> --y 0.75 --button A --seconds 0.3
 python3 scripts/simulator-input.py <UDID> --button LT --seconds 1
 python3 scripts/simulator-input.py <UDID> --button LT --button A --seconds 0.3
+python3 scripts/simulator-input.py <UDID> --y 0.75 --seconds 1 --pause-after
 ```
 
 Axes are -1...1; buttons are physical gamepad A/B/X/Y, LB/RB and LT/RT and respect saved controller mappings. By default LT/RT map to N64 Z, LB to L and RB to R. Repeat `--button` to combine inputs. Duration is 0.05...10 seconds. A new command replaces all axes/buttons, and timeout releases them. Commands are written atomically into the app's Documents directory; expired files are ignored after relaunch. Logs identify connection, command and release. Use screenshots/video to verify actual movement, not just command logs. Settings/background still disable controller input through the ordinary activity path.
 
-For navigation, capture immediately after each short command, then use ordinary
-touch Start and visually confirm the in-game PAUSED screen before inspecting
-the capture. Resume through the game's Continue selection before the next
-command. The game otherwise runs during inspection, so a screenshot can become
-a stale starting position. Pause preserves the location; animation may continue.
+For navigation from **unpaused gameplay**, `--pause-after` neutralizes the
+virtual controller at expiry and sends a 200 ms pulse through the existing N64
+Start touch bridge. Visually confirm the in-game PAUSED screen before inspecting
+the route, then resume through Continue before another command. Do not use this
+option from the launcher, a cutscene or an already paused game: Start may have
+a different effect there. This diagnostic action is separate from virtual
+controller readback and does not qualify ordinary touch or controller acceptance.
+Without this option, use ordinary touch Start and confirm PAUSED after the short
+command. The game otherwise runs during inspection, so the captured location
+can become stale. Pause preserves the location; animation may continue.
 Refresh Simulator accessibility indices after UI changes. A command/release log
 proves delivery only, and a failed route does not establish an input or save bug.
 The `sampled` line reads back axes and individually pressed buttons from the

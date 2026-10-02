@@ -2,6 +2,9 @@
 import Foundation
 import GameController
 
+@_silgen_name("squirrelpad_touch_button")
+private func setProbeTouchButton(_ mask: UInt16, _ pressed: Int32)
+
 @MainActor
 final class SimulatorInputProbe {
     static let shared = SimulatorInputProbe()
@@ -11,6 +14,8 @@ final class SimulatorInputProbe {
     private var sequence: Int64 = 0
     private var releaseAt: TimeInterval = 0
     private var samplePending = false
+    private var pauseOnRelease = false
+    private var startReleaseAt: TimeInterval = 0
     private let file = URL.documentsDirectory.appendingPathComponent("squirrelpad-sim-input.json")
     private let buttonElements = ["A": GCInputButtonA, "B": GCInputButtonB,
                                   "X": GCInputButtonX, "Y": GCInputButtonY,
@@ -26,6 +31,7 @@ final class SimulatorInputProbe {
         var buttons: [String] = []
         var seconds: Double
         var expiresAt: Double
+        var pauseAfter: Bool?
     }
 
     func start(onConnect: @escaping @MainActor () -> Void) {
@@ -47,6 +53,10 @@ final class SimulatorInputProbe {
 
     private func poll() {
         guard controller != nil else { return }
+        if startReleaseAt != 0 && ProcessInfo.processInfo.systemUptime >= startReleaseAt {
+            setProbeTouchButton(0x1000, 0)
+            startReleaseAt = 0
+        }
         if samplePending, let pad = controller?.extendedGamepad {
             let pressed = GamepadButton.allCases
                 .filter { $0 != .unbound && $0 != .bothTriggers && $0.isPressed(on: pad) }
@@ -71,6 +81,7 @@ final class SimulatorInputProbe {
             virtual?.setValue(command.buttons.contains(name) ? 1 : 0, forButtonElement: element)
         }
         releaseAt = ProcessInfo.processInfo.systemUptime + min(remaining, 10)
+        pauseOnRelease = command.pauseAfter ?? false
         samplePending = true
         NSLog("[sim input] seq=%lld stick=%.2f,%.2f camera=%.2f,%.2f buttons=%@ duration=%.2f",
               sequence, command.x, command.y, command.cameraX, command.cameraY,
@@ -84,5 +95,13 @@ final class SimulatorInputProbe {
         releaseAt = 0
         samplePending = true
         NSLog("[sim input] released seq=%lld", sequence)
+        if pauseOnRelease {
+            pauseOnRelease = false
+            // Gameplay-only diagnostic: neutralize the controller first, then
+            // pulse the existing Start input so inspection does not add drift.
+            setProbeTouchButton(0x1000, 1)
+            startReleaseAt = ProcessInfo.processInfo.systemUptime + 0.2
+            NSLog("[sim input] Start pulse after expiry seq=%lld", sequence)
+        }
     }
 }

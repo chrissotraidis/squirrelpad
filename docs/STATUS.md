@@ -3284,3 +3284,51 @@ Next: directly qualify the cure interaction in the same gameplay session
 before another river attempt, and establish ordinary held-stick/release and
 compact Settings scrolling. Full story, distinct progressed checkpoint saves,
 physical touch/controllers/audio routes and long play remain open.
+
+### 2026-10-01 — Bounded Simulator input with pause at expiry
+
+Previous turn made progress by publishing the save fix and normal-build menu
+checks. Full objective reread; clean `ec10b7f` before this change. Revalidated
+the scrolling boundary against source and earlier lower-row/slider checks:
+there is no established ScrollView defect warranting a gesture replacement.
+
+Another preserved GAME1 route reached the outer B pad, where ordinary B did
+not replay the cure animation, then returned to the river-edge wall without
+a checkpoint. This repeats earlier observations and establishes no cure/save
+defect or story progress. Log `work/cure-qualified-route-pad.log`, console
+exited 0. Inspection still required a later Start action after command expiry.
+
+**Change:** optional `--pause-after` in `scripts/simulator-input.py` and the
+Simulator-only probe. At expiry the probe neutralizes its virtual controller,
+then pulses the existing Start touch bridge for 200 ms. This removes the
+later inspection action from movement duration. It is explicitly for unpaused
+gameplay; it must not be used in the launcher, cutscenes or a paused game.
+Default commands retain their previous behavior. No game, production input,
+menu or audio implementation changed. Instructions in `docs/SIMULATOR_INPUT.md`.
+
+**Pass, diagnostic scope:** Xcode Release Simulator build exited 0,
+`work/probe-expiry-pause-build.log`; executable SHA-256
+`b2c4386aa82a16bee11726b3b73efae8f9dc484a3bb83b2f40b2e15f5617ed87`.
+On iPad 18.5 `605FB671…`, a neutral 0.5-second command with the option visibly
+entered PAUSED. Ordinary A resumed gameplay. A default neutral command did
+not pause. A `(0.65, 0.7)` 0.65-second command moved Conker and automatically
+entered PAUSED. Log timestamps show release and Start pulse together, followed
+by neutral virtual-controller readback. Viewed private captures
+`expiry-neutral-paused.png`, `expiry-default-unpaused.png` and
+`expiry-movement-paused.png` under `work/evidence/`; runtime log
+`work/probe-expiry-pause-pad.log`, console exited 0. This verifies the diagnostic
+pause boundary, not ordinary held-touch acceptance or full input fidelity.
+
+Normal Simulator/device bundles remain unchanged, probe OFF. Both audits
+passed again (30 files, 24 notices), reports
+`work/probe-expiry-{normal,device}-audit.json`. Normal Simulator SHA remains
+`3e215625…`, device `0ddc68be…`. Restored the normal iPad app in place,
+launched without probe environment and visually confirmed retained ROM
+launcher; terminated/shut down. Phone retains its normal app, shut down.
+No save/container reset or private files committed. Local commit only.
+
+Next: use the verified expiry-pause boundary for a measured river route,
+with separate observed heading/camera adjustments; avoid repeated speculative
+cure/save changes. Full story, progressed saves, ordinary touch/menu swipes
+and hardware acceptance remain open. Chris still owns signing and physical
+touch feel, controllers, audio routes and sustained device play.
