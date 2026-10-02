@@ -10,6 +10,8 @@ Simulator classes have reached the first playable field. Full iPad story play,
 representative iPhone chapters, meaningful in-level save fidelity, macOS ordinary
 play/save comparison and physical-device acceptance remain open. See
 [the evidence ledger](docs/STATUS.md) and [the full goal loop](docs/GOAL_LOOP.md).
+The [acceptance matrix](docs/ACCEPTANCE.md) summarizes current artifacts and
+what each open gate still requires.
 Audio quality is unverified; routine audio experiments are currently deferred.
 
 ## Requirements

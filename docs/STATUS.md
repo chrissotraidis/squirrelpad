@@ -3832,3 +3832,30 @@ gates. Next qualify a two-second ordinary stick hold and release in this
 prepared normal Simulator. A failure needs a timed capture before any
 input change. Automated drag and diagnostic controller evidence cannot
 close that ordinary-touch gate. Keep the full goal active.
+
+### 2026-10-02 — Current artifact audit and acceptance handoff
+
+Previous turn made no gameplay progress. Revalidated clean `f2bf211`, unchanged
+pins, 7.8 GiB available, and live normal iPad process 11120 at its installed
+bundle path; the requested manual hold check has no response yet. No runtime
+change, rebuild, new audio experiment or repeated river attempt.
+
+**PASS, current scoped package audit:** ran `scripts/audit-app.py` separately
+against normal final Simulator and unsigned device bundles with source context
+`work/source-final-replay`. Both commands exited 0: ARM64, correct SDK, 30 files,
+24 matching notices, no audit failures. Reports:
+`work/package-audit-20261002-{simulator,device}.json`. Exact executables remain
+`3e215625…` and `0ddc68be…`. Checked report contents as well as command output.
+
+**Completed handoff artifact:** `docs/ACCEPTANCE.md` now gives the current
+artifact identities and all G0–G8 evidence/remaining requirements, linked from
+README. Corrected SOURCE_BOUNDARY's stale source path and older executable
+hashes. Prior independent replay is dated evidence, not a claim that the latest
+incremental state already has final clean-build/signing/full-story acceptance.
+The matrix keeps ordinary touch, distinct progressed saves, later chapters,
+current-build secondary-runtime coverage and physical/signing gates open.
+
+**Not run:** new gameplay/checkpoint proof or manual held input. The normal iPad
+Simulator remains prepared in first-field gameplay for that observation; phone
+remains off. Next actions are in ACCEPTANCE.md. No source/input/save/audio
+changes and no publication; package audit is not a substitute for gameplay.

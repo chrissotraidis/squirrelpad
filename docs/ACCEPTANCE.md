@@ -1,0 +1,58 @@
+# Developer-build acceptance
+
+Updated 2026-10-02. **Incomplete: no full-story playability claim.**
+This matrix preserves the full scope in [GOAL_LOOP.md](GOAL_LOOP.md).
+The detailed dated record is [STATUS.md](STATUS.md); each passing check covers
+only its stated scope.
+
+## Current artifacts
+
+| Artifact | Executable SHA-256 | Scope |
+| --- | --- | --- |
+| Normal ARM64 Simulator app | `3e215625cafd772fbca0cca0c073337f34ede0104ce0059815c22a8f4b73e31c` | Probe excluded; current preserved iPad/iPhone 18.5 installations |
+| Unsigned ARM64 device app | `0ddc68be67679731ed766459e754e026913ae9c564a696e036756191783034d1` | Build and package checks; no signed install |
+| Diagnostic Simulator app | `b2c4386aa82a16bee11726b3b73efae8f9dc484a3bb83b2f40b2e15f5617ed87` | Opt-in controller investigation; not ordinary-touch acceptance |
+
+Current normal bundles passed `scripts/audit-app.py` on 2026-10-02 against
+`work/source-final-replay`: each has 30 files and 24 matching notices, correct
+ARM64/SDK identity and no flagged private names/content, symlinks or excluded
+runtime/probe symbols. Reports remain private under
+`work/package-audit-20261002-{simulator,device}.json`.
+The audit has limited content/signature checks; ROM-derived executable code
+remains. See [SOURCE_BOUNDARY.md](SOURCE_BOUNDARY.md).
+
+## Goal matrix
+
+| Gate | Recorded evidence | Remaining acceptance |
+| --- | --- | --- |
+| G0 inputs | Pinned inputs, private ROM validation, tracked patches and independent source replay | Preserve those boundaries for every subsequent build/package |
+| G1 macOS control | Native ARM64 build, intro, keyboard selection into first field; matched field audio comparison recorded | Sustained ordinary movement, music/SFX/voice qualification and meaningful save/cold reload |
+| G2 mobile link | Both SDKs build the real core/audio/Metal renderer; current bundle audits pass | Reopen if a later source change breaks this closure |
+| G3 Simulator integration | Both classes reached moving intro/first field; current build rejects invalid/wrong ROM without changing stored ROM/EEPROM | Complete same-build fresh-import and scene-fidelity matrix; retained-ROM launch is not fresh import |
+| G4 sound/input | Ordinary Start/A pause/resume and menu return; diagnostic controller movement/camera/interaction/jump | Ordinary sustained/simultaneous touch and release; controller attach/remove on both classes; audible categories/quality; remaining compact-menu scrolling/reference behavior |
+| G5 persistence/lifecycle | Changed settings and background clock/audio recovery recorded; current short-write fix and first-field cold reload on both classes; diagnostic GAME2 tutorial payload restored | Two distinct progressed checkpoints/reloads on both classes; remaining interruption/memory-pressure cases; earlier-build evidence needs qualification for the final build |
+| G6 gameplay | Diagnostic Birdy lesson/cure and tutorial reload; isolated jump shown by video | Full iPad story through ending, representative iPhone chapters, checkpoint reloads and demanding-scene timing/fidelity |
+| G7 hardware | No physical-device acceptance | Blocked by input: iPad/iPhone and signing; eventual touch feel, controllers, audio routes, sleep/interruption and sustained play |
+| G8 handoff | Independent replay recorded; current audits, notices and setup instructions | Clean replay of final source state, final source/notice review, signed local install, completed final acceptance matrix; public distribution requires separate decision |
+
+iOS 26.5 phone/tablet startup and UI checks were recorded with an earlier normal
+build. They do not complete the current build's startup/input/save/lifecycle
+matrix. Deployment target 17.0 is a build setting, not verified 17.0 execution.
+
+## Next actions and external inputs
+
+1. Qualify ordinary held input in the prepared normal iPad 18.5 Simulator:
+   hold the blue stick off-center for two seconds, release, and observe movement
+   and stopping. Repeat after menu open/close. Capture any failure before editing
+   the input path. CUA's brief drag has not established this check.
+2. Reach the green island/jump tutorial and a later checkpoint, save it, and cold
+   reload it. The bounded river commands recorded on 2026-10-02 returned to the
+   starting bank; they are not a successful route or a demonstrated port defect.
+3. Establish the macOS ordinary gameplay/save control and continue the complete
+   iPad route plus representative iPhone chapters. Do not count diagnostic
+   controller actions as ordinary-touch proof.
+
+Chris's immediate input is the brief manual **Simulator** hold/release
+observation, because the available UI API exposes neither a timed hold nor
+simultaneous touches. Signing and physical-device rows remain separate.
+Audio tuning stays deferred until a specific audible reproduction exists.
