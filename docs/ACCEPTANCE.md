@@ -82,12 +82,16 @@ On the same clean-replay iPhone build, Simulator Device → Lock followed by
 Home/unlock restored the same process, landscape controls and Start/A
 pause/resume. Cold relaunch loaded GAME1 and the first field again. Queue
 stop/start was logged; audible recovery and exact clock freeze were not
-measured. Memory-warning injection was not run. The iPad equivalent remains
-open; see the dated lock-recovery entry in STATUS.md.
+measured. Memory-warning injection was not run. The iPad equivalent also passed on the restored GAME2 tutorial; see the
+dated normal-GAME2/lock-recovery entry in STATUS.md.
 
 Recovery update: old iPad `605FB671…` no longer has its app-data directory.
 The independently preserved, checksum-valid GAME2 fixture was copied intact
 into healthy iPad `0A04D7B6…` after backing up that destination's saves.
-Normal build recognizes restored GAME1 metadata. GAME2 selection/reload is
-pending a manual held-stick gesture; the Simulator is prepared at the room
-selector. This is fixture restoration, not an in-place update acceptance.
+Normal build recognizes restored GAME1 metadata. Chris subsequently performed the held-stick selection successfully; ordinary
+A loaded GAME2 0:57:01 and its upright tutorial state in the normal build. This is fixture restoration, not an in-place update acceptance.
+
+Manual stick selection is now confirmed by Chris and observed at GAME2.
+Sustained movement/release and simultaneous touch throughout gameplay remain
+separate acceptance rows. Normal-build tutorial reload and bounded iPad lock
+recovery passed; two later progressed checkpoints and full-story play remain open.

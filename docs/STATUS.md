@@ -4108,3 +4108,34 @@ leaving it at GAME2; the available UI API has no timed hold. Healthy iPad left
 open at the room selector, PID 46030; all other Simulators off. Next verify
 GAME2 0:57:01 and cured tutorial in the normal build after held-input selection,
 then continue toward a distinct checkpoint. No source change or push.
+
+### 2026-10-02 — Manual selection works; normal GAME2 reload and iPad lock recovery
+
+**Pass, normal-build tutorial reload:** Chris reported the requested held
+stick gesture works. The live Simulator visibly had GAME2 selected. This is
+human-operated ordinary stick-selection evidence; it does not qualify
+simultaneous touch or a full gameplay route. No input-code fix is warranted
+by the prior automation taps. With the same normal `dd3771a…` executable on
+healthy iPad `0A04D7B6…`, ordinary A opened GAME2 PLAY / $0 / 0:57:01 and A
+loaded upright Conker with Birdy asleep in the tutorial. Viewed captures:
+`work/evidence/game2-normal-recovered-{slot,field}.png`.
+This extends the restored fixture's evidence to the normal app; the fixture
+was originally produced with diagnostic controller input. It does not claim
+two progressed checkpoints created by ordinary touch.
+
+**Pass, bounded iPad Simulator lock recovery:** Device → Lock reached the
+system lock screen; Home/wake and Home/unlock returned the same PID 46030 to
+landscape gameplay. Controls returned after the transition. First Start tap
+had no visible effect; a second opened PAUSED, then A resumed. Viewed captures:
+`work/evidence/game2-normal-lock-{pause,resumed}.png`. Unified log
+`work/game2-normal-lock-runtime.log` records Audio Queue stop at 16:48:52.632
+and start at 16:49:55.160. This establishes queue restart and visible/input
+recovery, not audible quality, exact clock freeze or physical sleep behavior.
+
+No production source, game logic or audio change. Previous block's immediate
+GAME2 selection step is resolved. Next substantive gameplay milestone remains
+the far-bank/jump tutorial and a distinct later checkpoint, followed by cold
+reload. Automated sustained/multitouch input remains unavailable; manual
+selection success must not be mistaken for new tool capability. Physical
+controllers/audio/touch and signed install remain Chris's follow-up. Kept
+healthy iPad open with restored GAME2; other Simulators remain off.
