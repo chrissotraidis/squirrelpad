@@ -3697,3 +3697,50 @@ these observations. Full story, second distinct progressed save, phone
 chapters and ordinary held/simultaneous gestures remain open. Chris still
 owns signing and eventual physical touch feel, controllers, audio routes
 and sustained real-device play.
+
+### 2026-10-02 — saved tutorial payload checked against cold-loaded RDRAM
+
+**Progress, diagnostic persistence evidence only.** Previous turn's river
+navigation produced no crossing, checkpoint or confirmed port defect; its
+normal-build restoration was housekeeping. Revalidated clean main `8f458ea`,
+unchanged source pins and 8.1 GiB available. No source change or rebuild.
+
+Read the pinned game's `func_15006590` loader in the private generated
+`work/source-final-replay/RecompiledFuncs/funcs_10.c`: each record starts at
+EEPROM byte `32 + 128*i`; its checksum is the 16-bit sum seeded with 0xCC
+of bytes 2..127 weighted by `1 << (offset & 3)`. After validating the record,
+the loader copies 27 bytes from record offset 7 to `D_800D2E4C`. This is a
+source-derived state boundary, not an interpretation of individual flags.
+
+Both private 2,048-byte fixtures from the preceding entry have valid
+checksums for populated records 1, 2 and 3. Between initial GAME2 and the
+Birdy save, record 2's 27-byte payload changed at offsets 0 and 0x17;
+record 1 changed at offset 0. Thus the difference includes persisted game
+state, rather than only play-time metadata. Record 0 is unqualified; no
+assumption is made about its purpose or the logical slot-to-record mapping.
+
+**PASS, payload restoration scope:** preserved iPad iOS 18.5 `605FB671…`,
+same opt-in diagnostic executable `b2c4386a…`, cold launch followed by
+Continue, Start after the intro, controller X=-1 for 0.2s to GAME2, ordinary
+A to PLAY and A to load. Metadata remained $0 / 0:57:01; upright tutorial
+gameplay was visually inspected. Read-only LLDB attached to PID 6534,
+read the pointer at RDRAM+0xD2E4C, then its 27 logical bytes using N64
+word-swapped byte addressing (`offset ^ 3`), and detached normally. No
+inferior expressions or game-memory writes. The live payload matched both
+populated tutorial fixture payloads byte-for-byte; SHA-256
+`e3bc91a95e1b10e09b4cdfc13ad3f18495d81ad29df9f6c815eccbc5e18944e0`.
+
+Private evidence: `work/game2-payload-reload.log`,
+`work/game2-payload-lldb.log`, and viewed
+`work/evidence/game2-payload-cold-reload.png` (raw Simulator orientation
+remains rotated relative to its landscape window). Restored normal
+executable `3e215625…` in place, visually verified retained-ROM launcher,
+terminated/shut down iPad; phone stayed off. Private data remains ignored.
+
+**Not run:** the individual cure-bit meaning, river crossing and later
+checkpoint. Payload equality is not full save fidelity or full-story proof.
+Next trace the consumers of payload bits at offsets 0 and 0x17, or qualify
+the cure through ordinary interaction before another river attempt. Do not
+patch persistence/input from the prior navigation difficulty; no defect was
+reproduced. Full iPad story, representative phone chapters, ordinary held
+and simultaneous touch, and the physical/signing gates remain open.
