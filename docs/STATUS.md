@@ -3920,3 +3920,41 @@ This closes changed-slider persistence for the current normal build on both
 touch, ordinary compact scrolling, full-story or physical/signing acceptance.
 Phone terminated and shut down; normal iPad relaunched as PID 14495,
 ordinary Start/A restored GAME1 for the pending manual gesture check. No publication.
+
+### 2026-10-02 — Final source replay started; compile stopped for disk
+
+Previous turn completed current-build changed-slider persistence. Read full
+objective, clean `b91ae14`, latest ledger and documented build path; 7.9 GiB
+initially free. Existing normal app and preserved Simulator data untouched.
+
+**PASS, fresh source/tools/generation:** used a new
+`SQUIRRELPAD_CHECKOUT=$PWD/work/source-release-replay` and ran
+`scripts/setup-source.sh` with the existing private ROM. Setup exited 0,
+applied all current tracked patches and verified ROM. Independently compared
+all seven manifest revisions: match (`work/release-replay-pins.json`).
+Configured and built N64RecompCLI/RSPRecomp/RecompModTool with the full macOS
+SDK and generated game code; each command exited 0. All 127 generated files
+byte-match `source-final-replay/RecompiledFuncs`, including the input manifest
+(`work/release-replay-generation-compare.json`). This proves fresh generation
+parity, not final runtime acceptance.
+
+**STOP, disk:** macOS host configure exited 0; clean host build started and
+reached 98/1165 Ninja steps. Available disk fell to 1.8 GiB. Sent SIGINT only
+to this replay's verified process group 16200; driver session 33872 returned
+130, Ninja recorded interruption, and PIDs 16200/18118/18119 were confirmed
+absent. No compile error established. The replay checkout occupies 1.5 GiB,
+less than the approximately 6 GiB system free-space decline; cause outside
+this measured checkout has not been attributed. No files deleted.
+
+Logs `work/release-replay-{setup,host}.log`; fresh tree retained.
+**Not run:** clean host link, mobile shader/archive/app rebuilds, new artifact
+audit or runtime replay. Preserve existing normal apps; their hashes and
+acceptance remain unchanged. Asked Chris for additional disk or a named
+cleanup review. Pending Simulator hold/release and compact swipe observation
+also remains open; physical/signing and full gameplay acceptance unchanged.
+
+Resume the confirmed stopped build after adequate space is available:
+`cmake --build work/source-release-replay/host/build-macos-metal --parallel 4`.
+Then follow README mobile commands with checkout `source-release-replay`, a
+fresh renderer tag and new app build directories; do not overwrite current
+normal artifacts before audit and sequential Simulator acceptance.

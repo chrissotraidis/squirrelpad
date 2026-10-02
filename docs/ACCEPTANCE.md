@@ -33,7 +33,7 @@ remains. See [SOURCE_BOUNDARY.md](SOURCE_BOUNDARY.md).
 | G5 persistence/lifecycle | Current normal-build changed-volume cold relaunch passed on both 18.5 classes; background clock/audio recovery recorded; current short-write fix and first-field cold reload on both classes; diagnostic GAME2 tutorial payload restored | Two distinct progressed checkpoints/reloads on both classes; remaining interruption/memory-pressure cases; earlier-build evidence needs qualification for the final build |
 | G6 gameplay | Diagnostic Birdy lesson/cure and tutorial reload; isolated jump shown by video | Full iPad story through ending, representative iPhone chapters, checkpoint reloads and demanding-scene timing/fidelity |
 | G7 hardware | No physical-device acceptance | Blocked by input: iPad/iPhone and signing; eventual touch feel, controllers, audio routes, sleep/interruption and sustained play |
-| G8 handoff | Independent replay recorded; current audits, notices and setup instructions | Clean replay of final source state, final source/notice review, signed local install, completed final acceptance matrix; public distribution requires separate decision |
+| G8 handoff | Independent replay recorded; current audits, notices and setup instructions | Fresh final source/tools/generation replay passed; clean host compilation stopped for disk, mobile replay and final source/notice review remain; signed local install, completed final acceptance matrix; public distribution requires separate decision |
 
 iOS 26.5 phone/tablet startup and UI checks were recorded with an earlier normal
 build. They do not complete the current build's startup/input/save/lifecycle
