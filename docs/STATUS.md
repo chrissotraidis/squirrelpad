@@ -3516,3 +3516,42 @@ repeat long diagonal/wall trials or infer lost cure state from them. Ordinary
 held touch/slider/menu scrolling still awaits a qualifying Simulator gesture.
 Chris's signing and eventual physical touch/controllers/audio/long-play gates
 remain open; the full goal remains active.
+
+### 2026-10-01 — Short land-axis calibration
+
+Previous turn was progress: uninterrupted swimming ruled out pause/resume as
+the sole route failure and established read-only position snapshots. Full
+objective reread; clean `d006331`, 9.3 GiB available. No rebuild, game/input/audio
+source change or private save replacement. Preserved iPad 18.5 `605FB671…`,
+diagnostic executable SHA-256 `b2c4386…`, GAME1 $0 / 0:48:50.
+
+**PASS, diagnostic scope:** held C-Down for 0.5 seconds established the initial
+land view. Native Settings froze each endpoint; read-only LLDB used the same
+pinned gObjects slot-zero offsets as the preceding entry. Initial xyz:
+(2149, -52.714844, 1926). Pure positive Y, 0.5 seconds: endpoint
+(2076.319580, -56.792969, 1895.894653), delta xz (-72.680, -30.105).
+Pure positive X, 0.5 seconds: endpoint
+(2112.803711, -45.726563, 1827.497925), delta xz (36.484, -68.397).
+Viewed forward/right responses; all successful-read snapshots had zero final
+xz velocity. These roughly perpendicular displacements do not support a simple
+axis inversion. The camera visibly shifted after the right turn, so its frame
+cannot be assumed fixed throughout subsequent long input commands. Snapshot
+intervals include neutral time before menu opening; they are not speed tests.
+Private `work/land-axis-{before,positive-y,positive-x}.log`, runtime
+`work/land-axis-calibration.log`. Saved primary controller bindings were defaults.
+
+**NOT QUALIFIED:** held C-Down after the right turn changed the land view toward
+the river. Short forward commands reached the bank; A+forward attempts followed
+by 0.8 seconds forward entered water, where the view turned toward shore again.
+No island lesson/new checkpoint or demonstrated cure state. Viewed private
+`work/evidence/land-axis-water-entry.png` and intermediate UI observations.
+No axis/sign or game logic patch justified by these results.
+
+Normal executable `3e215625…` restored in place, retained-ROM launcher visually
+confirmed; iPad terminated/shut down, phone stayed off. Local evidence commit.
+Next: inspect unused game slots before creating a fresh tutorial control;
+preserve existing slots, never choose ERASE. Qualify Birdy's lesson and actual
+cure in that same session before the crossing. Repeating the current saved
+slot's wall route would not answer the remaining tutorial-state question.
+Ordinary touch gestures/full story/progressed saves remain open. Chris still
+owns signing and eventual physical touch/controllers/audio/long-play checks.
