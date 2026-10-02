@@ -3406,3 +3406,32 @@ Full story, progressed checkpoint persistence, held touch/simultaneous input,
 compact scrolling and physical-device gates remain open. Local evidence commit;
 no further publish this cycle. Chris still owns physical touch feel, controller,
 audio-route, signing and sustained-device checks.
+
+### 2026-10-01 — Rejected import preserves existing ROM and EEPROM
+
+Previous turn was progress (ordinary Files cancellation on both classes).
+Full objective reread; clean `0b6a2fd`, 11 GiB free. Current normal build,
+probe excluded, executable `3e215625…`; no rebuild/source/audio change.
+
+**PASS:** iPad 18.5 `605FB671…`, then iPhone 18.5 `AE64D60E…`, one at a time.
+Through ordinary Files selection, the existing 20-byte Invalid fixture produced
+unsupported-size/header error; the synthetic 64 MiB Wrong Revision fixture
+produced checksum-mismatch error. Viewed both error screens on each class.
+Continue Imported ROM stayed available. Before restarting the game, compared
+SHA-256/size snapshots: stored supported ROM, live 2048-byte EEPROM and backup
+all unchanged after both rejected imports on each class. Private snapshot pairs
+`work/invalid-recovery-{pad,phone}-{before,after}.json`; assertions passed.
+Continue then rendered game startup on both. Viewed captures and UI observations
+`work/evidence/invalid-recovery-{pad,phone}-{size,checksum,startup}.png`.
+No ROM replacement/save reset; normal apps terminated and Simulators shut down.
+This closes this bounded update/rejected-import regression, not full G3/G5/G6.
+
+Asked Chris for a manual Simulator slider/held-stick observation because native
+automation has not delivered a qualifying held gesture; no reply yet. Do not
+repeat the same unsuccessful drag or treat diagnostic controller movement as
+ordinary touch acceptance. No further import smoke repetition needed absent
+an import change. Next: return to the preserved first-field gameplay route;
+qualify pause-menu Continue using a neutral resume action before movement,
+then pursue an actual island/checkpoint. Full story and distinct progressed
+save/reload remain open. Chris's physical touch/controller/audio/signing/long
+play gates remain open. Local evidence commit only, no push this cycle.
