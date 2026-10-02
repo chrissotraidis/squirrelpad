@@ -3245,3 +3245,42 @@ now retain the updated normal app. This proves first-field save compatibility
 across update/relaunch, not distinct progressed checkpoints. Changes committed
 locally; Chris's manual Simulator stick observation and physical-device gates
 remain open. Next: resume gameplay/input acceptance from this updated build.
+
+### 2026-10-01 — GitHub refresh and normal-build menu smoke checks
+
+Chris explicitly requested updating GitHub, superseding the earlier local-only
+instruction for this update. Fetched origin; main had two unpublished commits
+(`f849f00`, `33b5520`), with no incoming changes or tracked work in progress.
+Replayed `python3 scripts/verify-save-write.py
+work/source-final-replay/tools/N64ModernRuntime`: **PASS**, short first and
+replacement writes preserved live/backup, and unrestricted retry succeeded.
+No game or audio tuning was changed.
+
+Restored the normal Simulator app in place on iPad 18.5 `605FB671…`, replacing
+the private diagnostic build without uninstalling or erasing its data. Normal
+executable remains SHA-256 `3e215625cafd772fbca0cca0c073337f34ede0104ce0059815c22a8f4b73e31c`.
+Launched without the diagnostic environment; Continue Imported ROM rendered
+the animated intro. Three-dot Settings opened; Controls and Audio sections
+were visually inspected, and closing Settings restored the visible controls
+and changing intro frames. Viewed captures include
+`work/evidence/github-refresh-pad-audio.png` and
+`work/evidence/github-refresh-pad-resumed.png`.
+
+After iPad termination/shutdown, cold launched the retained normal app on
+iPhone 18.5 `AE64D60E…`. Continue Imported ROM rendered the startup sequence;
+Controls/Audio section switching and menu dismissal passed the bounded visual
+check. Viewed captures `work/evidence/github-refresh-phone-audio.png` and
+`work/evidence/github-refresh-phone-resumed.png`. The compact Controls pane
+showed content below the visible viewport; automation scroll/swipe attempts
+did not establish access to the lower rows. **Lower-row touch scrolling remains
+unqualified**, not a proven application defect. Both Simulators terminated
+and shut down with normal builds and retained data.
+
+The preceding private camera-centered river trial reached surface swimming
+but returned to the original bank, without a new checkpoint. Its paused-route
+captures/log remain private under `work/evidence/centered-route-*.jpg` and
+`work/centered-route-pad.log`. It does not close ordinary touch or story gates.
+Next: directly qualify the cure interaction in the same gameplay session
+before another river attempt, and establish ordinary held-stick/release and
+compact Settings scrolling. Full story, distinct progressed checkpoint saves,
+physical touch/controllers/audio routes and long play remain open.
