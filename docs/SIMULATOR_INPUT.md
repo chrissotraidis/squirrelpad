@@ -1,5 +1,32 @@
 # Bounded Simulator controller probe
 
+## Ordinary touch check before diagnosing movement
+
+Use the normal app first, with no `SQUIRRELPAD_SIM_INPUT` environment switch.
+The current preserved iPad test destination can be opened without reinstalling
+or erasing its data:
+
+```sh
+xcrun simctl boot 605FB671-1720-4C19-A3BE-AE425323D052
+open -a Simulator
+xcrun simctl launch 605FB671-1720-4C19-A3BE-AE425323D052 com.chrissotraidis.squirrelpad
+```
+
+Choose Continue Imported ROM, use Start/L to reach GAME1, then A to expose
+PLAY and A to load the field. Wait for the visible field before testing input.
+Press and hold the blue stick off-center for two seconds, then release it.
+Record whether Conker moves, whether the stick returns to center, and whether
+movement stops. Repeat after opening and closing the three-dot menu. Preserve
+the existing save; do not choose ERASE. Capture a short video if movement fails.
+
+The native automation API currently exposes drag without a hold duration or
+simultaneous touches. Two automated drags on 2026-10-01 did not establish
+movement. Their endpoint screenshots do not prove a broken stick or a passed
+release check. Use a manual Simulator observation to qualify this touch path;
+the diagnostic controller below establishes a different input path.
+
+## Diagnostic controller
+
 Use this diagnostic when UI automation cannot hold the touch stick. It feeds a hidden `GCVirtualController` through the ordinary controller mapper. It does not change game logic or replace touch/hardware acceptance. Normal builds exclude the probe source. Device configurations reject the option.
 
 Configure the existing Simulator project:

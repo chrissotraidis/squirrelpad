@@ -3160,3 +3160,29 @@ iPad app terminated and Simulator shut down; both classes retain normal builds.
 Chris retains signing, physical touch feel, controller hardware, audio routes
 and long play. Latest human request authorizes updating existing GitHub main;
 sync these text evidence records only, leaving private assets ignored.
+
+### 2026-10-01 — Ordinary stick drag remains unqualified
+
+Previous turn made narrow progress: stationary camera comparison and requested
+GitHub synchronization at `489cdf0`. Full objective reread; clean checkout,
+11 GiB available, source pins unchanged. Normal Simulator executable hash
+rechecked as `f6b8419e39a1b340483718691ab66d9fc83e1e03c2b9f3e629fab9e08aae1b70`.
+
+**Not achieved, sustained ordinary movement/release:** iPad 18.5 `605FB671…`
+launched without probe environment. Continue Imported ROM, Settings open/close,
+Start/L and A/A reached retained GAME1 $0 / 0:48:50 and the first field.
+Viewed `work/evidence/touch-drag-pad-{before,after,long}.jpg`. Native UI drags
+from (306,989) to (378,989), then to (700,989), did not establish translation;
+endpoint stick was centered and field position appeared unchanged. No timed
+hold, simultaneous touch or in-gesture capture is exposed by this UI API.
+These results cannot distinguish automation delivery/timing from a touch defect,
+and do not pass movement or release. Avoid repeating this same drag experiment.
+
+Added a normal-build manual Simulator check to `docs/SIMULATOR_INPUT.md` and
+requested the short observation from Chris. Diagnostic controller work may
+continue independently, but cannot close ordinary touch acceptance. Console
+log `work/touch-drag-pad.log`; no error/assert/failed/fault text matched the
+bounded log search (not exhaustive GPU/stability acceptance). Terminated and
+shut down iPad; console 82971 exited 0. Normal app/save/ROM retained, no source
+or game/audio change. Full story, progressed saves and device gates stay open.
+This continuation's evidence and instructions are committed locally.
