@@ -3435,3 +3435,40 @@ qualify pause-menu Continue using a neutral resume action before movement,
 then pursue an actual island/checkpoint. Full story and distinct progressed
 save/reload remain open. Chris's physical touch/controller/audio/signing/long
 play gates remain open. Local evidence commit only, no push this cycle.
+
+### 2026-10-01 — Requested GitHub refresh and bounded follow-up checks
+
+Chris renewed authorization to update GitHub. Fetched origin: no incoming
+commits; main started two evidence commits ahead. No production source change,
+audio tuning, rebuild, container reset or private asset publication this cycle.
+
+**PASS, diagnostic scope:** iPad 18.5 `605FB671…`, probe executable
+`b2c4386…`: neutral A alone (0.3 seconds) from visibly selected Continue resumed
+gameplay repeatedly; movement was issued separately with expiry pause. Recorded
+the safe sequence in SIMULATOR_INPUT.md. River approach reached water, but a
+later view returned to the original bank; no island lesson/checkpoint achieved.
+On the outer B pad, diagnostic B and one ordinary touch B did not establish a
+cure animation or lightbulb. This is an unqualified route, not evidence of a
+save/input defect. Viewed private captures `neutral-resume-unpaused.png` and
+`neutral-resume-context-pad.png` under work/evidence. Restored the normal app
+in place and visually confirmed the retained-ROM launcher before shutdown.
+
+**PASS:** actual EEPROM fault harness rerun against source-final-replay:
+short first/replacement writes preserved live and backup; normal retry passed.
+
+**PASS, bounded UI scope:** normal executable `3e215625…`, iPhone 18.5
+`AE64D60E…`: three-dot menu opened; Audio selection showed its volume pane;
+Close returned to the retained-ROM launcher; Continue rendered game startup.
+Viewed private captures `oct01-sync-phone-audio-pane.png` and
+`oct01-sync-phone-menu-startup.png`. Normal app terminated; both Simulators off.
+**NOT QUALIFIED:** scroll and swipe in compact Controls left the viewport
+unchanged; an Audio slider track click left 100% unchanged. These attempts do
+not pass scrolling/slider persistence or justify gesture rewiring. Manual
+Simulator gesture observation remains pending. No gameplay return claim from
+this launcher-only menu check.
+
+Next: qualify ordinary held-stick/slider/menu swipe in the Simulator, then
+advance a measured gameplay route and cold-reload an actual new checkpoint.
+Full story acceptance remains open. Chris still owns signing and eventual
+physical touch feel, controllers, audio routes and sustained-device play.
+Publish this evidence and the two pending import evidence commits to origin/main.

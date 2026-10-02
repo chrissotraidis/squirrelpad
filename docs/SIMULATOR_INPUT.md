@@ -60,7 +60,14 @@ Axes are -1...1; buttons are physical gamepad A/B/X/Y, LB/RB and LT/RT and respe
 For navigation from **unpaused gameplay**, `--pause-after` neutralizes the
 virtual controller at expiry and sends a 200 ms pulse through the existing N64
 Start touch bridge. Visually confirm the in-game PAUSED screen before inspecting
-the route, then resume through Continue before another command. Do not use this
+the route, then resume through Continue before another command.
+Resume only when Continue is visibly selected: send neutral A separately
+(`--button A --seconds 0.3`, with no movement axes), observe unpaused gameplay,
+then issue movement. This separated action was verified on the preserved iPad
+route on 2026-10-01. Combining resume A with movement previously selected Quit;
+do not reuse that shortcut. A water resume can also change the camera view, so
+recheck heading before moving.
+Do not use this
 option from the launcher, a cutscene or an already paused game: Start may have
 a different effect there. This diagnostic action is separate from virtual
 controller readback and does not qualify ordinary touch or controller acceptance.
