@@ -3890,3 +3890,33 @@ the field and left it running for the pending ordinary held-input observation. T
 release plus an ordinary swipe through compact Settings; diagnostic movement
 and accessibility actions do not substitute for those gestures. Full-story,
 progressed saves, audible quality and device/signing gates remain open.
+
+### 2026-10-02 — Current normal-build slider persistence on both classes
+
+Previous turn made progress by qualifying the failed drag against a native
+control. Read full objective and latest ledger, clean `6e22def`; 7.5 GiB
+available. No source change or rebuild. Current normal executable `3e215625…`
+on preserved iPad `605FB671…` and phone `AE64D60E…`, iOS 18.5. One Simulator
+booted at a time; no reinstall, container reset or probe environment.
+
+**PASS, changed-setting persistence:** iPad Audio started at 100%. Positioned
+slider with AX setValue, then clicked its visible thumb to deliver the value
+change; both visible label and AX details became 37%, value 0.3706587.
+Terminated app through simctl and relaunched as PID 13743. Opened Menu/Audio:
+37% and identical slider value persisted. Restored original 100% through
+Restore Default Volume. Phone independently started at 100%, changed to 43%
+(value 0.4299936) by the same UI path, terminated, and relaunched as PID 14183.
+Menu/Audio retained 43% and identical value. Restored original 100%. All
+lifecycle commands exited 0. Visually inspected each changed/reloaded panel.
+
+AX setValue alone moved the native thumb but left SwiftUI's percentage label
+unchanged; that intermediate state was not counted as an app-setting change.
+The visible-thumb click updated the label and persisted setting. This narrows
+the automation contract without changing the app. No audio-quality claim.
+Private captures `work/evidence/current-volume-{pad,phone}-{before,after}-20261002.png`.
+
+This closes changed-slider persistence for the current normal build on both
+18.5 classes. It does not close distinct progressed game saves, held/simultaneous
+touch, ordinary compact scrolling, full-story or physical/signing acceptance.
+Phone terminated and shut down; normal iPad relaunched as PID 14495,
+ordinary Start/A restored GAME1 for the pending manual gesture check. No publication.
