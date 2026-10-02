@@ -3789,3 +3789,46 @@ river approach before further Simulator navigation. Keep the full-story
 gate open; neither a video jump nor diagnostic payload equality closes it.
 Chris still owns signing and eventual physical touch/controllers/audio/
 sustained-play checks.
+
+### 2026-10-02 — bounded route attempt; normal Simulator ready for held touch
+
+**No gameplay progress.** Previous turn clarified the open gates but did not
+advance them. Re-read the full objective, clean `b62e187`, unchanged source
+pins and 8.9 GiB available. No source changes or rebuild.
+
+Preserved iPad 18.5 `605FB671…`: normal `3e215625…` retained-ROM launcher,
+Start to GAME1; one ordinary left stick drag did not establish GAME2
+selection. This is not proof of a broken stick. CUA exposes short key
+presses and drag, with no hold duration or simultaneous touches.
+
+Installed existing diagnostic `b2c4386a…` in place, explicitly enabled its
+controller probe, and loaded GAME2 $0 / 0:57:01 through separate left/A/A
+actions. Used the green landing beneath the log and closed door as the
+route landmark, following the opening-chapter sequence in
+[Nemesis's walkthrough](https://www.gamerevolution.com/guides/28824-conkers-bad-fur-day-walkthrough).
+The control reference specifies stick-only surface swimming:
+[Rare Replay game help](https://dlassets-ssl.xboxlive.com/public/content/367297b7-c6a3-4496-83ad-cb70c52ce8cd/GameManual/2e5e2560-e901-414b-87fa-081a07f24c6c/en-SA/index.html).
+
+**FAIL, route progression:** bounded 1–5s stick commands, C-Right heading
+checks and separate pause/resume actions reached water and returned to the
+starting bank. No island lesson, switch, new checkpoint or demonstrated
+port defect. The final `x=-0.8,y=1,5s,pause-after` returned by the outer
+B pad/fence. Private log `work/green-island-route-20261002.log`; viewed final
+capture `work/evidence/green-island-route-20261002-final.png`. Do not repeat
+these commands as a qualified route or patch game logic from this failure.
+
+Terminated diagnostic run (console exit 0), restored normal `3e215625…`
+in place without the probe environment, and used ordinary Start/A to load
+GAME1's first field. Visually verified gameplay. The iPad is intentionally
+left running there for a requested brief manual Simulator hold/release
+check; iPhone remains off. This does not require physical hardware.
+Current EEPROM is 2,048 bytes, SHA-256
+`b85620c752aa13a537edd7dfa5aab4c9ee25263346a864fbbcaa0e97473483ac`.
+This current file hash alone is not new save/reload acceptance.
+
+**Not run:** ordinary held/simultaneous touch acceptance, later checkpoint
+save/reload, full story, representative phone chapters and physical/signing
+gates. Next qualify a two-second ordinary stick hold and release in this
+prepared normal Simulator. A failure needs a timed capture before any
+input change. Automated drag and diagnostic controller evidence cannot
+close that ordinary-touch gate. Keep the full goal active.
