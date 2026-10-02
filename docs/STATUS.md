@@ -3087,3 +3087,47 @@ private captures, logs, ROM, generated code and saves remain ignored. Next:
 qualify sustained ordinary input and meaningful story/checkpoint progression.
 Chris retains signing and physical touch feel, controllers, audio routes and
 long play. Full G4/G5/G6 and device acceptance remain open; audio tuning deferred.
+
+### 2026-10-01 — Second river route fails to reach a checkpoint
+
+Previous goal turn: progress, cold slider persistence and requested remote sync
+at `9374e0f`. Read the complete objective; pins remain Conker `c55359c…`, RT64
+`43373749…`; 15 GiB free. No source or game/audio change in this trial.
+
+**Fail, route objective:** iPad 18.5 `605FB671…`, private controller build
+`c599ad44…`, installed in place with retained data. Re-resolved the container
+before commands. Ordinary Continue/Start/L/A reached preserved GAME1 $0 /
+0:48:50, then PLAY loaded the first field. Early capture `island-second-start.jpg`
+was the black loading transition, not a loaded-field pass; reopened Settings
+and captured `island-second-field.jpg` once visible.
+
+Bounded axis pulses (seconds): (1,.25)/1.5; (-.8,.6)+A/1.2;
+(.5,1)/1.2; (-.35,1)/2; (.3,1)+A/1.5; (.2,1)/2;
+(-1,0)/2; (0,-1)/1.5; C Down/.4; (1,-.5)/2; (0,1)+A/2;
+(1,0)/1; finally (0,-1) with held C Down/1. Viewed
+`work/evidence/island-second-01.jpg` through `island-second-10.jpg`,
+`island-second-11-land.jpg`, `island-second-camera.jpg`, and
+`island-second-held-camera.jpg`. Surface swimming and returning to the original
+field are visible. Island lesson, new story progress and progressed-save reload
+were not achieved. Log `work/island-second-pad.log`; readbacks include axes,
+buttons and neutral expiry. This does not establish a broken input mapper.
+
+**Next action changed:** stop repeating this pulse sequence. Two captures and
+accessibility observations between command and menu pause leave neutral game
+movement between the pictured position and the actual paused position. A single
+immediate capture shortens that interval but has not yet established a reliable
+navigation method. Match the camera/input sequence against the macOS control
+before another river trial; qualify ordinary sustained input separately. Do not
+change game logic from this failed diagnostic route. Consulted N64 manual search
+text and controls reference for camera/swimming behavior; no new behavior claim
+or gameplay acceptance derives from them:
+https://www.videogamemanual.com/n64/Conker%27s%20Bad%20Fur%20Day%20%28USA%29.pdf
+and https://strategywiki.org/wiki/Conker%27s_Bad_Fur_Day/Controls .
+The manual full-file fetch failed; its search text alone was available.
+
+Restored normal `f6b8419e…` in place, launched without probe environment, viewed
+`island-second-normal-restored.jpg` with Continue Imported ROM retained, then
+terminated and shut down. Both console sessions exited 0. Saves/ROM were not
+replaced or erased. Full G1/G4/G5/G6 remain open. Audio tuning deferred; Chris
+retains signing and physical touch feel, controllers, audio routes and long play.
+Local evidence commit; the previous requested GitHub synchronization is complete.
