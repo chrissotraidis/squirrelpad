@@ -205,6 +205,17 @@ app container's `Library/Application Support/Conker/saves/`; app preferences
 store settings and separate phone/tablet layout profiles. Imported ROM storage
 is owned by the app container. Preserve these when updating or testing.
 
+On macOS, verify the runtime save writer's short-write handling using synthetic
+EEPROM data (no ROM or Simulator saves are accessed):
+
+```sh
+python3 scripts/verify-save-write.py work/source-final-replay/tools/N64ModernRuntime
+```
+
+This compiles the actual writer function and file helpers, checks failed first
+and replacement writes, and verifies a successful retry and backup. It does not
+measure power-loss durability or in-game checkpoint fidelity.
+
 Keep logs, game captures and build products under ignored `work/` or
 `artifacts/`. Record the executable hash, source revision, destination/runtime,
 commands and viewed captures in [STATUS.md](docs/STATUS.md). A save file or

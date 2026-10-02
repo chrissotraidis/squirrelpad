@@ -1,0 +1,14 @@
+diff --git a/librecomp/src/pi.cpp b/librecomp/src/pi.cpp
+--- a/librecomp/src/pi.cpp
++++ b/librecomp/src/pi.cpp
+@@ -120,6 +120,10 @@ void update_save_file() {
+         if (save_file.good()) {
+             std::lock_guard lock{ save_context.save_buffer_mutex };
+             save_file.write(save_context.save_buffer.data(), save_context.save_buffer.size());
++            // close also flushes buffered output. Never install a partial
++            // temporary save when either writing or closing it failed.
++            save_file.close();
++            saving_failed = !save_file.good();
+         }
+         else {
+             saving_failed = true;

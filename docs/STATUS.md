@@ -3186,3 +3186,62 @@ bounded log search (not exhaustive GPU/stability acceptance). Terminated and
 shut down iPad; console 82971 exited 0. Normal app/save/ROM retained, no source
 or game/audio change. Full story, progressed saves and device gates stay open.
 This continuation's evidence and instructions are committed locally.
+
+### 2026-10-01 — Reject failed temporary EEPROM writes
+
+Previous turn produced an ordinary-touch test boundary and manual Simulator
+check at `f849f00`; movement remains unqualified. Full objective reread, clean
+tracked checkout before this work; Conker/RT64 pins unchanged. Investigated
+save failure handling independently, without modifying any user's save fixture.
+
+**Reproduced failure:** `update_save_file()` checked the temporary stream only
+when opening it, then ignored write/close failures. The unpatched runtime
+writer, with the existing Apple atomic rename helper, installed a **512-byte**
+first EEPROM and reported **zero errors** when a child process's file-size
+limit rejected its 2,048-byte write. `work/save-write-before.log` records the
+failed control. This is an injected short-write reproduction, not an observed
+Simulator disk-full event or an explanation for gameplay/audio behavior.
+
+**Fix and focused pass:** `patches/n64modernruntime-save-write-check.patch`
+explicitly closes the stream and checks its state before finalization. Failed
+writes use the existing error path and leave the live save/backup untouched.
+Added replay to `scripts/setup-source.sh`. `scripts/verify-save-write.py`
+compiles the actual runtime writer function plus actual `files.cpp`, substituting
+only save context and error-dialog callback. Synthetic 2,048-byte fixtures,
+512-byte child file-size limits: first save stays absent, replacement preserves
+the complete live save and distinct previous backup, and unrestricted retry
+installs the new revision with the expected backup. Final harness passed;
+`work/save-write-after.log`. No ROM or Simulator save is accessed by the test.
+Patch applied cleanly and reverse-check passed on the patched runtime.
+
+**Build/package pass:** incremental normal builds both exited 0, including
+compilation of modified `pi.cpp`: `work/save-write-{sim,device}-build.log`.
+Simulator probe stays OFF. Package audits passed (30 files, 24 notices), reports
+`work/save-write-{sim,device}-audit.json`. Executable SHA-256:
+
+- Simulator: `3e215625cafd772fbca0cca0c073337f34ede0104ce0059815c22a8f4b73e31c`
+- Unsigned device: `0ddc68be67679731ed766459e754e026913ae9c564a696e036756191783034d1`
+
+**iPad ordinary regression pass:** installed in place on iPad 18.5 `605FB671…`;
+Continue Imported ROM / Start / L / A reached preserved GAME1 $0 / 0:48:50
+and first field. Terminated, cold launched and repeated selection to visible
+field. Viewed `save-write-pad-field.jpg` and `save-write-pad-cold-field.jpg`
+under `work/evidence/`; logs `work/save-write-pad-{run,cold}.log`. Live and
+backup each 2,048 bytes, no `.temp` at inspection; hashes in
+`work/save-write-pad-files.json`. Both console sessions exited 0, then shutdown.
+
+This closes a concrete write-error handling defect, not full save acceptance.
+Power-loss durability, actual iOS fault injection, meaningful progressed
+checkpoint reload and full-story play remain open. No game or audio change.
+
+**iPhone ordinary regression pass:** after iPad shutdown, installed in place
+on iPhone 18.5 `AE64D60E…`; retained GAME1 $0 / 0:06:03 loaded first field.
+Terminated, cold launched and loaded the same slot/field again. Viewed
+`work/evidence/save-write-phone-field.jpg` and `save-write-phone-cold-field.jpg`.
+Logs `work/save-write-phone-{run,cold}.log`, both consoles exited 0. Live and
+backup each 2,048 bytes, no `.temp` at inspection; hashes in
+`work/save-write-phone-files.json`. Phone terminated/shut down; both classes
+now retain the updated normal app. This proves first-field save compatibility
+across update/relaunch, not distinct progressed checkpoints. Changes committed
+locally; Chris's manual Simulator stick observation and physical-device gates
+remain open. Next: resume gameplay/input acceptance from this updated build.

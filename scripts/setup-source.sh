@@ -36,6 +36,7 @@ apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime
 apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-ios-qos.patch"
 apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-ios-clock.patch"
 apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-apple-save-atomic.patch"
+apply_once "$checkout/tools/N64ModernRuntime" "$project/patches/n64modernruntime-save-write-check.patch"
 apply_once "$checkout/tools/rt64" "$checkout/recomp/rt64.patch"
 apply_once "$checkout" "$project/patches/conker-host.patch"
 apply_once "$checkout" "$project/patches/conker-macos-audio-device.patch"
