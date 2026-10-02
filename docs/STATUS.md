@@ -3376,3 +3376,33 @@ compare that percentage on both classes. Ordinary held-stick/release and
 simultaneous stick/button, compact menu scrolling, progressed saves and full
 story remain open. Physical touch feel/controllers/audio routes/long play and
 signing remain Chris's follow-up. No audio tuning or private assets published.
+
+### 2026-10-01 — Files cancellation on the current normal build
+
+Previous goal turn was progress: GitHub synchronized and cold-relaunch switch
+persistence verified. Full objective reread; clean `cc54407` at start, 11 GiB
+available. No production source change or rebuild this cycle.
+
+**NOT QUALIFIED:** one iPad pointer drag from the actual Control Size thumb
+(100%) to approximately 110% left the app percentage and accessibility value
+unchanged. Together with the preceding proxy-only setValue result, this leaves
+ordinary slider interaction/persistence open. Stop repeating that same drag;
+next slider acceptance needs a manual Simulator held-pointer observation.
+No gesture replacement justified by the available evidence.
+
+**PASS, cancellation scope:** normal executable `3e215625…`, iPad 18.5
+`605FB671…`, then iPhone 18.5 `AE64D60E…`, sequentially. Ordinary Choose ROM
+presented Files; Cancel returned to the launcher without a new error and kept
+Continue Imported ROM available. Continuing rendered game startup on both
+classes; iPad also showed the animated Conker intro. UI observations visually
+inspected. Private captures `work/evidence/picker-cancel-pad-intro.png` and
+`picker-cancel-phone-startup.png`. No new ROM selected, imported data reset,
+or save replacement. Both normal apps terminated and Simulators shut down.
+This does not qualify successful replacement/import, gameplay or lifecycle.
+
+Next autonomous test: replay invalid/wrong-revision selection through Files on
+the current normal build and verify the retained imported ROM remains usable.
+Full story, progressed checkpoint persistence, held touch/simultaneous input,
+compact scrolling and physical-device gates remain open. Local evidence commit;
+no further publish this cycle. Chris still owns physical touch feel, controller,
+audio-route, signing and sustained-device checks.
