@@ -4139,3 +4139,22 @@ reload. Automated sustained/multitouch input remains unavailable; manual
 selection success must not be mistaken for new tool capability. Physical
 controllers/audio/touch and signed install remain Chris's follow-up. Kept
 healthy iPad open with restored GAME2; other Simulators remain off.
+
+### 2026-10-02 — Clean-replay compact menu navigation
+
+With iPad shut down, booted iPhone 18.5 `AE64D60E…` and launched the
+unchanged clean-replay app, PID 58941. From the launcher, opened Settings,
+expanded Controller Bindings, switched to Audio, returned to Controls,
+collapsed the bindings and closed the menu. Viewed screenshots confirm
+expansion scrolls the bindings header into view, Audio starts at its heading,
+and returning to Controls starts at its heading with expansion retained.
+Closing restores Choose ROM and Continue Imported ROM. No bindings or
+settings were changed. Private capture:
+`work/evidence/phone-menu-expanded-to-audio.png`.
+
+**Pass:** bounded compact-menu expansion/tab/dismissal route.
+**Unqualified:** one automation scroll produced no visible movement; this
+neither verifies lower-row reachability by finger nor establishes an app bug,
+given the earlier native Settings control result. No production-code change.
+Full-story progression and distinct later checkpoints remain open; they need
+ordinary sustained input beyond the manual GAME2 selection already confirmed.
