@@ -57,8 +57,15 @@ audit checks the supplied checkout's revisions and the bundle's contents; it
 does not independently prove that arbitrary executable bytes came from that
 checkout. See [the acceptance matrix](ACCEPTANCE.md) for the remaining gates.
 
-Before a signed handoff, complete a clean replay of the final source state,
-the final notice/rights review,
+The 2026-10-02 clean replay completed source/tools/generation, macOS and both
+mobile builds in `work/source-release-replay`. Simulator executable SHA-256
+`dd3771acd99d8a79e1c7e31733966cdfbd74053b1e24c34e049aa33ab973b936` and unsigned
+device `f4dffb9dee2b0e3858427db782292a4b9de43f141139fa8a87e0b363805ebc80` passed
+`work/release-replay-audit-{iphonesimulator,iphoneos}.json` with zero failures.
+These hashes supersede the earlier build identities above for the new artifacts;
+earlier runtime evidence is not automatically evidence for these bytes.
+
+Before a signed handoff, complete the final notice/rights review,
 signing and physical install acceptance. Public distribution remains a separate
 decision. Hardware, full-story play and meaningful in-level save fidelity remain
 open in `docs/STATUS.md`.

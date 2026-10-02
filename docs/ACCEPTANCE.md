@@ -9,11 +9,13 @@ only its stated scope.
 
 | Artifact | Executable SHA-256 | Scope |
 | --- | --- | --- |
-| Normal ARM64 Simulator app | `3e215625cafd772fbca0cca0c073337f34ede0104ce0059815c22a8f4b73e31c` | Probe excluded; current preserved iPad/iPhone 18.5 installations |
-| Unsigned ARM64 device app | `0ddc68be67679731ed766459e754e026913ae9c564a696e036756191783034d1` | Build and package checks; no signed install |
+| Earlier normal ARM64 Simulator app | `3e215625cafd772fbca0cca0c073337f34ede0104ce0059815c22a8f4b73e31c` | Probe excluded; earlier runtime evidence |
+| Earlier unsigned ARM64 device app | `0ddc68be67679731ed766459e754e026913ae9c564a696e036756191783034d1` | Build and package checks; no signed install |
+| Clean replay ARM64 Simulator app | `dd3771acd99d8a79e1c7e31733966cdfbd74053b1e24c34e049aa33ab973b936` | Probe excluded; iPhone 18.5 first field; fresh iPad 18.5 import/retention/menu smoke passed |
+| Clean replay unsigned ARM64 device app | `f4dffb9dee2b0e3858427db782292a4b9de43f141139fa8a87e0b363805ebc80` | Independent build and package audit passed; no signed install |
 | Diagnostic Simulator app | `b2c4386aa82a16bee11726b3b73efae8f9dc484a3bb83b2f40b2e15f5617ed87` | Opt-in controller investigation; not ordinary-touch acceptance |
 
-Current normal bundles passed `scripts/audit-app.py` on 2026-10-02 against
+Earlier normal bundles passed `scripts/audit-app.py` on 2026-10-02 against
 `work/source-final-replay`: each has 30 files and 24 matching notices, correct
 ARM64/SDK identity and no flagged private names/content, symlinks or excluded
 runtime/probe symbols. Reports remain private under
@@ -33,7 +35,7 @@ remains. See [SOURCE_BOUNDARY.md](SOURCE_BOUNDARY.md).
 | G5 persistence/lifecycle | Current normal-build changed-volume cold relaunch passed on both 18.5 classes; background clock/audio recovery recorded; current short-write fix and first-field cold reload on both classes; diagnostic GAME2 tutorial payload restored | Two distinct progressed checkpoints/reloads on both classes; remaining interruption/memory-pressure cases; earlier-build evidence needs qualification for the final build |
 | G6 gameplay | Diagnostic Birdy lesson/cure and tutorial reload; isolated jump shown by video | Full iPad story through ending, representative iPhone chapters, checkpoint reloads and demanding-scene timing/fidelity |
 | G7 hardware | No physical-device acceptance | Blocked by input: iPad/iPhone and signing; eventual touch feel, controllers, audio routes, sleep/interruption and sustained play |
-| G8 handoff | Independent replay recorded; current audits, notices and setup instructions | Fresh final source/tools/generation replay passed; clean host compilation stopped for disk, mobile replay and final source/notice review remain; signed local install, completed final acceptance matrix; public distribution requires separate decision |
+| G8 handoff | Independent replay recorded; current audits, notices and setup instructions | Fresh final source/tools/generation replay passed; clean host and both mobile SDK builds plus audits passed; final source/notice review remains; signed local install, completed final acceptance matrix; public distribution requires separate decision |
 
 iOS 26.5 phone/tablet startup and UI checks were recorded with an earlier normal
 build. They do not complete the current build's startup/input/save/lifecycle
@@ -41,7 +43,7 @@ matrix. Deployment target 17.0 is a build setting, not verified 17.0 execution.
 
 ## Next actions and external inputs
 
-1. Qualify ordinary held input in the prepared normal iPad 18.5 Simulator:
+1. Qualify ordinary held input in a healthy normal iPad 18.5 Simulator:
    hold the blue stick off-center for two seconds, release, and observe movement
    and stopping. Repeat after menu open/close. Capture any failure before editing
    the input path. CUA's brief drag has not established this check.
@@ -60,3 +62,18 @@ A compact Settings drag also failed in Apple’s native Settings control on
 automated drag as unqualified; verify ordinary scrolling before changing
 SquirrelPad’s gesture path. Audio tuning stays deferred until a specific audible
 reproduction exists.
+
+The clean replay on 2026-10-02 used `work/source-release-replay` and fresh
+`-release-replay` renderer/app directories. All seven source pins and 127
+generated files matched. Both audits have zero failures (30 files, 24 notices).
+The real save-writer short-write/replacement/retry regression passed. iPhone
+18.5 loaded GAME1 into the first field, paused/resumed with Start/A, restored
+controls after Settings, and returned after Home with the same process. This
+is a bounded regression check; older slider and diagnostic evidence retains
+its original executable identity. The preserved iPad had an install/boot
+stall; no device or save was erased. See the latest STATUS entry.
+
+Fresh iPad 18.5 `0A04D7B6…` imported the verified ROM through Files, rendered
+the intro, retained Continue Imported ROM across cold launch, and restored
+controls after closing Settings. No fresh-iPad first-field claim. Both test
+Simulators were shut down after this batch.

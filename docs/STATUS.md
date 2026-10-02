@@ -2,12 +2,13 @@
 
 Updated 2026-10-02. Work the lowest unmet goal in [GOAL_LOOP.md](GOAL_LOOP.md). The private ROM, generated game code, builds, logs, saves and gameplay captures stay under ignored `ref/` or `work/`.
 
-**Current continuation:** preserved iPad 18.5 `605FB671…` GAME2 completed
-Birdy's lesson, beer and cure in-session, then saved through the game's Quit
-flow. Cold reload retained PLAY / $0 / 0:57:01 and upright Conker with sleeping
-Birdy (diagnostic controller build). GAME1 retains $0 / 0:48:50. Continue
-GAME2 toward the river and the next actual checkpoint; preserve both slots
-and never select ERASE. Normal build is restored; both Simulators are off.
+**Current continuation:** clean replay now builds macOS and both mobile SDKs;
+package audits and real save-writer fault regression pass. The new normal app
+loaded retained GAME1 on iPhone 18.5 and passed bounded pause/menu/Home checks.
+Preserved iPad `605FB671…` hit a Simulator install/boot stall; its saves remain
+untouched. Fresh test iPad `0A04D7B6…` booted and installed the new app. Prior
+GAME2 tutorial/cure evidence remains diagnostic and does not establish full
+story progress. See the latest dated entry and [ACCEPTANCE.md](ACCEPTANCE.md).
 
 | Gate | State | Measured result and remaining test |
 | --- | --- | --- |
@@ -3983,3 +3984,54 @@ and gameplay/save acceptance remain open. No source change, rebuild, audio
 experiment or publication. Recheck disk and exact candidate paths/active
 processes immediately before any approved cleanup; then resume the retained
 Ninja build rather than creating another checkout.
+
+### 2026-10-02 — Clean release replay and normal iPhone regression
+
+Disk recovered to 43 GiB before this continuation; no cleanup was performed.
+Resumed the retained `work/source-release-replay` host build with four jobs:
+exit 0, native ARM64 executable. Reverified all seven pins and all 127 generated
+files against the prior output. Built independent RT64 shader/archive closures
+and normal Release apps sequentially for Simulator and unsigned device, using
+fresh `-release-replay` build directories and Simulator input probe OFF.
+All build commands exited 0. `scripts/verify-save-write.py` against the fresh
+runtime passed first/replacement short-write preservation and normal retry.
+
+Simulator SHA-256 `dd3771acd99d8a79e1c7e31733966cdfbd74053b1e24c34e049aa33ab973b936`;
+unsigned device `f4dffb9dee2b0e3858427db782292a4b9de43f141139fa8a87e0b363805ebc80`.
+Both package audits reported zero failures, ARM64/correct SDK, 30 files and
+24 notices. Private logs: `work/release-replay-host-resume.log`,
+`work/release-replay-save-test.log`, `work/release-replay-{renderer,app}-*.log`,
+`work/release-replay-audit-{iphonesimulator,iphoneos}.json`.
+This establishes successful clean builds, not byte-reproducible binaries,
+signed installation, physical execution or full gameplay acceptance.
+
+The new Simulator executable was hash-verified after installing on iPhone
+18.5 `AE64D60E…`. Ordinary Continue/Start/A selected retained GAME1 ($0,
+0:06:03) and reached the first field. Start paused, A resumed. Settings
+opened and closed with controls restored. Home followed by launch returned
+the same PID 40526 to the visible field. Viewed captures:
+`work/evidence/release-replay-phone-{pause,resumed}.png`. Runtime log:
+`work/release-replay-phone-runtime.log`; it contains a CoreAudio overload
+message, which alone does not qualify audible severity. No audio tuning.
+Phone app terminated and Simulator shut down after testing.
+
+Preserved iPad `605FB671…` install/launch clients stalled and were cancelled;
+a subsequent boot remained black waiting for BackBoard. Read-only samples
+showed BackBoard waiting for preferences during HID initialization. Shut down
+without erase; old saves remain intact, installed-build identity unconfirmed.
+The other old iPad `08636791…` could not boot because its data directory was
+already absent. Created fresh iPad 18.5 `0A04D7B6-0B07-4397-9A24-CDD86588F47B`;
+boot completed in 77 seconds and new app install succeeded. No existing
+Simulator data was deleted or reset. This supersedes the earlier disk stop;
+ordinary held/multitouch, progressed checkpoints, full story, signing and
+physical gates remain open. No production code or game logic changed.
+
+Fresh iPad follow-up: staged the verified private ROM in this new app's
+Documents, then used the ordinary Files picker (On My iPad → SquirrelPad) to
+import it. The moving logo intro rendered. Cold terminate/relaunch exposed
+Continue Imported ROM, which launched the intro again. Settings opened and
+Close restored all touch controls. Viewed captures:
+`work/evidence/release-replay-pad-{fresh-import,menu}.png`. This is fresh-import,
+retention and menu smoke coverage, not first-field or checkpoint acceptance.
+Terminated the app and shut down the fresh iPad after the checks. All tested
+Simulators are off; existing data and private fixtures are preserved.
