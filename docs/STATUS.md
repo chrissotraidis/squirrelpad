@@ -3744,3 +3744,48 @@ the cure through ordinary interaction before another river attempt. Do not
 patch persistence/input from the prior navigation difficulty; no defect was
 reproduced. Full iPad story, representative phone chapters, ordinary held
 and simultaneous touch, and the physical/signing gates remain open.
+
+### 2026-10-02 — video resolves the apparent missing jump
+
+**Progress, isolated diagnostic input evidence.** Previous turn proved
+27-byte state-payload restoration, changing the next check from persistence
+repair to functional interaction. Revalidated clean `84ecf1b`, unchanged
+pins and 8.1 GiB available. No source change or rebuild.
+
+The generated flag reader `func_1509FE0C` dispatches property 0x1A to
+`D_800D2E4C[index >> 3] & (1 << (index & 7))`; its setter
+`func_1509F850` similarly uses a variable index. The bounded source search
+did not identify semantic names for saved bits 0, 1 or 191. Do not label
+those bits as beer/cure based only on correlation.
+
+Preserved iPad 18.5 `605FB671…`, diagnostic executable `b2c4386a…`,
+opt-in cold load of GAME2 at $0 / 0:57:01. C-Down 0.2s followed by
+stick x=0.6,y=0.8 for 3s reached a wall-side river edge. X=-1+A for 1s
+and Y=1+A for 3s did not establish swimming/crossing in the subsequent
+screenshots. Return Y=-1 for 2s, then another 0.5s centered the outer
+B pad. Ordinary B did not replay the cure animation in that observation;
+this alone is not flag semantics or proof of a successful river route.
+
+**PASS, isolated A jump in the diagnostic controller build:** short A
+0.2s was sampled and then neutralized in `work/game2-river-jump.log`.
+The post-input screenshots showed standing Conker, so recorded a second
+A pulse with `simctl io … recordVideo --force work/game2-jump-pad.mov`.
+The recording completed normally (32.65s). A viewed full-duration contact
+sheet sampled too sparsely to resolve the action; a viewed 0.25s contact
+sheet covering 14..19.75s shows Conker leave the pad at 15.25s, rise at
+15.50s, and land by 16s. Therefore the apparent absent jump was a capture
+timing problem, not a reproduced A-mapping failure. Private captures:
+`work/evidence/game2-jump-pad-{contact,dense}.png`. Saved primary controller
+bindings were empty/default. No input or game-logic patch is justified.
+
+**Not run:** ordinary simultaneous touch, river crossing, next checkpoint
+and later chapters. Additional navigation returned inside Birdy's enclosure
+without new progression; do not repeat those long lateral commands as a
+qualified route. Normal `3e215625…` restored in place, retained-ROM launcher
+visually verified, iPad terminated/shut down; phone stayed off.
+
+Next work the lower open G1 macOS gameplay/save control and compare its
+river approach before further Simulator navigation. Keep the full-story
+gate open; neither a video jump nor diagnostic payload equality closes it.
+Chris still owns signing and eventual physical touch/controllers/audio/
+sustained-play checks.
