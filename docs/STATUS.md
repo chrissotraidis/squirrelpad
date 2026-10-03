@@ -4158,3 +4158,13 @@ neither verifies lower-row reachability by finger nor establishes an app bug,
 given the earlier native Settings control result. No production-code change.
 Full-story progression and distinct later checkpoints remain open; they need
 ordinary sustained input beyond the manual GAME2 selection already confirmed.
+
+
+### 2026-10-02 — Developer-build wrap-up and main-Mac handoff
+
+Chris accepted the current build, declined further manual Simulator acceptance
+on this Mac, and explicitly requested push/merge to main. Remaining acceptance
+is deferred to the main Mac; no unverified row is promoted to pass. Added the
+transfer checklist to ACCEPTANCE and linked it from README. Main already
+contains all local work; GitHub has no open PR. Private ROM, save, build and
+evidence files remain outside the source push. No production-code change.

@@ -95,3 +95,32 @@ Manual stick selection is now confirmed by Chris and observed at GAME2.
 Sustained movement/release and simultaneous touch throughout gameplay remain
 separate acceptance rows. Normal-build tutorial reload and bounded iPad lock
 recovery passed; two later progressed checkpoints and full-story play remain open.
+
+
+## Main Mac handoff
+
+On 2026-10-02 Chris accepted the current developer build and requested that
+local changes be pushed to main, with additional acceptance testing deferred
+until transfer to the main Mac. The open rows above remain unverified, rather
+than release blockers for this source handoff. No further manual Simulator
+play is requested on this Mac for the current wrap-up.
+
+1. Clone/update `chrissotraidis/squirrelpad` on the main Mac and follow README
+   requirements and the pinned source/build procedure.
+2. Supply the private US ROM separately. Git does not contain ROMs, generated
+   game code, built apps, screenshots or saves. Local Simulator containers do
+   not transfer with a clone.
+3. If continuing the tutorial fixture, privately transfer
+   `work/game2-birdy-saved.bin` (2,048 bytes, SHA-256
+   `858f2a2769450ab625c01806a5a46c97569fb60ea53708dfdda51a65f762af0c`).
+   Back up the target app's existing saves before restoring it with the app
+   stopped. This is the diagnostic-origin GAME2 fixture verified in the normal
+   build, not proof of ordinary full-story progression.
+4. Resume acceptance from the matrix above on the exact rebuilt executable;
+   preserve the distinction between previous evidence and new-machine results.
+   Signing, physical controllers, touch feel, audio routes and long play remain
+   later Chris/device work.
+
+Existing private build artifacts remain on the original Mac under
+`work/build-app-release-replay-{iphonesimulator,iphoneos}/Release-<sdk>/SquirrelPad.app`.
+The device artifact is unsigned. Neither artifact is published by pushing main.

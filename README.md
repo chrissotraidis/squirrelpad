@@ -14,6 +14,11 @@ The [acceptance matrix](docs/ACCEPTANCE.md) summarizes current artifacts and
 what each open gate still requires.
 Audio quality is unverified; routine audio experiments are currently deferred.
 
+**2026-10-02 handoff:** Chris accepted the current developer build for transfer
+to the main Mac. Further acceptance testing is deferred to that machine;
+this does not mark the open tests as passed. Follow the build steps below
+and [the transfer checklist](docs/ACCEPTANCE.md#main-mac-handoff).
+
 ## Requirements
 
 - Apple Silicon Mac, full Xcode with the iOS SDKs, and an installed Simulator
