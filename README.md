@@ -1,7 +1,7 @@
 # SquirrelPad
 
 <p align="center">
-  <img src="Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png" width="160" alt="SquirrelPad cartoon acorn icon"><br>
+  <img src="Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png" width="160" alt="SquirrelPad pixel acorn icon"><br>
   <strong>Conker's Bad Fur Day, native on iPhone and iPad.</strong><br>
   Static recompilation, Metal rendering, customizable touch controls, and controller support.
 </p>
@@ -48,7 +48,7 @@ The PadMint setup flow will be:
 3. Sign and install that IPA using your usual sideloading tool, such as
    AltStore Classic, SideStore, or Sideloadly.
 4. Copy the same ROM to Files on your device. Open SquirrelPad, tap
-   **Choose ROM**, and select it. Later launches offer **Continue Imported ROM**.
+   **Choose ROM**, and select it. Later launches offer **Play Conker**.
 
 The supported ROM has SHA-1 `4cbadd3c4e0729dec46af64ad018050eada4f47a`
 and starts with `80371240`. Its bytes must be big-endian even if its filename
@@ -72,7 +72,8 @@ Use the on-screen stick and buttons, or connect a compatible controller.
 Open **••• → Controls** to change bindings, opacity, size, and button visibility.
 **Edit Layout** lets you move and resize individual controls; phone and tablet
 layouts are saved separately. The **•••** menu pauses the game and remains
-available when touch controls are hidden.
+available when touch controls are hidden. **General → Return to SquirrelPad**
+opens the launcher with the session paused; **Resume Game** brings you back.
 
 ## FAQ
 

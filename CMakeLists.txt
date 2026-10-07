@@ -42,6 +42,7 @@ endif()
 
 add_executable(SquirrelPad MACOSX_BUNDLE
     Sources/SquirrelPadApp.swift
+    Sources/SquirrelPadShell.swift
     Sources/RT64Surface.swift
     Sources/TouchControlsView.swift
     Sources/ControllerInput.swift

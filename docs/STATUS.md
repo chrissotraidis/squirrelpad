@@ -4175,3 +4175,12 @@ See [the main Mac build record](LOCAL_BUILD_2026-10-07.md) for the acorn icon,
 PadMint personal IPA, current binary hashes, and publication status. The Mac
 opening sequence rendered; both mobile SDK package audits passed. Existing
 physical-device and full-game acceptance gates remain open.
+
+## Pixel acorn and launcher/menu refinement (2026-10-07)
+
+Replaced the painted acorn with an N64-style pixel collectible and refreshed
+both the launch screen and three-dot settings panel. The iPad Simulator verified
+launch, pause, return to the launcher, resume, and layout-editor entry/exit.
+Both SDK builds and package audits passed. Phone launch rendering was inspected;
+phone tap checks remain open because Device Hub interaction failed. See
+[design and validation notes](MENU_REFINEMENT_2026-10-07.md).

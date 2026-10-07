@@ -10,21 +10,21 @@ private extension UTType {
 
 @_silgen_name("squirrelpad_run_core")
 private func runConkerCore(_ rom: UnsafePointer<CChar>, _ dataDirectory: UnsafePointer<CChar>, _ seconds: Int32) -> Int32
-@_silgen_name("squirrelpad_vi_count")
-private func conkerVICount() -> UInt32
 @_silgen_name("squirrelpad_set_active")
 private func setCoreActive(_ active: Bool)
 @_silgen_name("squirrelpad_audio_set_volume")
 private func setMasterVolume(_ volume: Float)
 
 private enum SettingsSection {
+    case general
     case controls
     case audio
+    case about
 }
 
 @MainActor
 private final class GameSession: ObservableObject {
-    @Published var message = "Select your US Conker's Bad Fur Day ROM."
+    @Published var message = ""
     @Published var running = false
     @Published private(set) var storedROM: URL?
 
@@ -69,20 +69,13 @@ private final class GameSession: ObservableObject {
             running = true
             let romPath = imported.path
             let dataPath = directory.path
-            DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
-                guard self.running else { return }
-                let count = conkerVICount()
-                self.message = count > 0
-                    ? "Native core is running (\(count) VIs). Gameplay display is still in development."
-                    : "Native core started, but has not produced a VI yet."
-            }
             DispatchQueue.global(qos: .userInitiated).async {
                 let result = romPath.withCString { rom in
                     dataPath.withCString { storage in runConkerCore(rom, storage, 0) }
                 }
                 DispatchQueue.main.async {
                     self.running = false
-                    self.message = result == 0 ? "Native core check finished. Gameplay display is still in development." : "Native core check failed (code \(result))."
+                    self.message = result == 0 ? "The game has closed. You can start it again." : "The game stopped (code \(result))."
                 }
             }
         } catch {
@@ -112,13 +105,15 @@ struct SquirrelPadApp: App {
     @AppStorage("SquirrelPad.HiddenControlsPhone") private var phoneHiddenControls = ""
     @State private var importing = false
     @State private var menuOpen = false
+    @State private var showingLauncher = true
+    @State private var confirmResetTouch = false
     @State private var editingLayout = false
     @State private var editingCompact = false
     @State private var editedPositions: [String: CGPoint] = [:]
     @State private var editedControlSizes: [String: Double] = [:]
     @State private var editedHiddenControls: Set<String> = []
     @State private var selectedControl: String?
-    @State private var settingsSection: SettingsSection = .controls
+    @State private var settingsSection: SettingsSection = .general
     @State private var bindingsExpanded = false
     @State private var audioInterrupted = false
 
@@ -139,7 +134,7 @@ struct SquirrelPadApp: App {
 
                     // Discard local gesture state when focus is lost, as well
                     // as clearing the native input state in the lifecycle handler.
-                    if session.running && touchEnabled && (!menuOpen || editingLayout)
+                    if session.running && !showingLauncher && touchEnabled && (!menuOpen || editingLayout)
                         && scenePhase == .active && !audioInterrupted {
                         TouchControlsView(opacity: editingLayout ? 1.0 : (touchTransparency ? touchOpacity : 1.0),
                                           scale: controlScale,
@@ -159,18 +154,25 @@ struct SquirrelPadApp: App {
                                               }
                                           })
                     }
-                    if !session.running && !menuOpen {
-                        importPanel
-                            .position(x: geometry.size.width / 2,
-                                      y: geometry.size.height / 2)
+                    if (!session.running || showingLauncher) && !menuOpen {
+                        SquirrelPadLauncher(size: geometry.size,
+                                            hasROM: session.storedROM != nil,
+                                            paused: session.running,
+                                            message: session.message,
+                                            play: {
+                                                if session.running { showingLauncher = false }
+                                                else if let rom = session.storedROM { session.importROM(rom) }
+                                            },
+                                            chooseROM: { importing = true },
+                                            settings: { menuOpen = true })
                     }
                     if menuOpen {
-                        Color.black.opacity(0.28)
+                        SquirrelPadTheme.background.opacity(0.88)
                             .onTapGesture { menuOpen = false }
                         controlsPanel(compact: compact, size: geometry.size,
                                       sideMargin: menuSideMargin)
                             .position(x: geometry.size.width / 2,
-                                      y: geometry.size.height / 2 - (compact ? 28 : 0))
+                                      y: geometry.size.height / 2)
                     }
                     if editingLayout {
                         VStack(spacing: 8) {
@@ -222,7 +224,7 @@ struct SquirrelPadApp: App {
                         .padding(.vertical, 8)
                         .background(.black.opacity(0.82), in: RoundedRectangle(cornerRadius: 18))
                         .position(x: geometry.size.width / 2, y: compact ? 54 : 60)
-                    } else {
+                    } else if session.running && !showingLauncher && !menuOpen {
                         Button(action: toggleMenu) {
                             Text("•••")
                                 .font(.system(size: compact ? 17 : 15, weight: .semibold))
@@ -244,6 +246,13 @@ struct SquirrelPadApp: App {
             .background(.black)
             .ignoresSafeArea()
             .statusBarHidden()
+            .preferredColorScheme(.dark)
+            .tint(SquirrelPadTheme.accent)
+            .confirmationDialog("Restore all touch controls?", isPresented: $confirmResetTouch, titleVisibility: .visible) {
+                Button("Restore Defaults", role: .destructive) { restoreTouchDefaults() }
+            } message: {
+                Text("This resets control sizes, visibility, and your phone and tablet layouts. Your game saves are kept.")
+            }
             .onAppear {
                 setMasterVolume(Float(masterVolume))
                 updateCoreActivity()
@@ -256,6 +265,10 @@ struct SquirrelPadApp: App {
             }
             .onChange(of: menuOpen) { open in
                 if open { clearTouchInput() }
+                updateCoreActivity()
+            }
+            .onChange(of: showingLauncher) { _ in
+                clearTouchInput()
                 updateCoreActivity()
             }
             .onChange(of: editingLayout) { _ in updateCoreActivity() }
@@ -272,6 +285,8 @@ struct SquirrelPadApp: App {
                 updateCoreActivity(phase: phase)
             }
             .onChange(of: session.running) { running in
+                showingLauncher = !running
+                if running { menuOpen = false }
                 if !running {
                     clearTouchInput()
                     editingLayout = false
@@ -296,24 +311,6 @@ struct SquirrelPadApp: App {
         }
     }
 
-    private var importPanel: some View {
-        VStack(spacing: 18) {
-            Text("SquirrelPad").font(.largeTitle.bold())
-            Text(session.message).multilineTextAlignment(.center)
-            Button("Choose ROM") { importing = true }
-                .buttonStyle(.borderedProminent)
-            if let storedROM = session.storedROM {
-                Button("Continue Imported ROM") { session.importROM(storedROM) }
-            }
-            Text(renderer.message).font(.caption.monospaced())
-            if session.running { ProgressView() }
-        }
-        .foregroundStyle(.white)
-        .padding(28)
-        .frame(maxWidth: 420)
-        .background(.black.opacity(0.76), in: RoundedRectangle(cornerRadius: 18))
-    }
-
     private func compactMenuSideMargin() -> CGFloat {
         let insets = UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
@@ -323,236 +320,290 @@ struct SquirrelPadApp: App {
     }
 
     private func controlsPanel(compact: Bool, size: CGSize, sideMargin: CGFloat) -> some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 16) {
-                Text("Settings")
-                    .font(.system(size: compact ? 20 : 26, weight: .semibold))
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 7)
-                    .background(.blue, in: RoundedRectangle(cornerRadius: 6))
+        let panelHeight = min(760, size.height - (compact ? 40 : 80))
+        return VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                AcornMark(size: 38)
+                Text("Settings").font(.system(size: compact ? 22 : 26, weight: .bold, design: .rounded))
                 Spacer()
                 Button { menuOpen = false } label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 15, weight: .bold))
-                        .frame(width: 32, height: 32)
-                        .background(.white.opacity(0.18), in: RoundedRectangle(cornerRadius: 5))
+                    Label(session.running && !showingLauncher ? "Resume" : "Done",
+                          systemImage: session.running && !showingLauncher ? "play.fill" : "checkmark")
                 }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Close menu")
-                    .padding(.trailing, compact ? 0 : 48)
+                .buttonStyle(SquirrelPadButtonStyle(primary: true))
+                .accessibilityIdentifier("squirrelpad-close-settings")
             }
-            .padding(.horizontal, compact ? 18 : 28)
-            .frame(height: compact ? 54 : 70)
-
-            Rectangle().fill(.white.opacity(0.55)).frame(height: 2)
-
+            .padding(.horizontal, compact ? 18 : 24)
+            .frame(height: 76)
+            Divider()
             HStack(alignment: .top, spacing: 0) {
-                VStack(spacing: 8) {
-                    settingsTab("Controls", section: .controls, compact: compact)
-                    settingsTab("Audio", section: .audio, compact: compact)
+                ScrollView {
+                    VStack(spacing: 8) {
+                        settingsTab("General", symbol: "gearshape", section: .general, compact: compact)
+                        settingsTab("Controls", symbol: "gamecontroller", section: .controls, compact: compact)
+                        settingsTab("Audio", symbol: "speaker.wave.2", section: .audio, compact: compact)
+                        settingsTab("About", symbol: "info.circle", section: .about, compact: compact)
+                    }
+                    .padding(compact ? 10 : 16)
                 }
-                .padding(.horizontal, compact ? 12 : 22)
-                .padding(.top, 24)
-                .frame(width: compact ? 158 : 230)
-
-                Rectangle().fill(.white.opacity(0.6)).frame(width: 2)
-
+                .frame(width: compact ? 150 : 200)
+                Divider()
                 ScrollViewReader { scrollProxy in
                     ScrollView {
-                        VStack(alignment: .leading, spacing: compact ? 10 : 24) {
-                            if settingsSection == .controls {
-                                Text("Controls")
-                                    .font(.system(size: compact ? 23 : 29, weight: .semibold))
-                                Toggle("Touch Controls", isOn: $touchEnabled)
-                                    .tint(.blue)
-                                Text("Show the N64 controls on the game screen.")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.white.opacity(0.68))
-                                HStack {
-                                    Text("Game Controller")
-                                    Spacer()
-                                    Text(controllerInput.connectedName ?? "Not connected")
+                        VStack(alignment: .leading, spacing: 20) {
+                            if settingsSection == .general {
+                                generalSettings
+                            } else if settingsSection == .controls {
+                                SettingsCard(title: "Controls", symbol: "gamecontroller") {
+                                    Toggle("Touch Controls", isOn: $touchEnabled)
+                                        .tint(SquirrelPadTheme.accent)
+                                    Text("Show the N64 controls on the game screen.")
+                                        .font(.subheadline)
                                         .foregroundStyle(.white.opacity(0.68))
-                                }
-                                .font(.subheadline)
-                                Divider().overlay(.white.opacity(0.4))
-                                Button { bindingsExpanded.toggle() } label: {
-                                    HStack(spacing: 10) {
-                                        Image(systemName: bindingsExpanded ? "chevron.down" : "chevron.right")
-                                        Text("Controller Bindings")
-                                        Rectangle()
-                                            .fill(.white.opacity(0.4))
-                                            .frame(height: 1)
-                                    }
-                                    .font(.headline)
-                                    .padding(.vertical, 5)
-                                    .contentShape(Rectangle())
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityValue(bindingsExpanded ? "Expanded" : "Collapsed")
-                                .id("controller-bindings")
-                                .onChange(of: bindingsExpanded) { expanded in
-                                    if compact && expanded {
-                                        withAnimation {
-                                            scrollProxy.scrollTo("controller-bindings", anchor: .top)
-                                        }
-                                    }
-                                }
-                                if bindingsExpanded {
-                                    if controllerInput.connectedName != nil {
-                                        Text(controllerInput.rumbleAvailable ? "Rumble available" : "Rumble unavailable")
-                                            .font(.subheadline)
+                                    HStack {
+                                        Text("Game Controller")
+                                        Spacer()
+                                        Text(controllerInput.connectedName ?? "Not connected")
                                             .foregroundStyle(.white.opacity(0.68))
                                     }
-                                    VStack(spacing: compact ? 5 : 7) {
-                                        ForEach(ControllerInput.bindings.indices, id: \.self) { index in
-                                            let binding = ControllerInput.bindings[index]
-                                            HStack(spacing: 8) {
-                                                Text(binding.n64)
-                                                    .frame(width: compact ? 86 : 120, alignment: .leading)
-                                                    .padding(.horizontal, 10)
-                                                    .padding(.vertical, 7)
-                                                    .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: 4))
-                                                if let action = ControllerAction(rawValue: binding.n64) {
-                                                    HStack(spacing: 0) {
-                                                        Picker("\(binding.n64) gamepad binding", selection: Binding(
-                                                            get: { controllerInput.binding(for: action) },
-                                                            set: { controllerInput.setBinding($0, for: action) }
-                                                        )) {
-                                                            ForEach(GamepadButton.allCases, id: \.self) { button in
-                                                                Text(button.rawValue).tag(button)
-                                                            }
-                                                        }
-                                                        .pickerStyle(.menu)
-                                                        .tint(.white)
-                                                        .padding(.horizontal, 4)
-                                                        if controllerInput.binding(for: action) != .unbound {
-                                                            Button {
-                                                                controllerInput.setBinding(.unbound, for: action)
-                                                            } label: {
-                                                                Image(systemName: "xmark")
-                                                                    .font(.system(size: 12, weight: .bold))
-                                                                    .frame(width: 44, height: 44)
-                                                            }
-                                                            .buttonStyle(.plain)
-                                                            .accessibilityLabel("Remove \(binding.n64) binding")
-                                                        }
-                                                    }
-                                                    .background(.blue.opacity(0.68), in: RoundedRectangle(cornerRadius: 4))
-                                                } else {
-                                                    Text(binding.gamepad)
+                                    .font(.subheadline)
+                                    Divider()
+                                    Button { bindingsExpanded.toggle() } label: {
+                                        HStack(spacing: 10) {
+                                            Image(systemName: bindingsExpanded ? "chevron.down" : "chevron.right")
+                                            Text("Controller Bindings")
+                                            Rectangle()
+                                                .fill(.white.opacity(0.4))
+                                                .frame(height: 1)
+                                        }
+                                        .font(.headline)
+                                        .padding(.vertical, 5)
+                                        .contentShape(Rectangle())
+                                    }
+                                    .buttonStyle(.plain)
+                                    .accessibilityValue(bindingsExpanded ? "Expanded" : "Collapsed")
+                                    .id("controller-bindings")
+                                    .onChange(of: bindingsExpanded) { expanded in
+                                        if compact && expanded {
+                                            withAnimation {
+                                                scrollProxy.scrollTo("controller-bindings", anchor: .top)
+                                            }
+                                        }
+                                    }
+                                    if bindingsExpanded {
+                                        if controllerInput.connectedName != nil {
+                                            Text(controllerInput.rumbleAvailable ? "Rumble available" : "Rumble unavailable")
+                                                .font(.subheadline)
+                                                .foregroundStyle(.white.opacity(0.68))
+                                        }
+                                        VStack(spacing: compact ? 5 : 7) {
+                                            ForEach(ControllerInput.bindings.indices, id: \.self) { index in
+                                                let binding = ControllerInput.bindings[index]
+                                                HStack(spacing: 8) {
+                                                    Text(binding.n64)
+                                                        .frame(width: compact ? 86 : 120, alignment: .leading)
                                                         .padding(.horizontal, 10)
                                                         .padding(.vertical, 7)
-                                                        .background(.blue.opacity(0.68), in: RoundedRectangle(cornerRadius: 4))
+                                                        .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: 4))
+                                                    if let action = ControllerAction(rawValue: binding.n64) {
+                                                        HStack(spacing: 0) {
+                                                            Picker("\(binding.n64) gamepad binding", selection: Binding(
+                                                                get: { controllerInput.binding(for: action) },
+                                                                set: { controllerInput.setBinding($0, for: action) }
+                                                            )) {
+                                                                ForEach(GamepadButton.allCases, id: \.self) { button in
+                                                                    Text(button.rawValue).tag(button)
+                                                                }
+                                                            }
+                                                            .pickerStyle(.menu)
+                                                            .tint(.white)
+                                                            .padding(.horizontal, 4)
+                                                            if controllerInput.binding(for: action) != .unbound {
+                                                                Button {
+                                                                    controllerInput.setBinding(.unbound, for: action)
+                                                                } label: {
+                                                                    Image(systemName: "xmark")
+                                                                        .font(.system(size: 12, weight: .bold))
+                                                                        .frame(width: 44, height: 44)
+                                                                }
+                                                                .buttonStyle(.plain)
+                                                                .accessibilityLabel("Remove \(binding.n64) binding")
+                                                            }
+                                                        }
+                                                        .background(SquirrelPadTheme.accent.opacity(0.3), in: RoundedRectangle(cornerRadius: 4))
+                                                    } else {
+                                                        Text(binding.gamepad)
+                                                            .padding(.horizontal, 10)
+                                                            .padding(.vertical, 7)
+                                                            .background(SquirrelPadTheme.accent.opacity(0.3), in: RoundedRectangle(cornerRadius: 4))
+                                                    }
+                                                    Spacer(minLength: 0)
                                                 }
-                                                Spacer(minLength: 0)
+                                                .font(.system(size: compact ? 14 : 17))
                                             }
-                                            .font(.system(size: compact ? 14 : 17))
+                                            Button("Restore Controller Bindings") { controllerInput.restoreBindings() }
+                                                .font(.subheadline)
+                                                .padding(.top, 4)
                                         }
-                                        Button("Restore Controller Bindings") { controllerInput.restoreBindings() }
-                                            .font(.subheadline)
-                                            .padding(.top, 4)
                                     }
-                                }
-                                Divider().overlay(.white.opacity(0.4))
-                                Text("Touch Layout")
-                                    .font(.headline)
-                                VStack(alignment: .leading, spacing: 5) {
-                                    HStack {
-                                        Text("Control Size")
-                                        Spacer()
-                                        Text("\(Int((controlScale * 100).rounded()))%")
-                                            .monospacedDigit()
-                                    }
-                                    Slider(value: $controlScale, in: 0.8...1.2)
-                                        .tint(.blue)
-                                        .accessibilityLabel("Control Size")
-                                        .accessibilityValue("\(Int((controlScale * 100).rounded())) percent")
-                                }
-                                .disabled(!touchEnabled)
-                                Divider().overlay(.white.opacity(0.4))
-                                Toggle("Transparent Controls", isOn: $touchTransparency)
-                                    .tint(.blue)
-                                    .disabled(!touchEnabled)
-                                if touchTransparency {
+                                    Divider()
+                                    Text("Touch Layout")
+                                        .font(.headline)
                                     VStack(alignment: .leading, spacing: 5) {
                                         HStack {
-                                            Text("Control Opacity")
+                                            Text("Control Size")
                                             Spacer()
-                                            Text("\(Int((touchOpacity * 100).rounded()))%")
+                                            Text("\(Int((controlScale * 100).rounded()))%")
                                                 .monospacedDigit()
                                         }
-                                        Slider(value: $touchOpacity, in: 0.25...1.0)
-                                            .tint(.blue)
-                                            .accessibilityLabel("Control Opacity")
-                                            .accessibilityValue("\(Int((touchOpacity * 100).rounded())) percent")
+                                        Slider(value: $controlScale, in: 0.8...1.2)
+                                            .tint(SquirrelPadTheme.accent)
+                                            .accessibilityLabel("Control Size")
+                                            .accessibilityValue("\(Int((controlScale * 100).rounded())) percent")
                                     }
                                     .disabled(!touchEnabled)
+                                    Divider()
+                                    Toggle("Transparent Controls", isOn: $touchTransparency)
+                                        .tint(SquirrelPadTheme.accent)
+                                        .disabled(!touchEnabled)
+                                    if touchTransparency {
+                                        VStack(alignment: .leading, spacing: 5) {
+                                            HStack {
+                                                Text("Control Opacity")
+                                                Spacer()
+                                                Text("\(Int((touchOpacity * 100).rounded()))%")
+                                                    .monospacedDigit()
+                                            }
+                                            Slider(value: $touchOpacity, in: 0.25...1.0)
+                                                .tint(SquirrelPadTheme.accent)
+                                                .accessibilityLabel("Control Opacity")
+                                                .accessibilityValue("\(Int((touchOpacity * 100).rounded())) percent")
+                                        }
+                                        .disabled(!touchEnabled)
+                                    }
+                                    Divider()
+                                    Text("Button Visibility")
+                                        .font(.headline)
+                                    Toggle("D-pad Buttons", isOn: $showDpad)
+                                        .tint(SquirrelPadTheme.accent)
+                                    Toggle("C Buttons", isOn: $showCButtons)
+                                        .tint(SquirrelPadTheme.accent)
+                                    Button("Edit Layout") { beginLayoutEdit(compact: compact) }
+                                        .buttonStyle(SquirrelPadButtonStyle(primary: true))
+                                        .disabled(!touchEnabled || !session.running || showingLauncher)
+                                    Button("Restore Touch Defaults") { confirmResetTouch = true }
+                                        .buttonStyle(SquirrelPadButtonStyle())
                                 }
-                                Divider().overlay(.white.opacity(0.4))
-                                Text("Button Visibility")
-                                    .font(.headline)
-                                Toggle("D-pad Buttons", isOn: $showDpad)
-                                    .tint(.blue)
-                                Toggle("C Buttons", isOn: $showCButtons)
-                                    .tint(.blue)
-                                Button("Edit Layout") { beginLayoutEdit(compact: compact) }
-                                    .buttonStyle(.borderedProminent)
-                                    .disabled(!touchEnabled || !session.running)
-                                Button("Restore Defaults") {
-                                    touchEnabled = true
-                                    touchTransparency = false
-                                    touchOpacity = 1.0
-                                    controlScale = 1.0
-                                    showDpad = true
-                                    showCButtons = true
-                                    tabletLayout = ""
-                                    phoneLayout = ""
-                                    tabletControlSizes = ""
-                                    phoneControlSizes = ""
-                                    tabletHiddenControls = ""
-                                    phoneHiddenControls = ""
+                            } else if settingsSection == .audio {
+                                SettingsCard(title: "Game audio", symbol: "speaker.wave.2") {
+                                    HStack {
+                                        Text("Master Volume")
+                                        Spacer()
+                                        Text("\(Int((masterVolume * 100).rounded()))%")
+                                            .monospacedDigit()
+                                    }
+                                    Slider(value: $masterVolume, in: 0...1)
+                                        .accessibilityLabel("Master Volume")
+                                    Text("Adjust game audio without changing your device volume.")
+                                        .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
+                                    Button("Restore Default Volume") { masterVolume = 1.0 }
+                                        .buttonStyle(SquirrelPadButtonStyle())
                                 }
-                                .buttonStyle(.borderedProminent)
                             } else {
-                                Text("Audio")
-                                    .font(.system(size: compact ? 23 : 29, weight: .semibold))
-                                HStack {
-                                    Text("Master Volume")
-                                    Spacer()
-                                    Text("\(Int((masterVolume * 100).rounded()))%")
-                                        .monospacedDigit()
-                                }
-                                Slider(value: $masterVolume, in: 0...1)
-                                    .tint(.blue)
-                                    .accessibilityLabel("Master Volume")
-                                Button("Restore Default Volume") { masterVolume = 1.0 }
-                                    .buttonStyle(.borderedProminent)
+                                aboutSettings
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(compact ? 14 : 30)
+                        .padding(compact ? 14 : 24)
                     }
+                    .id(settingsSection)
                 }
-                .frame(height: size.height - (compact ? 144 : 128))
             }
+            .frame(maxHeight: .infinity)
         }
         .foregroundStyle(.white)
-        .frame(width: size.width - sideMargin * 2,
-               height: size.height - (compact ? 88 : 56))
-        .background(Color.black.opacity(0.88), in: RoundedRectangle(cornerRadius: 14))
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(.white.opacity(0.35)))
+        .frame(width: min(1050, size.width - sideMargin * 2), height: panelHeight)
+        .background(SquirrelPadTheme.panel, in: RoundedRectangle(cornerRadius: 24))
+        .overlay(RoundedRectangle(cornerRadius: 24).stroke(.white.opacity(0.1)))
     }
 
-    private func settingsTab(_ title: String, section: SettingsSection, compact: Bool) -> some View {
-        Button(title) { settingsSection = section }
-            .buttonStyle(.plain)
-            .font(.system(size: compact ? 17 : 22, weight: .medium))
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .background(settingsSection == section ? Color.blue : Color.clear,
-                        in: RoundedRectangle(cornerRadius: 6))
+    private var generalSettings: some View {
+        VStack(spacing: 20) {
+            SettingsCard(title: "Conker’s Bad Fur Day", symbol: "gamecontroller.fill") {
+                Label(session.running ? "Game paused" : session.storedROM != nil ? "ROM ready" : "No ROM imported",
+                      systemImage: session.running ? "pause.circle" : "doc")
+                    .foregroundStyle(SquirrelPadTheme.secondary)
+                if session.running {
+                    Text("Return to the launcher to pause here. Resume Game brings you back to this session.")
+                        .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
+                    Button("Return to SquirrelPad") {
+                        showingLauncher = true
+                        menuOpen = false
+                    }
+                    .buttonStyle(SquirrelPadButtonStyle())
+                } else {
+                    Text("Import your own supported US ROM from Files.")
+                        .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
+                    Button(session.storedROM == nil ? "Choose ROM" : "Choose another ROM") { importing = true }
+                        .buttonStyle(SquirrelPadButtonStyle(primary: true))
+                    if !session.message.isEmpty {
+                        Text(session.message).font(.subheadline).foregroundStyle(.orange)
+                    }
+                }
+            }
+            SettingsCard(title: "Your progress", symbol: "externaldrive") {
+                Text("Use the game’s normal save system. Pausing keeps your current session in memory; it does not create a save state.")
+                Text("Install updates over SquirrelPad to keep your imported ROM, saves, and settings.")
+                    .foregroundStyle(SquirrelPadTheme.secondary)
+            }
+            .font(.subheadline)
+        }
+    }
+
+    private var aboutSettings: some View {
+        VStack(spacing: 20) {
+            SettingsCard(title: "SquirrelPad", symbol: "leaf") {
+                Text("Conker’s Bad Fur Day on iPhone and iPad.")
+                Text("Version \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.1.0")")
+                    .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
+                Text("Built on CBFD-Recompiled, N64Recomp, and RT64. Game data is supplied by you.")
+                    .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
+                Link("Project & setup guide", destination: URL(string: "https://github.com/chrissotraidis/squirrelpad")!)
+                    .frame(minHeight: 44)
+                DisclosureGroup("Renderer details") {
+                    Text(renderer.message).font(.caption.monospaced())
+                        .frame(maxWidth: .infinity, alignment: .leading).padding(.top, 12)
+                }
+            }
+        }
+    }
+
+    private func settingsTab(_ title: String, symbol: String, section: SettingsSection, compact: Bool) -> some View {
+        Button { settingsSection = section } label: {
+            Label(title, systemImage: symbol)
+                .font(.system(size: compact ? 15 : 17, weight: .semibold))
+                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                .padding(.horizontal, 10)
+                .background(settingsSection == section ? SquirrelPadTheme.accent : .clear,
+                            in: RoundedRectangle(cornerRadius: 10))
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(settingsSection == section ? .isSelected : [])
+    }
+
+    private func restoreTouchDefaults() {
+        touchEnabled = true
+        touchTransparency = false
+        touchOpacity = 1
+        controlScale = 1
+        showDpad = true
+        showCButtons = true
+        tabletLayout = ""
+        phoneLayout = ""
+        tabletControlSizes = ""
+        phoneControlSizes = ""
+        tabletHiddenControls = ""
+        phoneHiddenControls = ""
     }
 
     private func toggleMenu() {
@@ -561,7 +612,7 @@ struct SquirrelPadApp: App {
     }
 
     private func updateCoreActivity(phase: ScenePhase? = nil) {
-        let active = (phase ?? scenePhase) == .active && !menuOpen && !editingLayout && !audioInterrupted
+        let active = (phase ?? scenePhase) == .active && !showingLauncher && !menuOpen && !editingLayout && !audioInterrupted
         setCoreActive(active)
         controllerInput.setActive(active && session.running)
     }
