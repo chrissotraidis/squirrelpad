@@ -20,6 +20,18 @@ SquirrelPad brings [CBFD-Recompiled](https://github.com/sciaschi/CBFD-Recompiled
 to iPhone and iPad with an RT64 Metal renderer, Files-based ROM import,
 editable touch layouts, controller bindings, and local EEPROM saves.
 
+<p align="center">
+  <img src="docs/screenshots/ipad-gameplay.jpg" width="900" alt="Conker in the first playable area of SquirrelPad, with iPad touch controls"><br>
+  <sub>Actual iPadOS 27 Simulator capture. Your own game data is required.</sub>
+</p>
+
+<details>
+<summary><strong>See the launcher</strong></summary>
+
+![SquirrelPad's woodland launcher with Play Conker, Settings, and Help](docs/screenshots/ipad-launcher.jpg)
+
+</details>
+
 **Experimental:** earlier iPhone and iPad Simulator builds reached the first
 playable field. Physical-device acceptance, full-story compatibility, audio
 quality, and meaningful in-level save fidelity remain open. iOS 17 is the build
@@ -134,4 +146,4 @@ SquirrelPad adds the Apple mobile integration. See the
 [source and notices inventory](docs/SOURCE_BOUNDARY.md) for component licensing.
 
 SquirrelPad uses AI assistance for development and artwork. The acorn icon is
-original generated artwork; game assets are not included in this repository.
+original generated artwork. ROMs and extracted game assets are not included.

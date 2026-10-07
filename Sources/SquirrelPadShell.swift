@@ -47,43 +47,60 @@ struct SquirrelPadLauncher: View {
     let chooseROM: () -> Void
     let settings: () -> Void
     @State private var showHelp = false
+    @State private var drifting = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
+
+    private let gold = Color(red: 1, green: 0.76, blue: 0.34)
 
     private var compact: Bool { size.height < 560 }
     private var wide: Bool { size.width > 650 }
+    private var inset: CGFloat { compact ? 64 : wide ? 64 : 28 }
 
     var body: some View {
         ZStack {
-            LinearGradient(colors: [SquirrelPadTheme.background,
-                                    Color(red: 0.065, green: 0.08, blue: 0.19)],
-                           startPoint: .topLeading, endPoint: .bottomTrailing)
+            Image("Woodland")
+                .resizable()
+                .scaledToFill()
+                .frame(width: size.width, height: size.height)
+                .scaleEffect(drifting ? 1.035 : 1, anchor: .trailing)
+                .clipped()
+                .accessibilityHidden(true)
+            LinearGradient(stops: [
+                .init(color: Color(red: 0.015, green: 0.05, blue: 0.065).opacity(0.86), location: 0),
+                .init(color: .black.opacity(wide ? 0.28 : 0.55), location: 0.52),
+                .init(color: .clear, location: 1)
+            ], startPoint: .leading, endPoint: .trailing)
+            LinearGradient(colors: [.black.opacity(0.24), .clear, .black.opacity(0.55)],
+                           startPoint: .top, endPoint: .bottom)
             ScrollView {
-                VStack(spacing: compact ? 18 : 32) {
-                    if wide {
-                        HStack(spacing: compact ? 32 : 56) {
-                            identity.frame(maxWidth: .infinity)
-                            actions.frame(maxWidth: .infinity)
-                        }
-                    } else {
-                        identity
-                        actions
-                    }
+                VStack(alignment: .leading, spacing: compact ? 16 : 32) {
+                    header
+                    Spacer(minLength: compact ? 0 : 28)
+                    hero
+                        .frame(maxWidth: wide ? min(560, size.width * 0.58) : .infinity, alignment: .leading)
+                    Spacer(minLength: compact ? 0 : 28)
                     HStack(spacing: 18) {
-                        Button(action: settings) { Label("Settings", systemImage: "slider.horizontal.3") }
-                        Button { showHelp = true } label: { Label("Setup help", systemImage: "questionmark.circle") }
+                        Label("Touch or controller", systemImage: "gamecontroller")
+                        if hasROM && !compact {
+                            Label("ROM on this device", systemImage: "checkmark.circle")
+                        }
                     }
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(SquirrelPadTheme.secondary)
-                    .buttonStyle(.plain)
-                    .frame(minHeight: 44)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.65))
                 }
-                .frame(maxWidth: 850)
-                .padding(.horizontal, wide ? 44 : 28)
-                .padding(.vertical, compact ? 24 : 48)
-                .frame(maxWidth: .infinity, minHeight: size.height)
+                .padding(.horizontal, inset)
+                .padding(.vertical, compact ? 18 : 36)
+                .frame(maxWidth: .infinity, minHeight: size.height, alignment: .leading)
             }
         }
+        .frame(width: size.width, height: size.height)
+        .clipped()
         .foregroundStyle(.white)
         .preferredColorScheme(.dark)
+        .onAppear { updateMotion() }
+        .onChange(of: reduceMotion) { _, _ in updateMotion() }
+        .onChange(of: scenePhase) { _, _ in updateMotion() }
         .sheet(isPresented: $showHelp) {
             NavigationStack {
                 ScrollView {
@@ -107,63 +124,118 @@ struct SquirrelPadLauncher: View {
         }
     }
 
-    private var identity: some View {
-        VStack(spacing: compact ? 10 : 18) {
-            AcornMark(size: compact ? 112 : 164)
-            VStack(spacing: 6) {
-                Text("SquirrelPad")
-                    .font(.system(size: compact ? 32 : 42, weight: .bold, design: .rounded))
-                    .minimumScaleFactor(0.8)
-                    .lineLimit(1)
-                Text("Conker’s Bad Fur Day")
-                    .font(.system(.body, design: .rounded))
-                    .foregroundStyle(SquirrelPadTheme.secondary)
+    private var header: some View {
+        HStack(spacing: 10) {
+            AcornMark(size: compact ? 32 : 40)
+            Text("SquirrelPad")
+                .font(.system(size: compact ? 18 : 22, weight: .bold, design: .rounded))
+            Spacer(minLength: 12)
+            Button(action: settings) {
+                Label("Settings", systemImage: "slider.horizontal.3")
+            }
+            .accessibilityIdentifier("squirrelpad-launcher-settings")
+            Button { showHelp = true } label: {
+                Label("Help", systemImage: "questionmark.circle")
             }
         }
+        .buttonStyle(LauncherUtilityStyle())
     }
 
-    private var actions: some View {
-        VStack(alignment: .leading, spacing: compact ? 14 : 20) {
-            Label(paused ? "GAME PAUSED" : hasROM ? "READY TO PLAY" : "GET STARTED",
-                  systemImage: paused ? "pause.circle.fill" : hasROM ? "checkmark.circle.fill" : "doc.badge.plus")
-                .font(.caption.weight(.bold))
-                .tracking(1.4)
-                .foregroundStyle(Color(red: 1, green: 0.73, blue: 0.34))
-            Text(paused ? "Pick up where you left off." : hasROM ? "Your game is ready." : "Start with your ROM.")
-                .font(.system(size: compact ? 23 : 28, weight: .semibold, design: .rounded))
+    private var hero: some View {
+        VStack(alignment: .leading, spacing: compact ? 12 : 22) {
+            HStack(spacing: 8) {
+                Circle().fill(gold).frame(width: 6, height: 6)
+                Text(paused ? "GAME PAUSED" : hasROM ? "READY TO PLAY" : "WELCOME TO SQUIRRELPAD")
+                    .font(.system(size: compact ? 10 : 12, weight: .bold))
+                    .tracking(2)
+            }
+            .foregroundStyle(gold)
+            (Text("Conker’s\n").foregroundStyle(.white) + Text("Bad Fur Day").foregroundStyle(gold))
+                .font(.system(size: compact ? 44 : wide ? 72 : 50, weight: .black, design: .rounded))
+                .tracking(compact ? -1.5 : -2.5)
+                .lineSpacing(-4)
                 .fixedSize(horizontal: false, vertical: true)
-            Text(paused ? "Your current session is paused and ready to resume."
-                 : hasROM ? "Your imported copy is saved on this device."
-                 : "Choose your own US copy of Conker’s Bad Fur Day from Files to begin.")
-                .font(.subheadline)
-                .foregroundStyle(SquirrelPadTheme.secondary)
+                .shadow(color: .black.opacity(0.2), radius: 12, y: 4)
+            Text(paused ? "A little breather. Then back to the trouble."
+                 : hasROM ? "A very bad day. A very good time."
+                 : "Bring your own US ROM. We’ll take it from here.")
+                .font(.system(size: compact ? 14 : 18))
+                .foregroundStyle(.white.opacity(0.82))
                 .fixedSize(horizontal: false, vertical: true)
             if !message.isEmpty && !paused {
                 Label(message, systemImage: "exclamationmark.circle")
                     .font(.subheadline)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(gold)
+                    .padding(12)
+                    .background(.black.opacity(0.45), in: RoundedRectangle(cornerRadius: 12))
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier("squirrelpad-import-message")
             }
-            Button(action: paused || hasROM ? play : chooseROM) {
-                HStack {
-                    Label(paused ? "Resume Game" : hasROM ? "Play Conker" : "Choose ROM",
-                          systemImage: paused || hasROM ? "play.fill" : "folder")
-                    Spacer()
-                    Image(systemName: "arrow.right")
+            HStack(spacing: compact ? 16 : 22) {
+                Button(action: paused || hasROM ? play : chooseROM) {
+                    HStack(spacing: 12) {
+                        Image(systemName: paused || hasROM ? "play.fill" : "folder.fill")
+                        Text(paused ? "Resume Game" : hasROM ? "Play Conker" : "Choose ROM")
+                        Spacer(minLength: 16)
+                        Image(systemName: "arrow.right")
+                    }
+                    .frame(maxWidth: compact ? 235 : 270)
+                }
+                .buttonStyle(LauncherPlayStyle())
+                .accessibilityIdentifier("squirrelpad-play")
+                if hasROM && !paused {
+                    Button(action: chooseROM) {
+                        Label("Change ROM", systemImage: "folder")
+                    }
+                    .buttonStyle(LauncherUtilityStyle())
+                    .accessibilityLabel("Choose another ROM")
                 }
             }
-            .buttonStyle(SquirrelPadButtonStyle(primary: true))
-            .accessibilityIdentifier("squirrelpad-play")
-            if hasROM && !paused {
-                Button(action: chooseROM) { Text("Choose another ROM").frame(maxWidth: .infinity) }
-                    .buttonStyle(SquirrelPadButtonStyle())
-            }
+            .padding(.top, compact ? 0 : 6)
         }
-        .padding(compact ? 22 : 28)
-        .background(.white.opacity(0.045), in: RoundedRectangle(cornerRadius: 24))
-        .overlay(RoundedRectangle(cornerRadius: 24).stroke(.white.opacity(0.08)))
     }
+
+    private func updateMotion() {
+        // One slow compositor animation; never animate while inactive or with Reduce Motion.
+        var reset = Transaction()
+        reset.disablesAnimations = true
+        withTransaction(reset) { drifting = false }
+        guard !reduceMotion, scenePhase == .active else { return }
+        withAnimation(.easeInOut(duration: 12).repeatForever(autoreverses: true)) {
+            drifting = true
+        }
+    }
+}
+
+private struct LauncherPlayStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 17, weight: .bold, design: .rounded))
+            .foregroundStyle(Color(red: 0.15, green: 0.095, blue: 0.025))
+            .padding(.horizontal, 22)
+            .frame(minHeight: 54)
+            .background(LinearGradient(colors: [Color(red: 1, green: 0.82, blue: 0.46),
+                                                Color(red: 1, green: 0.65, blue: 0.22)],
+                                       startPoint: .topLeading, endPoint: .bottomTrailing),
+                        in: RoundedRectangle(cornerRadius: 16))
+            .overlay(RoundedRectangle(cornerRadius: 16).stroke(.white.opacity(0.3)))
+            .shadow(color: .orange.opacity(configuration.isPressed ? 0.1 : 0.2), radius: 20, y: 6)
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+    }
+}
+
+private struct LauncherUtilityStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .semibold))
+            .foregroundStyle(.white.opacity(0.9))
+            .padding(.horizontal, 14)
+            .frame(minWidth: 44, minHeight: 44)
+            .background(.black.opacity(configuration.isPressed ? 0.5 : 0.25),
+                        in: RoundedRectangle(cornerRadius: 14))
+            .overlay(RoundedRectangle(cornerRadius: 14).stroke(.white.opacity(0.12)))
+    }
+
 }
 
 struct SettingsCard<Content: View>: View {

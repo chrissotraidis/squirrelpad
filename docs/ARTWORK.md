@@ -12,3 +12,16 @@ Generation prompt:
 
 The older `scripts/generate-app-icon.swift` draws the previous geometric mark;
 it does not reproduce this artwork and should not be run to regenerate it.
+
+## Woodland launcher
+
+The original background is saved as
+[`Woodland.jpg`](../Resources/Assets.xcassets/Woodland.imageset/Woodland.jpg).
+It was generated with the built-in image tool on 2026-10-07 and encoded as a
+443 KB JPEG for the asset catalog. It is decorative original artwork, not a
+game screenshot. The separate README gameplay image is an actual Simulator
+capture, resized without changing its content.
+
+Generation prompt:
+
+> Use case: stylized-concept. Asset type: full-screen panoramic background for SquirrelPad, a native iPad/iPhone N64 game launcher. Create a striking nostalgic late-1990s low-poly woodland at golden hour: angular amber oak canopy, deep teal shaded foliage, a winding path and small river receding into misty blue hills, warm sunbeams. A single oversized golden acorn collectible floats above a mossy stone on the RIGHT third, its brown faceted cap and curved stem clear, a little magical warm light below it. The acorn should look like a chunky Nintendo 64 inventory object with low-resolution pixel textures and stepped silhouette, no smooth Pixar look. Composition: very wide landscape 16:9, ideally 2048x1152. Left 55 percent is dark quiet teal woodland with low contrast and abundant negative space for live white title and buttons; all dominant artwork and sunset on right. Main acorn centered at 76 percent width and 47 percent height, within middle 55 percent vertical area to survive wide phone crops. Sophisticated limited palette of forest teal, ink navy, ochre, burnt orange, honey gold. Tangible polygon facets and pixel textures, scenic depth, no modern glossy gradients on objects, no photorealism, no drawn outlines. Environment artwork only: NO letters, text, logos, characters, UI, controls, frames, borders, badges or watermarks. Original scene, not a screenshot or a recreation of any game location.

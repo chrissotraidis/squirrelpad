@@ -4184,3 +4184,11 @@ launch, pause, return to the launcher, resume, and layout-editor entry/exit.
 Both SDK builds and package audits passed. Phone launch rendering was inspected;
 phone tap checks remain open because Device Hub interaction failed. See
 [design and validation notes](MENU_REFINEMENT_2026-10-07.md).
+
+The follow-up woodland iteration adds a full-screen low-poly scene, subtle
+background motion, a stronger Play action, and real gameplay/launcher images in
+the README. Final simulator and device builds and audits passed; iPad Settings
+and Help were exercised, phone rendering was inspected, and all eight retained
+iPad data files matched the backup. See the same validation notes for remaining
+interaction and hardware checks. The latest personal package is
+`work/SquirrelPad-woodland.ipa`.
