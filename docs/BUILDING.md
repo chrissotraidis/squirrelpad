@@ -4,6 +4,24 @@ For the one-command personal builder and PadMint setup, start with the
 [README](../README.md#get-started). The manual steps and historical handoff
 below remain useful for development and diagnostics.
 
+## Local PadMint recipe
+
+From this repository, with a local PadMint source checkout:
+
+```sh
+PYTHONPATH=/path/to/padmint python3 -m padmint build squirrelpad \
+  --repo "$PWD" --revision "$(git rev-parse HEAD)" \
+  --disc "/path/to/conker-us.z64" --target ios --jobs 4
+```
+
+PadMint requires a clean committed source checkout, records each attempt under
+ignored `build/padmint/`, and validates the resulting unsigned IPA. For local
+builds without PadMint, use `scripts/build-personal.py` as shown in the README.
+The ROM is required both to generate native code and to import in the app.
+The recipe and catalog must remain experimental until device acceptance.
+
+## Manual build reference
+
 Native Apple ARM64 iPhone/iPad port of Conker's Bad Fur Day using the pinned
 CBFD-Recompiled runtime and RT64 Metal renderer. The app imports a private US
 ROM through Files and provides touch controls, controller bindings and EEPROM

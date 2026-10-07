@@ -4168,3 +4168,10 @@ is deferred to the main Mac; no unverified row is promoted to pass. Added the
 transfer checklist to ACCEPTANCE and linked it from README. Main already
 contains all local work; GitHub has no open PR. Private ROM, save, build and
 evidence files remain outside the source push. No production-code change.
+
+## 2026-10-07 main Mac and PadMint build
+
+See [the main Mac build record](LOCAL_BUILD_2026-10-07.md) for the acorn icon,
+PadMint personal IPA, current binary hashes, and publication status. The Mac
+opening sequence rendered; both mobile SDK package audits passed. Existing
+physical-device and full-game acceptance gates remain open.

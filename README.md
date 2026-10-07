@@ -35,6 +35,11 @@ Install the build tools once:
 brew install cmake ninja python pkgconf sdl2 freetype ripgrep
 ```
 
+**Current availability:** the recipe works from a local checkout. Public
+catalog access is pending publication of this currently private repository and
+a recipe release. Use [Build from this checkout](#build-from-this-checkout) now.
+The PadMint setup flow will be:
+
 1. Open [PadMint](https://github.com/chrissotraidis/padmint/releases/latest) and
    choose **SquirrelPad → iPhone / iPad**. The catalog entry requires a PadMint
    version that includes SquirrelPad; developers can use the local recipe below.
