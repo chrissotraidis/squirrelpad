@@ -21,3 +21,6 @@
 *.p12
 *.key
 *.pem
+
+# Python build-tool caches.
+__pycache__/

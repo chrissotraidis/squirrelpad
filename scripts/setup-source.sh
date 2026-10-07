@@ -18,13 +18,9 @@ fi
 git -C "$checkout" submodule update --init --recursive \
     tools/N64Recomp tools/N64ModernRuntime tools/rt64 tools/RecompFrontend
 
+patches=()
 apply_once() {
-    local directory=$1 patch_file=$2
-    if git -C "$directory" apply --reverse --check "$patch_file" 2>/dev/null; then
-        return
-    fi
-    git -C "$directory" apply --check "$patch_file"
-    git -C "$directory" apply "$patch_file"
+    patches+=( "$1|$2" )
 }
 
 apply_once "$checkout/tools/N64Recomp" "$checkout/recomp/n64recomp.patch"
@@ -52,6 +48,8 @@ apply_once "$checkout/tools/rt64" "$project/patches/rt64-metal-sdk-scope.patch"
 apply_once "$checkout/tools/rt64/src/contrib/plume" "$project/patches/plume-ios-metal.patch"
 apply_once "$checkout/tools/rt64" "$project/patches/rt64-ios-texture-pair.patch"
 apply_once "$checkout/tools/N64ModernRuntime/N64Recomp/lib/sljit" "$project/patches/sljit-ios-allocator.patch"
+
+python3 "$project/scripts/apply-source-patches.py" "$checkout" "${patches[@]}"
 
 if [ "${1:-}" != "" ]; then
     python3 - "$1" "$checkout/conker/baserom.us.z64" <<'PY'

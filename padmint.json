@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "id": "squirrelpad",
+  "name": "SquirrelPad",
+  "game": "Conker's Bad Fur Day (N64) via CBFD-Recompiled",
+  "kind": "disc-translation",
+  "status": "experimental",
+  "inputs": [
+    {
+      "type": "n64-rom",
+      "formats": [
+        "z64",
+        "v64",
+        "n64"
+      ],
+      "when": "build",
+      "description": "Your own 64 MiB US ROM with big-endian bytes (SHA-1 4cbadd3c4e0729dec46af64ad018050eada4f47a). Byte-swapped ROMs are not supported; the extension does not determine byte order.",
+      "accepted_sha256": [
+        "32e6a8b970ec12ac5f782344945aa0c98a193832eefb687529d03bab6948714b"
+      ]
+    }
+  ],
+  "targets": {
+    "ios": {
+      "hosts": {
+        "macos-arm64": "experimental"
+      },
+      "output": "ipa",
+      "check": "ipa",
+      "steps": [
+        {
+          "stage": "compile",
+          "command": [
+            "{python}",
+            "{repo}/scripts/build-personal.py",
+            "--rom",
+            "{disc}",
+            "--sdk",
+            "iphoneos",
+            "--jobs",
+            "{jobs}",
+            "--output",
+            "{output}"
+          ]
+        }
+      ]
+    }
+  },
+  "requirements": {
+    "disk_gb": 30,
+    "tools": [
+      {
+        "name": "git",
+        "version_args": [
+          "--version"
+        ],
+        "player": true,
+        "note": "Install Xcode command-line tools."
+      },
+      {
+        "name": "cmake",
+        "version_args": [
+          "--version"
+        ],
+        "player": true,
+        "note": "Install CMake: brew install cmake",
+        "min_version": "3.28"
+      },
+      {
+        "name": "ninja",
+        "version_args": [
+          "--version"
+        ],
+        "player": true,
+        "note": "Install Ninja: brew install ninja"
+      },
+      {
+        "name": "python3",
+        "version_args": [
+          "--version"
+        ],
+        "player": true,
+        "note": "Install Python 3.11 or newer: brew install python",
+        "min_version": "3.11"
+      },
+      {
+        "name": "sdl2-config",
+        "version_args": [
+          "--version"
+        ],
+        "player": true,
+        "note": "Install SDL2: brew install sdl2"
+      },
+      {
+        "name": "pkg-config",
+        "version_args": [
+          "--version"
+        ],
+        "player": true,
+        "note": "Install pkgconf and FreeType: brew install pkgconf freetype"
+      },
+      {
+        "name": "rg",
+        "version_args": [
+          "--version"
+        ],
+        "player": true,
+        "note": "Install ripgrep: brew install ripgrep"
+      },
+      {
+        "name": "xcodebuild",
+        "version_args": [
+          "-version"
+        ],
+        "player": true,
+        "note": "Install full Xcode, open it once, and install the iOS platform."
+      },
+      {
+        "name": "xcrun",
+        "version_args": [
+          "--sdk",
+          "macosx",
+          "metal",
+          "--version"
+        ],
+        "player": true,
+        "label": "Metal Toolchain",
+        "note": "Install the Metal Toolchain in Xcode Settings > Components."
+      }
+    ]
+  },
+  "publication": {
+    "public_binaries": false,
+    "reason": "Personal apps contain native game code translated from the player-owned ROM. Publish source and the build recipe only."
+  }
+}
