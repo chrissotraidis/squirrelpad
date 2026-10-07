@@ -13,6 +13,10 @@ Later documentation-only commits do not change these binary identities.
 - Both mobile SDK builds passed `scripts/audit-app.py`: 30 files, 24 matching
   dependency notices, no forbidden runtime/probe symbols, and no private
   filenames, home paths, or symlinks detected by that scoped audit.
+- On iPad Pro 11-inch (M5), iPadOS 27.0 Simulator, the normal Files picker
+  imported the supported ROM and the opening sequence rendered in landscape
+  with touch controls. The acorn icon was visible in Files and on the Home Screen.
+  Captures: `work/ipad-startup.png` and `work/ipad-acorn-icon.png`.
 - The device IPA contains the acorn AppIcon and both device families `[1, 2]`.
   It is unsigned, personal-only, and contains translated game code.
 - Three synthetic patch-stack regressions passed: overlapping patches on a
