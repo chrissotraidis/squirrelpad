@@ -1,0 +1,25 @@
+--- a/conker.toml
++++ b/conker.toml
+@@ -360,3 +360,22 @@
+ func = "func_15180580"
+ before_vram = 0x151814F4
+ text = "{ extern void conker_iris_end(uint8_t*, recomp_context*); conker_iris_end(rdram, ctx); }"
++
++# Selected upstream mods are compiled into the iOS application, never loaded as code.
++[[patches.hook]]
++func = "func_1501BBB8"
++before_vram = 0x1501C008
++text = """
++#ifdef SQUIRRELPAD_STATIC_MODS
++{ extern void squirrelpad_mod_frame(uint8_t*); squirrelpad_mod_frame(rdram); }
++#endif
++"""
++
++[[patches.hook]]
++func = "func_1501E05C"
++before_vram = 0x1501E05C
++text = """
++#ifdef SQUIRRELPAD_STATIC_MODS
++{ extern int squirrelpad_mod_skip(uint8_t*, int); int skip = squirrelpad_mod_skip(rdram, (int)ctx->r4); if (skip >= 0) { ctx->r2 = skip; return; } }
++#endif
++"""

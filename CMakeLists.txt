@@ -23,6 +23,8 @@ if (NOT EXISTS "${conker_source}/RecompiledFuncs/inputs.sha256")
 endif()
 add_subdirectory("${conker_source}/host" "${CMAKE_CURRENT_BINARY_DIR}/conker-host")
 
+target_compile_definitions(RecompiledFuncs PRIVATE SQUIRRELPAD_STATIC_MODS)
+
 set(SQUIRRELPAD_RT64_ARCHIVE_DIR "" CACHE PATH "Verified RT64 iOS archive directory")
 set(rt64_bridge Support/RT64/rt64_bridge_stub.cpp)
 if (SQUIRRELPAD_RT64_ARCHIVE_DIR)
@@ -46,10 +48,12 @@ add_executable(SquirrelPad MACOSX_BUNDLE
     Sources/RT64Surface.swift
     Sources/TouchControlsView.swift
     Sources/ControllerInput.swift
+    Sources/TexturePackStore.swift
     Resources/Assets.xcassets
     Support/Conker/mobile_entry.cpp
     Support/Conker/mobile_audio.cpp
     Support/Conker/mobile_input.cpp
+    Support/Conker/mobile_mods.cpp
     ${rt64_bridge}
 )
 set_source_files_properties(Resources/Assets.xcassets PROPERTIES
@@ -108,12 +112,13 @@ foreach(notice_name concurrentqueue lightweightsemaphore sse2neon)
         MACOSX_PACKAGE_LOCATION "Resources/ThirdPartyNotices")
     target_sources(SquirrelPad PRIVATE "${notice_copy}")
 endforeach()
+target_include_directories(SquirrelPad PRIVATE "${conker_source}/tools/N64ModernRuntime/N64Recomp/include")
 target_link_libraries(SquirrelPad PRIVATE ConkerRecomp
     "-framework SwiftUI" "-framework UniformTypeIdentifiers" "-framework CryptoKit"
     "-framework AudioToolbox" "-framework Metal" "-framework MetalKit" "-framework QuartzCore" "-framework UIKit")
 target_link_libraries(SquirrelPad PRIVATE "-framework GameController")
 if (SQUIRRELPAD_RT64_ARCHIVE_DIR)
-    target_sources(SquirrelPad PRIVATE Support/Conker/mobile_rt64_renderer.cpp)
+    target_sources(SquirrelPad PRIVATE Support/Conker/mobile_rt64_renderer.cpp Support/Conker/mobile_texture_packs.cpp)
     target_compile_definitions(SquirrelPad PRIVATE HLSL_CPU RT64_EMBEDDED_APPLE)
     target_include_directories(SquirrelPad PRIVATE
         "${conker_source}/tools/rt64/src"

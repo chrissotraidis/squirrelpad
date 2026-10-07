@@ -5,6 +5,7 @@
 #include "hle/rt64_application.h"
 #include "ultramodern/renderer_context.hpp"
 #include "mobile_graphics.h"
+#include "mobile_texture_packs.h"
 
 namespace {
 uint8_t dmem[0x1000]{};
@@ -90,6 +91,7 @@ public:
         // UI updates only publish an atomic value. RT64 state is changed here,
         // on its owning thread, after the pause gate and before the next list.
         apply_graphics(true);
+        apply_texture_pack();
         app->state->rsp->reset();
         app->interpreter->loadUCodeGBI(task->t.ucode & 0x3FFFFFF,
                                         task->t.ucode_data & 0x3FFFFFF, true);
@@ -113,6 +115,31 @@ public:
     float get_resolution_scale() const override { return float(applied_options & 0xF); }
 
 private:
+    void apply_texture_pack() {
+        const auto request = squirrelpad_texture_request();
+        if (request.revision != pack_revision) {
+            pack_revision = request.revision;
+            const bool loaded = request.path.empty()
+                ? app->textureCache->loadReplacementDirectories({})
+                : app->textureCache->loadReplacementDirectory(RT64::ReplacementDirectory(request.path));
+            pack_status = request.path.empty() ? 0 : (loaded ? 2 : -1);
+            if (!loaded) app->textureCache->loadReplacementDirectories({});
+            std::printf("[mobile textures] pack status=%d revision=%llu\n", pack_status, (unsigned long long)pack_revision);
+        }
+        unsigned matched = 0;
+        {
+            std::unique_lock lock(app->textureCache->textureMapMutex);
+            for (const auto *texture : app->textureCache->textureMap.textureReplacements) if (texture) ++matched;
+        }
+        if (matched != pack_matches) {
+            std::printf("[mobile textures] cached replacements in game: %u\n", matched);
+            pack_matches = matched;
+        }
+        squirrelpad_texture_result(pack_status, matched);
+    }
+    uint64_t pack_revision = 0;
+    unsigned pack_matches = 0;
+    int pack_status = 0;
     void apply_graphics(bool notify) {
         const auto options = squirrelpad_get_graphics();
         if (options == applied_options) return;

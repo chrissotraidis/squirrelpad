@@ -1,35 +1,63 @@
 # Enhancements
 
-Open **••• → Enhancements**. Choices are saved on your device and applied when
-play resumes, including after a relaunch. **Restore Balanced Settings** restores
-2× resolution, Crisp presentation, and N64 texture filtering without touching saves.
+Open **••• → Enhancements**. Settings persist and apply when you play or resume.
+
+## Picture
 
 | Option | What it does |
 | --- | --- |
-| 1× / 2× / 3× resolution | Renders geometry at the original resolution or two/three times each dimension. 2× is the default; choose 1× for lower GPU load. |
-| Pixel / Smooth / Crisp | Changes the filter used to scale the rendered picture to the display. |
-| N64 texture filtering | Preserves the original three-point filter, or switches to smoother bilinear filtering. |
+| 1× / 2× / 3× resolution | Renders geometry at the original resolution or two/three times each dimension. Start with 2× Balanced. |
+| Pixel / Smooth / Crisp | Changes how the rendered picture is scaled to the display. |
+| N64 texture filtering | Original three-point filtering, or smoother bilinear filtering when switched off. |
 
-The Metal surface now uses the available display area instead of magnifying a
-480×270 iPad surface. The game retains its original aspect ratio and timing.
-Higher rendering resolution does not add detail to source textures. Performance,
-battery use, and full-game fidelity at each setting still need broader hardware testing.
+**Restore Balanced Settings** resets these three choices without changing mods,
+texture packs, or saves. Original aspect ratio and game timing are retained.
 
-## Mods researched
+## Upstream mods
 
-Checked against upstream documentation on October 7, 2026. Desktop support does
-not establish compatibility with this iOS port, which pins an earlier upstream revision.
+These are compiled-in adaptations of [sciaschi's Cheats and Skip Any Cutscene](https://github.com/sciaschi/CBFD-Recompiled/tree/c55359c579448fe5c212faf4bb5c2415d6ec7fa8/mods).
+All default to off. There is no runtime code generation or `.nrm` importer.
 
-| Candidate | SquirrelPad status / next step |
+| Option | Behavior |
 | --- | --- |
-| [Skip Intro, Skip Any Cutscene, and Cheats](https://github.com/sciaschi/CBFD-Recompiled#mods) | Upstream provides `.nrm` function patches and hooks. The iOS build intentionally excludes LiveRecomp and runtime code patching. Selected features would need an ahead-of-time integration and individual gameplay/save checks. No `.nrm` importer is exposed. |
-| [RT64 `.rtz` texture packs](https://github.com/sciaschi/CBFD-Recompiled#texture-packs) | Promising asset-only route. The mobile renderer does not yet load replacement packs. It needs a bounded local importer, format validation, memory limits, and a verified compatible pack before enabling this UI. |
-| [GLideN64 `.htc` conversion](https://github.com/sciaschi/CBFD-Recompiled#texture-packs) | Current desktop upstream documents conversion for RGBA8 packs and Rice hash matching. That newer pipeline is not automatically present in our pinned renderer. Compressed packs are not supported by that converter. |
-| [4K Ultimate Texture Pack](https://github.com/GameBeast92/Conker-s-Bad-Fur-Day-4k-Ultimate-Texture-Pack) | The author describes it as work in progress, approximately 30% complete. Its README does not establish SquirrelPad/RT64 compatibility. No pack was downloaded or bundled. |
-| Widescreen / high-frame-rate presentation | Upstream reports pause-background cropping and animation/camera artifacts. Keep original aspect and timing until mobile scene-specific checks pass. |
-| Asset-only ROM hacks | Current desktop upstream has validation for these. SquirrelPad still validates the exact supported original US ROM; do not bypass the checksum. |
+| Skip unseen cutscenes | L skips eligible scenes, including ones you have not watched. The opening uses Start after its initial timing gate. |
+| Also skip protected scenes | Optional, experimental override for scripted scenes. The opening throne-room and hangover transitions were tested; other scenes may depend on their scripts completing. |
+| Infinite health | Refills health to six while alive; does not resurrect Conker after health reaches zero. |
+| Nine lives | Refills the life counter to nine. |
+| Full wallet | Refills cash to $9,999. |
 
-The next useful mod milestone is a verified, optional RT64 texture pack. A
-working import, a reliable unload/reset, and measured memory usage are required
-before calling it supported. No game assets or third-party texture packs are
-included in this repository.
+**Turn Off All Mods** stops these effects. Lives and cash can be written into the
+normal game save; turning a mod off does not restore previous saved values.
+
+## Texture packs
+
+1. Download an RT64 `.rtz` pack to Files.
+2. Choose **Import Texture Pack** in Enhancements.
+3. Resume. The status shows how many cached game textures matched replacements.
+4. Turn **Use imported textures** off to restore original artwork. Import another
+   pack to replace the selection. One pack is active at a time.
+
+The [HD Icons v1.3.2 pack](https://github.com/DahSidiAbdallah/ConkerBFDReloaded/releases/tag/v1.3.0)
+was tested in the iPadOS 27 Simulator: all 403 entries imported, menu/HUD/text
+replacements rendered, and live disable/re-enable restored/reapplied them.
+This is a sharper 2D artwork pack, not a complete environment retexture.
+Pack by **dahmedvall95**, using modified artwork by **GameBeast92** from the
+[4K Ultimate Texture Pack](https://github.com/GameBeast92/Conker-s-Bad-Fur-Day-4k-Ultimate-Texture-Pack).
+The pack's LICENSE.txt identifies CC BY 4.0 and describes the modifications.
+Download packs separately; neither these textures nor a game ROM are bundled.
+
+Supported imports have `rt64.json` at the archive root, configuration version 3,
+RT64 hash version 5, explicit texture paths/hashes, and PNG replacements. Limits:
+256 MiB archive, 4,096 mapped textures, 4,096 pixels per image dimension,
+64 million decoded pixels across the mappings (256 MiB RGBA before mipmaps).
+The importer also bounds entry counts and decompressed bytes, decodes every
+mapped image before accepting the pack, and rejects unsafe paths and missing
+textures. Archives are read directly, never extracted or executed. A rejected
+import keeps the previous selection.
+
+DDS textures, prebuilt mip caches, `.htc`/Rice packs, arbitrary `.nrm` mods,
+asset-only ROM hacks, and automatic downloads are not supported. Desktop support
+for these features does not establish compatibility with this pinned iOS build.
+The full 4K Ultimate pack has not been tested or converted here.
+
+See [the verification record](MODS_TEXTURES_2026-10-07.md) for the exact test scope.

@@ -18,6 +18,9 @@ private func setMasterVolume(_ volume: Float)
 @_silgen_name("squirrelpad_set_graphics")
 private func setGraphics(_ resolution: Int32, _ filtering: Int32, _ textureSmoothing: Bool)
 
+@_silgen_name("squirrelpad_set_mods")
+private func setMods(_ flags: UInt32)
+
 private enum SettingsSection {
     case general
     case enhancements
@@ -91,6 +94,13 @@ private final class GameSession: ObservableObject {
 @main
 struct SquirrelPadApp: App {
     @StateObject private var session = GameSession()
+    @StateObject private var texturePacks = TexturePackStore()
+    @State private var importingTexturePack = false
+    @AppStorage("SquirrelPad.Mods.Health") private var infiniteHealth = false
+    @AppStorage("SquirrelPad.Mods.Lives") private var infiniteLives = false
+    @AppStorage("SquirrelPad.Mods.Cash") private var maxCash = false
+    @AppStorage("SquirrelPad.Mods.Skip") private var skipCutscenes = false
+    @AppStorage("SquirrelPad.Mods.SkipBlocked") private var skipBlocked = false
     @StateObject private var renderer = RendererStatus()
     @StateObject private var controllerInput = ControllerInput()
     @Environment(\.scenePhase) private var scenePhase
@@ -260,6 +270,7 @@ struct SquirrelPadApp: App {
             }
             .onAppear {
                 applyGraphics()
+                applyMods()
                 setMasterVolume(Float(masterVolume))
                 updateCoreActivity()
             }
@@ -284,6 +295,11 @@ struct SquirrelPadApp: App {
             .onChange(of: resolutionScale) { _ in applyGraphics() }
             .onChange(of: displayFilter) { _ in applyGraphics() }
             .onChange(of: textureSmoothing) { _ in applyGraphics() }
+            .onChange(of: infiniteHealth) { _ in applyMods() }
+            .onChange(of: infiniteLives) { _ in applyMods() }
+            .onChange(of: maxCash) { _ in applyMods() }
+            .onChange(of: skipCutscenes) { _ in applyMods() }
+            .onChange(of: skipBlocked) { _ in applyMods() }
             .onChange(of: masterVolume) { value in setMasterVolume(Float(value)) }
             .onChange(of: scenePhase) { phase in
                 if phase != .active {
@@ -588,6 +604,12 @@ struct SquirrelPadApp: App {
         }
     }
 
+    private func applyMods() {
+        let flags: UInt32 = (infiniteHealth ? 1 : 0) | (infiniteLives ? 2 : 0) |
+            (maxCash ? 4 : 0) | (skipCutscenes ? 8 : 0) | (skipBlocked ? 16 : 0)
+        setMods(flags)
+    }
+
     private func applyGraphics() {
         setGraphics(Int32(clamping: resolutionScale), Int32(clamping: displayFilter), textureSmoothing)
     }
@@ -635,10 +657,54 @@ struct SquirrelPadApp: App {
                 }
                 .buttonStyle(SquirrelPadButtonStyle())
             }
-            SettingsCard(title: "Mods & texture packs", symbol: "shippingbox") {
-                Text("Desktop Conker mods and HD texture packs need additional iOS support. They cannot be imported in this build yet.")
+            SettingsCard(title: "A little extra mischief", symbol: "wand.and.stars") {
+                Toggle("Skip unseen cutscenes", isOn: $skipCutscenes)
+                Text("Press L during a cutscene. The opening uses Start after a short lead-in.")
                     .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
-                projectLink("Enhancement compatibility", subtitle: "What works and what’s next", symbol: "book", path: "/blob/main/docs/ENHANCEMENTS.md")
+                if skipCutscenes {
+                    Toggle("Also skip protected scenes", isOn: $skipBlocked)
+                    Text("Experimental: some scripted scenes may not continue correctly when skipped.")
+                        .font(.caption).foregroundStyle(SquirrelPadTheme.secondary)
+                }
+                Divider()
+                Toggle("Infinite health", isOn: $infiniteHealth)
+                Toggle("Nine lives", isOn: $infiniteLives)
+                Toggle("Full wallet · $9,999", isOn: $maxCash)
+                Text("Adapted from the upstream Conker mods. Changes apply on resume. Lives and cash can be saved by the game; switching a mod off does not undo saved changes.")
+                    .font(.caption).foregroundStyle(SquirrelPadTheme.secondary)
+                Button("Turn Off All Mods") {
+                    infiniteHealth = false; infiniteLives = false; maxCash = false
+                    skipCutscenes = false; skipBlocked = false
+                }.buttonStyle(SquirrelPadButtonStyle())
+            }
+            SettingsCard(title: "Texture packs", symbol: "photo.stack") {
+                if texturePacks.hasPack {
+                    Text(texturePacks.name).font(.headline).lineLimit(2)
+                    Toggle("Use imported textures", isOn: $texturePacks.enabled)
+                        .disabled(texturePacks.importing)
+                }
+                TimelineView(.periodic(from: .now, by: 1)) { _ in
+                    Text(texturePacks.statusText).font(.caption).foregroundStyle(SquirrelPadTheme.accent)
+                }
+                Text("Import an RT64 .rtz pack from Files. PNG textures, RT64 hash v5; one pack at a time. Switch it off to restore the original artwork.")
+                    .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
+                Button(texturePacks.importing ? "Checking Pack…" : "Import Texture Pack") { importingTexturePack = true }
+                    .buttonStyle(SquirrelPadButtonStyle())
+                    .disabled(texturePacks.importing)
+                    .fileImporter(isPresented: $importingTexturePack, allowedContentTypes: [.data, .zip]) { selection in
+                        switch selection {
+                        case .success(let url): texturePacks.importPack(url)
+                        case .failure(let error): texturePacks.message = "Could not choose pack: \(error.localizedDescription)"
+                        }
+                    }
+                if !texturePacks.message.isEmpty {
+                    Text(texturePacks.message).font(.caption).foregroundStyle(SquirrelPadTheme.secondary)
+                }
+                Link("Find the upstream HD Icons pack ↗", destination: URL(string: "https://github.com/DahSidiAbdallah/ConkerBFDReloaded/releases")!)
+                    .font(.subheadline.weight(.semibold))
+                Text("HD Icons by dahmedvall95, with artwork by GameBeast92. Packs are downloaded separately; desktop .nrm code mods are not imported.")
+                    .font(.caption).foregroundStyle(SquirrelPadTheme.secondary)
+                projectLink("Enhancement compatibility", subtitle: "Supported packs & upstream credits", symbol: "book", path: "/blob/main/docs/ENHANCEMENTS.md")
             }
         }
     }
