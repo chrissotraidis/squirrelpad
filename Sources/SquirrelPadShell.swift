@@ -1,10 +1,10 @@
 import SwiftUI
 
-// Shared by the launcher and pause menu, with native controls and familiar blue actions.
+// Woodland colors shared by the launcher, pause menu, and native controls.
 enum SquirrelPadTheme {
-    static let background = Color(red: 0.025, green: 0.04, blue: 0.09)
-    static let panel = Color(red: 0.055, green: 0.075, blue: 0.13)
-    static let accent = Color(red: 0.24, green: 0.48, blue: 1)
+    static let background = Color(red: 0.025, green: 0.055, blue: 0.045)
+    static let panel = Color(red: 0.055, green: 0.095, blue: 0.075)
+    static let accent = Color(red: 1, green: 0.76, blue: 0.34)
     static let secondary = Color.white.opacity(0.68)
 }
 
@@ -29,7 +29,7 @@ struct SquirrelPadButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(.body, design: .rounded, weight: .semibold))
-            .foregroundStyle(.white)
+            .foregroundStyle(primary ? SquirrelPadTheme.background : .white)
             .padding(.horizontal, 18)
             .frame(minHeight: 46)
             .background(primary ? SquirrelPadTheme.accent : .white.opacity(0.08),
@@ -255,7 +255,7 @@ struct SettingsCard<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Label {
-                Text(title).font(.headline)
+                Text(title).font(.system(.headline, design: .rounded))
             } icon: {
                 Image(systemName: symbol).foregroundStyle(SquirrelPadTheme.accent)
             }
@@ -263,7 +263,7 @@ struct SettingsCard<Content: View>: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white.opacity(0.045), in: RoundedRectangle(cornerRadius: 16))
-        .overlay(RoundedRectangle(cornerRadius: 16).stroke(.white.opacity(0.06)))
+        .background(.white.opacity(0.035), in: RoundedRectangle(cornerRadius: 16))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(SquirrelPadTheme.accent.opacity(0.10)))
     }
 }

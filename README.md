@@ -18,7 +18,8 @@
 
 SquirrelPad brings [CBFD-Recompiled](https://github.com/sciaschi/CBFD-Recompiled)
 to iPhone and iPad with an RT64 Metal renderer, Files-based ROM import,
-editable touch layouts, controller bindings, and local EEPROM saves.
+editable touch layouts, controller bindings, local EEPROM saves, and selectable
+1×–3× rendering with screen and texture filters.
 
 <p align="center">
   <img src="docs/screenshots/ipad-gameplay.jpg" width="900" alt="Conker in the first playable area of SquirrelPad, with iPad touch controls"><br>
@@ -30,7 +31,9 @@ editable touch layouts, controller bindings, and local EEPROM saves.
 
 ![SquirrelPad's woodland launcher with Play Conker, Settings, and Help](docs/screenshots/ipad-launcher.jpg)
 
-![SquirrelPad's three-dot menu with Resume, sidebar navigation, and grouped touch settings](docs/screenshots/ipad-settings.jpg)
+![SquirrelPad's acorn-themed settings and rendering enhancements](docs/screenshots/ipad-enhancements.jpg)
+
+![SquirrelPad About page with project links and credits](docs/screenshots/ipad-about.jpg)
 
 </details>
 
@@ -86,8 +89,15 @@ Use the on-screen stick and buttons, or connect a compatible controller.
 Open **••• → Controls** to change bindings, opacity, size, and button visibility.
 **Edit Layout** lets you move and resize individual controls; phone and tablet
 layouts are saved separately. The **•••** menu pauses the game and remains
-available when touch controls are hidden. **General → Return to SquirrelPad**
+available when touch controls are hidden. **General → Return to Launcher**
 opens the launcher with the session paused; **Resume Game** brings you back.
+
+## Enhancements
+
+Open **••• → Enhancements** for 1×, 2×, or 3× rendering, Pixel/Smooth/Crisp
+screen filters, and N64 texture filtering. Start with **2× · Balanced**.
+Changes take effect when you resume. Desktop mods and texture packs are not yet
+importable; see [compatibility and researched candidates](docs/ENHANCEMENTS.md).
 
 ## FAQ
 

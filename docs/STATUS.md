@@ -1,5 +1,7 @@
 # SquirrelPad evidence ledger
 
+Latest product pass: [acorn settings, About links, and rendering enhancements](SETTINGS_ENHANCEMENTS_2026-10-07.md). Verified on the physical iPad; phone interaction verification remains open.
+
 Updated 2026-10-07. See the [latest hardware test](HARDWARE_TEST_2026-10-07.md) for the title/menu refinement, physical-iPad startup fix, signed install, and remaining input check. Historical evidence follows. The private ROM, generated game code, builds, logs, saves and diagnostic gameplay captures stay under ignored `ref/` or `work/`; selected README images are documented in [SOURCE_BOUNDARY](SOURCE_BOUNDARY.md).
 
 **Current continuation:** clean replay now builds macOS and both mobile SDKs;

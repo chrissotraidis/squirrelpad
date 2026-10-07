@@ -15,8 +15,12 @@ private func setCoreActive(_ active: Bool)
 @_silgen_name("squirrelpad_audio_set_volume")
 private func setMasterVolume(_ volume: Float)
 
+@_silgen_name("squirrelpad_set_graphics")
+private func setGraphics(_ resolution: Int32, _ filtering: Int32, _ textureSmoothing: Bool)
+
 private enum SettingsSection {
     case general
+    case enhancements
     case controls
     case audio
     case about
@@ -96,6 +100,9 @@ struct SquirrelPadApp: App {
     @AppStorage("SquirrelPad.ControlScale") private var controlScale = 1.0
     @AppStorage("SquirrelPad.ShowDpad") private var showDpad = true
     @AppStorage("SquirrelPad.ShowCButtons") private var showCButtons = true
+    @AppStorage("SquirrelPad.ResolutionScale") private var resolutionScale = 2
+    @AppStorage("SquirrelPad.DisplayFilter") private var displayFilter = 2
+    @AppStorage("SquirrelPad.TextureSmoothing") private var textureSmoothing = true
     @AppStorage("SquirrelPad.MasterVolume") private var masterVolume = 1.0
     @AppStorage("SquirrelPad.LayoutTablet") private var tabletLayout = ""
     @AppStorage("SquirrelPad.LayoutPhone") private var phoneLayout = ""
@@ -126,10 +133,8 @@ struct SquirrelPadApp: App {
                 ZStack {
                     Color.black
                     RT64Surface(renderer: renderer)
-                        .frame(width: 240, height: 135)
-                        .scaleEffect(compact
-                            ? min(geometry.size.width / 240, geometry.size.height / 135)
-                            : max(geometry.size.width / 240, geometry.size.height / 135))
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .allowsHitTesting(false)
                         .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
 
                     // Discard local gesture state when focus is lost, as well
@@ -254,6 +259,7 @@ struct SquirrelPadApp: App {
                 Text("This resets control sizes, visibility, and your phone and tablet layouts. Your game saves are kept.")
             }
             .onAppear {
+                applyGraphics()
                 setMasterVolume(Float(masterVolume))
                 updateCoreActivity()
             }
@@ -275,6 +281,9 @@ struct SquirrelPadApp: App {
             .onChange(of: touchEnabled) { enabled in if !enabled { clearTouchInput() } }
             .onChange(of: showDpad) { _ in clearTouchInput() }
             .onChange(of: showCButtons) { _ in clearTouchInput() }
+            .onChange(of: resolutionScale) { _ in applyGraphics() }
+            .onChange(of: displayFilter) { _ in applyGraphics() }
+            .onChange(of: textureSmoothing) { _ in applyGraphics() }
             .onChange(of: masterVolume) { value in setMasterVolume(Float(value)) }
             .onChange(of: scenePhase) { phase in
                 if phase != .active {
@@ -325,7 +334,7 @@ struct SquirrelPadApp: App {
             HStack(spacing: 12) {
                 AcornMark(size: 38)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("Settings").font(.system(size: compact ? 22 : 26, weight: .bold))
+                    Text("Settings").font(.system(size: compact ? 22 : 26, weight: .bold, design: .rounded))
                     Text(session.running ? "Conker’s Bad Fur Day · Paused" : "SquirrelPad")
                         .font(.caption).foregroundStyle(SquirrelPadTheme.secondary)
                 }
@@ -339,24 +348,32 @@ struct SquirrelPadApp: App {
             }
             .padding(.horizontal, compact ? 18 : 24)
             .frame(height: 76)
+            .background(alignment: .trailing) {
+                Image("Woodland").resizable().scaledToFill()
+                    .frame(height: 76).clipped().opacity(0.10)
+                    .allowsHitTesting(false).accessibilityHidden(true)
+            }
             Divider()
             HStack(alignment: .top, spacing: 0) {
                 ScrollView {
                     VStack(spacing: 8) {
                         settingsTab("General", symbol: "gearshape", section: .general, compact: compact)
+                        settingsTab("Enhancements", symbol: "sparkles", section: .enhancements, compact: compact)
                         settingsTab("Controls", symbol: "gamecontroller", section: .controls, compact: compact)
                         settingsTab("Audio", symbol: "speaker.wave.2", section: .audio, compact: compact)
                         settingsTab("About", symbol: "info.circle", section: .about, compact: compact)
                     }
                     .padding(compact ? 10 : 16)
                 }
-                .frame(width: compact ? 150 : 200)
+                .frame(width: compact ? 178 : 224)
                 Divider()
                 ScrollViewReader { scrollProxy in
                     ScrollView {
                         VStack(alignment: .leading, spacing: 20) {
                             if settingsSection == .general {
                                 generalSettings
+                            } else if settingsSection == .enhancements {
+                                enhancementSettings
                             } else if settingsSection == .controls {
                                 SettingsCard(title: "Touch controls", symbol: "hand.tap") {
                                     Toggle("Show Touch Controls", isOn: $touchEnabled)
@@ -533,7 +550,9 @@ struct SquirrelPadApp: App {
         .foregroundStyle(.white)
         .frame(width: min(1050, size.width - sideMargin * 2), height: panelHeight)
         .background(SquirrelPadTheme.panel, in: RoundedRectangle(cornerRadius: 24))
-        .overlay(RoundedRectangle(cornerRadius: 24).stroke(.white.opacity(0.1)))
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .overlay(RoundedRectangle(cornerRadius: 24).stroke(SquirrelPadTheme.accent.opacity(0.20)))
+        .shadow(color: .black.opacity(0.35), radius: 28, y: 12)
     }
 
     private var generalSettings: some View {
@@ -569,16 +588,92 @@ struct SquirrelPadApp: App {
         }
     }
 
+    private func applyGraphics() {
+        setGraphics(Int32(clamping: resolutionScale), Int32(clamping: displayFilter), textureSmoothing)
+    }
+
+    private var enhancementSettings: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("A sharper adventure").font(.system(.title2, design: .rounded, weight: .bold))
+                Text("Keep the N64 character. Make it your own.")
+                    .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
+            }
+            SettingsCard(title: "Render quality", symbol: "sparkles") {
+                Text("Internal resolution").font(.subheadline.weight(.semibold))
+                Picker("Internal resolution", selection: $resolutionScale) {
+                    Text("1× · Original").tag(1)
+                    Text("2× · Balanced").tag(2)
+                    Text("3× · Sharp").tag(3)
+                }
+                .pickerStyle(.segmented)
+                .accessibilityIdentifier("squirrelpad-resolution")
+                Text("Renders 3D geometry at \(resolutionScale)× the original resolution. Higher settings use more power; textures retain their original detail.")
+                    .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
+                Divider()
+                Text("Screen filter").font(.subheadline.weight(.semibold))
+                Picker("Screen filter", selection: $displayFilter) {
+                    Text("Pixel").tag(0)
+                    Text("Smooth").tag(1)
+                    Text("Crisp").tag(2)
+                }
+                .pickerStyle(.segmented)
+                .accessibilityIdentifier("squirrelpad-display-filter")
+                Text("Pixel keeps hard edges. Smooth softens the picture. Crisp balances clean edges with the original pixel detail.")
+                    .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
+                Divider()
+                Toggle("N64 texture filtering", isOn: $textureSmoothing)
+                Text("Use the original three-point texture filter. Turn it off for smoother bilinear filtering.")
+                    .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
+                Label(session.running ? "Changes apply when you resume" : "Ready for your next game",
+                      systemImage: "checkmark.circle")
+                    .font(.caption).foregroundStyle(SquirrelPadTheme.accent)
+                Button("Restore Balanced Settings") {
+                    resolutionScale = 2
+                    displayFilter = 2
+                    textureSmoothing = true
+                }
+                .buttonStyle(SquirrelPadButtonStyle())
+            }
+            SettingsCard(title: "Mods & texture packs", symbol: "shippingbox") {
+                Text("Desktop Conker mods and HD texture packs need additional iOS support. They cannot be imported in this build yet.")
+                    .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
+                projectLink("Enhancement compatibility", subtitle: "What works and what’s next", symbol: "book", path: "/blob/main/docs/ENHANCEMENTS.md")
+            }
+        }
+    }
+
     private var aboutSettings: some View {
-        VStack(spacing: 20) {
-            SettingsCard(title: "SquirrelPad", symbol: "leaf") {
-                Text("Conker’s Bad Fur Day on iPhone and iPad.")
-                Text("Version \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.1.0")")
+        VStack(alignment: .leading, spacing: 20) {
+            HStack(spacing: 18) {
+                AcornMark(size: 76)
+                VStack(alignment: .leading, spacing: 6) {
+                    Link("SquirrelPad", destination: URL(string: "https://github.com/chrissotraidis/squirrelpad")!)
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                        .accessibilityHint("Opens the SquirrelPad project on GitHub")
+                    Text("A little mischief. A bigger screen.")
+                        .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
+                    Text("Version \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.1.0") · iPhone & iPad")
+                        .font(.caption).foregroundStyle(SquirrelPadTheme.secondary)
+                }
+            }
+            .padding(.vertical, 8)
+            SettingsCard(title: "The project", symbol: "leaf.fill") {
+                projectLink("SquirrelPad on GitHub", subtitle: "Source, setup & FAQ", symbol: "chevron.left.forwardslash.chevron.right", path: "")
+                Divider()
+                projectLink("Report a Problem", subtitle: "Open an issue on GitHub", symbol: "bubble.left", path: "/issues/new")
+                Divider()
+                projectLink("Releases", subtitle: "Builds & release notes", symbol: "arrow.down.circle", path: "/releases")
+            }
+            SettingsCard(title: "Built together", symbol: "heart") {
+                Text("An independent port of Conker’s Bad Fur Day. Bring your own game data.")
                     .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
-                Text("Built on CBFD-Recompiled, N64Recomp, and RT64. Game data is supplied by you.")
-                    .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
-                Link("Project & setup guide", destination: URL(string: "https://github.com/chrissotraidis/squirrelpad")!)
-                    .frame(minHeight: 44)
+                HStack(spacing: 20) {
+                    Link("CBFD-Recompiled", destination: URL(string: "https://github.com/sciaschi/CBFD-Recompiled")!)
+                    Link("N64Recomp", destination: URL(string: "https://github.com/N64Recomp/N64Recomp")!)
+                    Link("RT64", destination: URL(string: "https://github.com/rt64/rt64")!)
+                }
+                .font(.subheadline).frame(minHeight: 44)
                 DisclosureGroup("Renderer details") {
                     Text(renderer.message).font(.caption.monospaced())
                         .frame(maxWidth: .infinity, alignment: .leading).padding(.top, 12)
@@ -587,13 +682,29 @@ struct SquirrelPadApp: App {
         }
     }
 
+    private func projectLink(_ title: String, subtitle: String, symbol: String, path: String) -> some View {
+        Link(destination: URL(string: "https://github.com/chrissotraidis/squirrelpad" + path)!) {
+            HStack(spacing: 12) {
+                Image(systemName: symbol).frame(width: 24).foregroundStyle(SquirrelPadTheme.accent)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title).font(.system(.body, design: .rounded, weight: .semibold)).foregroundStyle(.white)
+                    Text(subtitle).font(.caption).foregroundStyle(SquirrelPadTheme.secondary)
+                }
+                Spacer(minLength: 8)
+                Image(systemName: "arrow.up.right").font(.caption.weight(.bold)).foregroundStyle(SquirrelPadTheme.accent)
+            }
+            .frame(minHeight: 48).contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
     private func settingsTab(_ title: String, symbol: String, section: SettingsSection, compact: Bool) -> some View {
         Button { settingsSection = section } label: {
             HStack(spacing: 10) {
                 Image(systemName: symbol)
                     .frame(width: 22)
                     .foregroundStyle(settingsSection == section ? SquirrelPadTheme.accent : SquirrelPadTheme.secondary)
-                Text(title)
+                Text(title).lineLimit(1).minimumScaleFactor(0.8)
                 Spacer(minLength: 0)
             }
             .font(.system(size: compact ? 15 : 17, weight: .semibold))

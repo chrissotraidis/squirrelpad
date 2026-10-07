@@ -4,6 +4,7 @@
 
 #include "hle/rt64_application.h"
 #include "ultramodern/renderer_context.hpp"
+#include "mobile_graphics.h"
 
 namespace {
 uint8_t dmem[0x1000]{};
@@ -64,6 +65,7 @@ public:
         config.useConfigurationFile = false;
         app = std::make_unique<RT64::Application>(core, config);
         app->userConfig.graphicsAPI = RT64::UserConfiguration::GraphicsAPI::Metal;
+        apply_graphics(false);
         app->enhancementConfig.f3dex.forceBranch = true;
         app->enhancementConfig.textureLOD.scale = true;
         const auto result = app->setup(0);
@@ -85,6 +87,9 @@ public:
         app->updateEnhancementConfig();
     }
     void send_dl(const OSTask *task) override {
+        // UI updates only publish an atomic value. RT64 state is changed here,
+        // on its owning thread, after the pause gate and before the next list.
+        apply_graphics(true);
         app->state->rsp->reset();
         app->interpreter->loadUCodeGBI(task->t.ucode & 0x3FFFFFF,
                                         task->t.ucode_data & 0x3FFFFFF, true);
@@ -105,9 +110,25 @@ public:
     void update_screen() override { app->updateScreen(); }
     void shutdown() override { if (app) app->end(); }
     uint32_t get_display_framerate() const override { return 60; }
-    float get_resolution_scale() const override { return 1.0f; }
+    float get_resolution_scale() const override { return float(applied_options & 0xF); }
 
 private:
+    void apply_graphics(bool notify) {
+        const auto options = squirrelpad_get_graphics();
+        if (options == applied_options) return;
+        const bool resolution_changed = (options & 0xF) != (applied_options & 0xF);
+        auto &config = app->userConfig;
+        config.resolution = RT64::UserConfiguration::Resolution::Manual;
+        config.resolutionMultiplier = options & 0xF;
+        config.filtering = static_cast<RT64::UserConfiguration::Filtering>((options >> 4) & 0xF);
+        config.threePointFiltering = (options & 0x100) != 0;
+        applied_options = options;
+        if (notify) app->updateUserConfig(resolution_changed);
+        std::printf("[mobile RT64] graphics: %ux filter=%u texture-smoothing=%u\n",
+                    options & 0xF, (options >> 4) & 0xF, (options >> 8) & 1);
+    }
+
+    uint32_t applied_options = 0;
     std::unique_ptr<RT64::Application> app;
 };
 }
