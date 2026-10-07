@@ -1,0 +1,13 @@
+diff --git a/plume_metal.cpp b/plume_metal.cpp
+--- a/plume_metal.cpp
++++ b/plume_metal.cpp
+@@ -3869,6 +3869,9 @@ namespace plume {
+         description.name = deviceName;
+ #if TARGET_OS_SIMULATOR
+         description.type = RenderDeviceType::VIRTUAL;
++#elif PLUME_IOS
++        // MTLDevice.location is macOS-only; iOS GPUs are integrated.
++        description.type = RenderDeviceType::INTEGRATED;
+ #else
+         description.type = mapDeviceType(mtl->location());
+ #endif

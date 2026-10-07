@@ -162,8 +162,9 @@ Outputs:
 - `work/build-app-replay-iphonesimulator/Release-iphonesimulator/SquirrelPad.app`
 - `work/build-app-replay-iphoneos/Release-iphoneos/SquirrelPad.app`
 
-The device output is **unsigned** and is not a physical-device installable
-handoff. Signing and hardware installation remain pending. After changing
+The device output is **unsigned** and requires your own development signing
+before installation. A personal signed install is recorded in the
+[hardware test](HARDWARE_TEST_2026-10-07.md). After changing
 CMake resources, explicitly configure before building: Xcode's regeneration
 phase can otherwise finish successfully using the old resource list.
 
@@ -255,5 +256,6 @@ Both SDK bundles currently contain 24 upstream notice texts. See
 inventory and its limits. Runtime GPL components and ROM-derived executable
 content remain part of the build; absence of a `.z64` file is not distribution
 clearance. Public release, TestFlight and App Store delivery require a separate
-decision. No physical device is presently available; Chris's remaining hardware
-checks include touch feel, controllers, audio routes/listening and sustained play.
+decision. The first signed iPad install and startup are recorded in the hardware
+test; remaining checks include direct touch input, controllers, audio
+routes/listening and sustained play.

@@ -46,6 +46,7 @@ apply_once "$checkout/tools/rt64" "$project/patches/rt64-ios-debug-capability.pa
 apply_once "$checkout/tools/rt64" "$project/patches/rt64-static-fb-params.patch"
 apply_once "$checkout/tools/rt64" "$project/patches/rt64-metal-sdk-scope.patch"
 apply_once "$checkout/tools/rt64/src/contrib/plume" "$project/patches/plume-ios-metal.patch"
+apply_once "$checkout/tools/rt64/src/contrib/plume" "$project/patches/plume-ios-device-type.patch"
 apply_once "$checkout/tools/rt64" "$project/patches/rt64-ios-texture-pair.patch"
 apply_once "$checkout/tools/N64ModernRuntime/N64Recomp/lib/sljit" "$project/patches/sljit-ios-allocator.patch"
 

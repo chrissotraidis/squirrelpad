@@ -324,7 +324,11 @@ struct SquirrelPadApp: App {
         return VStack(spacing: 0) {
             HStack(spacing: 12) {
                 AcornMark(size: 38)
-                Text("Settings").font(.system(size: compact ? 22 : 26, weight: .bold, design: .rounded))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Settings").font(.system(size: compact ? 22 : 26, weight: .bold))
+                    Text(session.running ? "Conker’s Bad Fur Day · Paused" : "SquirrelPad")
+                        .font(.caption).foregroundStyle(SquirrelPadTheme.secondary)
+                }
                 Spacer()
                 Button { menuOpen = false } label: {
                     Label(session.running && !showingLauncher ? "Resume" : "Done",
@@ -354,14 +358,66 @@ struct SquirrelPadApp: App {
                             if settingsSection == .general {
                                 generalSettings
                             } else if settingsSection == .controls {
-                                SettingsCard(title: "Controls", symbol: "gamecontroller") {
-                                    Toggle("Touch Controls", isOn: $touchEnabled)
+                                SettingsCard(title: "Touch controls", symbol: "hand.tap") {
+                                    Toggle("Show Touch Controls", isOn: $touchEnabled)
                                         .tint(SquirrelPadTheme.accent)
-                                    Text("Show the N64 controls on the game screen.")
+                                    Text("Use the on-screen N64 controls. Layouts are saved separately for iPhone and iPad.")
                                         .font(.subheadline)
-                                        .foregroundStyle(.white.opacity(0.68))
+                                        .foregroundStyle(SquirrelPadTheme.secondary)
+                                    Button("Edit Touch Layout") { beginLayoutEdit(compact: compact) }
+                                        .buttonStyle(SquirrelPadButtonStyle(primary: true))
+                                        .disabled(!touchEnabled || !session.running || showingLauncher)
+                                    Button("Restore Touch Defaults") { confirmResetTouch = true }
+                                        .buttonStyle(SquirrelPadButtonStyle())
+                                    if !session.running || showingLauncher {
+                                        Text("Start or resume the game to move and resize controls.")
+                                            .font(.caption).foregroundStyle(SquirrelPadTheme.secondary)
+                                    }
+                                }
+                                SettingsCard(title: "Size & appearance", symbol: "slider.horizontal.3") {
+                                    VStack(alignment: .leading, spacing: 5) {
+                                        HStack {
+                                            Text("Control Size")
+                                            Spacer()
+                                            Text("\(Int((controlScale * 100).rounded()))%")
+                                                .monospacedDigit()
+                                        }
+                                        Slider(value: $controlScale, in: 0.8...1.2)
+                                            .tint(SquirrelPadTheme.accent)
+                                            .accessibilityLabel("Control Size")
+                                            .accessibilityValue("\(Int((controlScale * 100).rounded())) percent")
+                                    }
+                                    .disabled(!touchEnabled)
+                                    Divider()
+                                    Toggle("Transparent Controls", isOn: $touchTransparency)
+                                        .tint(SquirrelPadTheme.accent)
+                                        .disabled(!touchEnabled)
+                                    if touchTransparency {
+                                        VStack(alignment: .leading, spacing: 5) {
+                                            HStack {
+                                                Text("Control Opacity")
+                                                Spacer()
+                                                Text("\(Int((touchOpacity * 100).rounded()))%")
+                                                    .monospacedDigit()
+                                            }
+                                            Slider(value: $touchOpacity, in: 0.25...1.0)
+                                                .tint(SquirrelPadTheme.accent)
+                                                .accessibilityLabel("Control Opacity")
+                                                .accessibilityValue("\(Int((touchOpacity * 100).rounded())) percent")
+                                        }
+                                        .disabled(!touchEnabled)
+                                    }
+                                    Divider()
+                                    Text("Button Visibility")
+                                        .font(.headline)
+                                    Toggle("D-pad Buttons", isOn: $showDpad)
+                                        .tint(SquirrelPadTheme.accent)
+                                    Toggle("C Buttons", isOn: $showCButtons)
+                                        .tint(SquirrelPadTheme.accent)
+                                }
+                                SettingsCard(title: "Game controller", symbol: "gamecontroller") {
                                     HStack {
-                                        Text("Game Controller")
+                                        Text("Connected controller")
                                         Spacer()
                                         Text(controllerInput.connectedName ?? "Not connected")
                                             .foregroundStyle(.white.opacity(0.68))
@@ -446,53 +502,6 @@ struct SquirrelPadApp: App {
                                                 .padding(.top, 4)
                                         }
                                     }
-                                    Divider()
-                                    Text("Touch Layout")
-                                        .font(.headline)
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        HStack {
-                                            Text("Control Size")
-                                            Spacer()
-                                            Text("\(Int((controlScale * 100).rounded()))%")
-                                                .monospacedDigit()
-                                        }
-                                        Slider(value: $controlScale, in: 0.8...1.2)
-                                            .tint(SquirrelPadTheme.accent)
-                                            .accessibilityLabel("Control Size")
-                                            .accessibilityValue("\(Int((controlScale * 100).rounded())) percent")
-                                    }
-                                    .disabled(!touchEnabled)
-                                    Divider()
-                                    Toggle("Transparent Controls", isOn: $touchTransparency)
-                                        .tint(SquirrelPadTheme.accent)
-                                        .disabled(!touchEnabled)
-                                    if touchTransparency {
-                                        VStack(alignment: .leading, spacing: 5) {
-                                            HStack {
-                                                Text("Control Opacity")
-                                                Spacer()
-                                                Text("\(Int((touchOpacity * 100).rounded()))%")
-                                                    .monospacedDigit()
-                                            }
-                                            Slider(value: $touchOpacity, in: 0.25...1.0)
-                                                .tint(SquirrelPadTheme.accent)
-                                                .accessibilityLabel("Control Opacity")
-                                                .accessibilityValue("\(Int((touchOpacity * 100).rounded())) percent")
-                                        }
-                                        .disabled(!touchEnabled)
-                                    }
-                                    Divider()
-                                    Text("Button Visibility")
-                                        .font(.headline)
-                                    Toggle("D-pad Buttons", isOn: $showDpad)
-                                        .tint(SquirrelPadTheme.accent)
-                                    Toggle("C Buttons", isOn: $showCButtons)
-                                        .tint(SquirrelPadTheme.accent)
-                                    Button("Edit Layout") { beginLayoutEdit(compact: compact) }
-                                        .buttonStyle(SquirrelPadButtonStyle(primary: true))
-                                        .disabled(!touchEnabled || !session.running || showingLauncher)
-                                    Button("Restore Touch Defaults") { confirmResetTouch = true }
-                                        .buttonStyle(SquirrelPadButtonStyle())
                                 }
                             } else if settingsSection == .audio {
                                 SettingsCard(title: "Game audio", symbol: "speaker.wave.2") {
@@ -536,7 +545,7 @@ struct SquirrelPadApp: App {
                 if session.running {
                     Text("Return to the launcher to pause here. Resume Game brings you back to this session.")
                         .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
-                    Button("Return to SquirrelPad") {
+                    Button("Return to Launcher") {
                         showingLauncher = true
                         menuOpen = false
                     }
@@ -580,15 +589,22 @@ struct SquirrelPadApp: App {
 
     private func settingsTab(_ title: String, symbol: String, section: SettingsSection, compact: Bool) -> some View {
         Button { settingsSection = section } label: {
-            Label(title, systemImage: symbol)
-                .font(.system(size: compact ? 15 : 17, weight: .semibold))
-                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-                .padding(.horizontal, 10)
-                .background(settingsSection == section ? SquirrelPadTheme.accent : .clear,
-                            in: RoundedRectangle(cornerRadius: 10))
+            HStack(spacing: 10) {
+                Image(systemName: symbol)
+                    .frame(width: 22)
+                    .foregroundStyle(settingsSection == section ? SquirrelPadTheme.accent : SquirrelPadTheme.secondary)
+                Text(title)
+                Spacer(minLength: 0)
+            }
+            .font(.system(size: compact ? 15 : 17, weight: .semibold))
+            .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
+            .padding(.horizontal, 10)
+            .background(settingsSection == section ? SquirrelPadTheme.accent.opacity(0.18) : .clear,
+                        in: RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(settingsSection == section ? .isSelected : [])
+        .accessibilityIdentifier("squirrelpad-settings-\(title.lowercased())")
     }
 
     private func restoreTouchDefaults() {

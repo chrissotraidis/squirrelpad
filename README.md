@@ -26,9 +26,11 @@ editable touch layouts, controller bindings, and local EEPROM saves.
 </p>
 
 <details>
-<summary><strong>See the launcher</strong></summary>
+<summary><strong>See the launcher and settings</strong></summary>
 
 ![SquirrelPad's woodland launcher with Play Conker, Settings, and Help](docs/screenshots/ipad-launcher.jpg)
+
+![SquirrelPad's three-dot menu with Resume, sidebar navigation, and grouped touch settings](docs/screenshots/ipad-settings.jpg)
 
 </details>
 

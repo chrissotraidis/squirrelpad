@@ -150,12 +150,21 @@ struct SquirrelPadLauncher: View {
                     .tracking(2)
             }
             .foregroundStyle(gold)
-            (Text("Conker’s\n").foregroundStyle(.white) + Text("Bad Fur Day").foregroundStyle(gold))
-                .font(.system(size: compact ? 44 : wide ? 72 : 50, weight: .black, design: .rounded))
-                .tracking(compact ? -1.5 : -2.5)
-                .lineSpacing(-4)
-                .fixedSize(horizontal: false, vertical: true)
-                .shadow(color: .black.opacity(0.2), radius: 12, y: 4)
+            VStack(alignment: .leading, spacing: compact ? 0 : 2) {
+                Text("Conker’s")
+                    .font(.custom("Georgia-BoldItalic", fixedSize: compact ? 55 : wide ? 86 : 60))
+                    .tracking(-2)
+                    .foregroundStyle(Color(red: 1, green: 0.96, blue: 0.86))
+                Text("BAD FUR DAY")
+                    .font(.custom("AvenirNextCondensed-Heavy", fixedSize: compact ? 29 : 42))
+                    .tracking(compact ? 4 : 6)
+                    .foregroundStyle(gold)
+            }
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .shadow(color: .black.opacity(0.35), radius: 10, y: 4)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Conker’s Bad Fur Day")
             Text(paused ? "A little breather. Then back to the trouble."
                  : hasROM ? "A very bad day. A very good time."
                  : "Bring your own US ROM. We’ll take it from here.")
@@ -245,12 +254,16 @@ struct SettingsCard<Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Label(title, systemImage: symbol)
-                .font(.headline)
+            Label {
+                Text(title).font(.headline)
+            } icon: {
+                Image(systemName: symbol).foregroundStyle(SquirrelPadTheme.accent)
+            }
             content()
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.white.opacity(0.045), in: RoundedRectangle(cornerRadius: 16))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(.white.opacity(0.06)))
     }
 }

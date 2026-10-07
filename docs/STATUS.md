@@ -1,6 +1,6 @@
 # SquirrelPad evidence ledger
 
-Updated 2026-10-02. Work the lowest unmet goal in [GOAL_LOOP.md](GOAL_LOOP.md). The private ROM, generated game code, builds, logs, saves and gameplay captures stay under ignored `ref/` or `work/`.
+Updated 2026-10-07. See the [latest hardware test](HARDWARE_TEST_2026-10-07.md) for the title/menu refinement, physical-iPad startup fix, signed install, and remaining input check. Historical evidence follows. The private ROM, generated game code, builds, logs, saves and diagnostic gameplay captures stay under ignored `ref/` or `work/`; selected README images are documented in [SOURCE_BOUNDARY](SOURCE_BOUNDARY.md).
 
 **Current continuation:** clean replay now builds macOS and both mobile SDKs;
 package audits and real save-writer fault regression pass. The new normal app
