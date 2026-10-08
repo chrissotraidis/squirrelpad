@@ -15,6 +15,9 @@ int squirrelpad_mod_skip(uint8_t*,int);
 void squirrelpad_controller_set_state(uint16_t,float,float);
 void squirrelpad_controller_camera(float,float);
 void squirrelpad_controller_clear();
+void squirrelpad_rumble_enable(bool);
+void squirrelpad_mobile_set_rumble(int,bool);
+bool squirrelpad_rumble_requested();
 void squirrelpad_touch_button(uint16_t,int);
 void squirrelpad_touch_clear();
 bool squirrelpad_mobile_get_input(int,uint16_t*,float*,float*);
@@ -75,6 +78,27 @@ int main() {
     squirrelpad_mobile_get_input(0,&b,&x,&y);assert(b==0);
     squirrelpad_touch_button(0x8000,1);squirrelpad_touch_clear();
     squirrelpad_mobile_get_input(0,&b,&x,&y);assert(b==0);
+    // Hardware taps shorter than one game poll are consumed exactly once.
+    squirrelpad_controller_set_state(0x8000,0,0);
+    squirrelpad_controller_set_state(0,0,0);
+    squirrelpad_mobile_get_input(0,&b,&x,&y);assert(b==0x8000);
+    squirrelpad_mobile_get_input(0,&b,&x,&y);assert(b==0);
+    squirrelpad_controller_set_state(0x4000,1,-1);
+    squirrelpad_controller_clear();
+    squirrelpad_mobile_get_input(0,&b,&x,&y);assert(b==0 && x==0 && y==0);
+    // Rumble rejects other ports, retains short pulses and cannot restart after pause.
+    squirrelpad_mobile_set_rumble(0,true);assert(!squirrelpad_rumble_requested());
+    squirrelpad_rumble_enable(true);
+    squirrelpad_mobile_set_rumble(1,true);assert(!squirrelpad_rumble_requested());
+    squirrelpad_mobile_set_rumble(0,true);assert(squirrelpad_rumble_requested());
+    assert(squirrelpad_rumble_requested()); // held motor
+    squirrelpad_mobile_set_rumble(0,false);assert(!squirrelpad_rumble_requested());
+    squirrelpad_mobile_set_rumble(0,true);squirrelpad_mobile_set_rumble(0,false);
+    assert(squirrelpad_rumble_requested());assert(!squirrelpad_rumble_requested());
+    squirrelpad_mobile_set_rumble(0,true);squirrelpad_controller_clear();
+    squirrelpad_mobile_set_rumble(0,true);assert(!squirrelpad_rumble_requested());
+    squirrelpad_rumble_enable(true);assert(!squirrelpad_rumble_requested());
+    squirrelpad_rumble_enable(false);
     // Independent synth music/effects and streamed speech; malformed values are clamped.
     squirrelpad_set_mix(0.5,0.25,0.75);ctx.r4=0x80001000;conker_note_volume(rdram,&ctx);
     ctx.r4=0x80001004;ctx.r7=10000;conker_voice_start_volume(rdram,&ctx);assert(int32_t(ctx.r7)==5000);

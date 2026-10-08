@@ -37,8 +37,15 @@ final class MetalHostView: UIView {
     override class var layerClass: AnyClass { CAMetalLayer.self }
     var onLayout: ((UIView) -> Void)?
 
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        setNeedsLayout()
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
+        // Follow the actual scene when iPadOS moves the window to another display.
+        if let screen = window?.screen { contentScaleFactor = screen.scale }
         onLayout?(self)
     }
 }
@@ -50,7 +57,6 @@ struct RT64Surface: UIViewRepresentable {
 
     func makeUIView(context: Context) -> MetalHostView {
         let view = MetalHostView()
-        view.contentScaleFactor = UIScreen.main.scale
         view.isOpaque = true
         if let layer = view.layer as? CAMetalLayer {
             layer.pixelFormat = .bgra8Unorm

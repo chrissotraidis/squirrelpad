@@ -461,6 +461,22 @@ struct SquirrelPadApp: App {
                                             .foregroundStyle(.white.opacity(0.68))
                                     }
                                     .font(.subheadline)
+                                    Text("Pair an Xbox or PlayStation controller in Settings → Bluetooth, or connect a supported USB controller. It appears here automatically; the first connected controller controls player one.")
+                                        .font(.subheadline)
+                                        .foregroundStyle(SquirrelPadTheme.secondary)
+                                    Link("Controller pairing help", destination: URL(string: "https://support.apple.com/111099")!)
+                                        .tint(SquirrelPadTheme.accent)
+                                    Toggle("Controller Rumble", isOn: $controllerInput.rumbleEnabled)
+                                        .tint(SquirrelPadTheme.accent)
+                                    HStack {
+                                        Text(controllerInput.rumbleMessage)
+                                            .font(.caption)
+                                            .foregroundStyle(SquirrelPadTheme.secondary)
+                                        Spacer()
+                                        Button("Test Rumble") { controllerInput.testRumble() }
+                                            .buttonStyle(SquirrelPadButtonStyle())
+                                            .disabled(!controllerInput.rumbleAvailable || !controllerInput.rumbleEnabled)
+                                    }
                                     Divider()
                                     Button { bindingsExpanded.toggle() } label: {
                                         HStack(spacing: 10) {
@@ -485,11 +501,6 @@ struct SquirrelPadApp: App {
                                         }
                                     }
                                     if bindingsExpanded {
-                                        if controllerInput.connectedName != nil {
-                                            Text(controllerInput.rumbleAvailable ? "Rumble available" : "Rumble unavailable")
-                                                .font(.subheadline)
-                                                .foregroundStyle(.white.opacity(0.68))
-                                        }
                                         VStack(spacing: compact ? 5 : 7) {
                                             ForEach(ControllerInput.bindings.indices, id: \.self) { index in
                                                 let binding = ControllerInput.bindings[index]
@@ -816,6 +827,7 @@ struct SquirrelPadApp: App {
     private func updateCoreActivity(phase: ScenePhase? = nil) {
         let active = (phase ?? scenePhase) == .active && !showingLauncher && !menuOpen && !editingLayout && !audioInterrupted
         setCoreActive(active)
+        controllerInput.setForeground((phase ?? scenePhase) == .active && !audioInterrupted)
         controllerInput.setActive(active && session.running)
     }
 

@@ -1,0 +1,37 @@
+--- a/host/src/main.cpp
++++ b/host/src/main.cpp
+@@ -36,6 +36,7 @@
+ std::unique_ptr<ultramodern::renderer::RendererContext> squirrelpad_create_mobile_renderer(
+     uint8_t *rdram, ultramodern::renderer::WindowHandle window, bool developer_mode);
+ extern "C" bool squirrelpad_mobile_get_input(int player, uint16_t *buttons, float *x, float *y);
++extern "C" void squirrelpad_mobile_set_rumble(int player, bool enabled);
+ extern "C" void squirrelpad_audio_queue_samples(int16_t *samples, size_t sample_count);
+ extern "C" size_t squirrelpad_audio_get_frames_remaining();
+ extern "C" void squirrelpad_audio_set_frequency(uint32_t frequency);
+@@ -296,7 +297,11 @@
+         return false;
+ #endif
+     }
+-    void set_rumble(int, bool) {}
++    void set_rumble(int player, bool enabled) {
++#if defined(SQUIRRELPAD_MOBILE_RT64)
++        squirrelpad_mobile_set_rumble(player, enabled);
++#endif
++    }
+ 
+     ultramodern::renderer::WindowHandle create_window(void*) {
+ #if defined(SQUIRRELPAD_MOBILE_RT64)
+@@ -332,7 +337,13 @@
+     }
+ #endif
+     if (controller_num == 0) {
++#if defined(SQUIRRELPAD_MOBILE_RT64)
++        // Keep the virtual pak attached so controllers connected after boot work.
++        // The Apple host gates actual output by capability, preference and focus.
++        return { ultramodern::input::Device::Controller, ultramodern::input::Pak::RumblePak };
++#else
+         return { ultramodern::input::Device::Controller, ultramodern::input::Pak::None };
++#endif
+     }
+     return { ultramodern::input::Device::None, ultramodern::input::Pak::None };
+ }

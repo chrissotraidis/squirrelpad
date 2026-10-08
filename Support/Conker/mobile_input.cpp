@@ -9,6 +9,10 @@ std::atomic<uint16_t> pending_touch_presses{0};
 std::atomic<float> stick_x{0.0f};
 std::atomic<float> stick_y{0.0f};
 std::atomic<uint16_t> controller_buttons{0};
+std::atomic<uint16_t> pending_controller_presses{0};
+// One atomic word prevents a late game-thread request from restarting paused rumble.
+// Bits: 4 = output enabled, 1 = motor held, 2 = unconsumed start edge.
+std::atomic<unsigned> rumble{0};
 std::atomic<float> controller_x{0.0f};
 std::atomic<float> controller_y{0.0f};
 std::atomic<float> camera_x{0}, camera_y{0};
@@ -36,9 +40,28 @@ extern "C" void squirrelpad_touch_clear() {
 }
 
 extern "C" void squirrelpad_controller_set_state(uint16_t mask, float x, float y) {
-    controller_buttons.store(mask);
+    const auto previous = controller_buttons.exchange(mask);
+    pending_controller_presses.fetch_or(mask & ~previous);
     controller_x.store(std::clamp(x, -1.0f, 1.0f));
     controller_y.store(std::clamp(y, -1.0f, 1.0f));
+}
+
+extern "C" void squirrelpad_rumble_enable(bool enabled) {
+    rumble.store(enabled ? 4u : 0u);
+}
+
+extern "C" void squirrelpad_mobile_set_rumble(int player, bool enabled) {
+    if (player != 0) return;
+    auto current = rumble.load();
+    while (current & 4u) {
+        const auto next = enabled ? (current | 3u) : (current & ~1u);
+        if (rumble.compare_exchange_weak(current, next)) return;
+    }
+}
+
+extern "C" bool squirrelpad_rumble_requested() {
+    // Preserve a short motor pulse that starts and stops between host polls.
+    return (rumble.fetch_and(~2u) & 3u) != 0;
 }
 
 extern "C" void squirrelpad_controller_camera(float x,float y) {
@@ -49,6 +72,8 @@ extern "C" void squirrelpad_controller_clear() {
     squirrelpad_controller_camera(0,0);
     squirrelpad_enhancement_reset();
     squirrelpad_controller_set_state(0, 0.0f, 0.0f);
+    pending_controller_presses.store(0);
+    squirrelpad_rumble_enable(false);
 }
 
 extern "C" bool squirrelpad_mobile_get_input(int player, uint16_t *out_buttons,
@@ -57,7 +82,7 @@ extern "C" bool squirrelpad_mobile_get_input(int player, uint16_t *out_buttons,
     // Preserve a touch press that begins and ends between the game's 30 Hz polls.
     // Consume it once; held buttons continue to use their live state.
     const uint16_t touch_buttons = buttons.load() | pending_touch_presses.exchange(0);
-    *out_buttons = touch_buttons | controller_buttons.load();
+    *out_buttons = touch_buttons | controller_buttons.load() | pending_controller_presses.exchange(0);
     const float touch_x = stick_x.load();
     const float touch_y = stick_y.load();
     const float pad_x = controller_x.load();

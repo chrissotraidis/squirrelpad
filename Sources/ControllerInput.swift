@@ -1,10 +1,15 @@
 import Foundation
 import GameController
+import CoreHaptics
 
 @_silgen_name("squirrelpad_controller_set_state")
 private func setControllerState(_ buttons: UInt16, _ x: Float, _ y: Float)
 @_silgen_name("squirrelpad_controller_clear")
 private func clearControllerState()
+@_silgen_name("squirrelpad_rumble_enable")
+private func enableGameRumble(_ enabled: Bool)
+@_silgen_name("squirrelpad_rumble_requested")
+private func gameRumbleRequested() -> Bool
 
 @_silgen_name("squirrelpad_controller_camera")
 private func setCameraState(_ x: Float, _ y: Float)
@@ -89,9 +94,25 @@ final class ControllerInput: ObservableObject {
 
     @Published private(set) var connectedName: String?
     @Published private(set) var rumbleAvailable = false
+    @Published private(set) var rumbleMessage = "Connect a controller to check rumble support."
+    @Published var rumbleEnabled = UserDefaults.standard.object(forKey: "SquirrelPad.ControllerRumble") as? Bool ?? true {
+        didSet {
+            UserDefaults.standard.set(rumbleEnabled, forKey: "SquirrelPad.ControllerRumble")
+            stopRumble()
+            enableGameRumble(active && foreground && rumbleEnabled && rumbleAvailable)
+        }
+    }
     private var controller: GCController?
     private var active = false
+    private var foreground = true
     private var observers: [NSObjectProtocol] = []
+    private var rumbleTimer: Timer?
+    private var hapticEngine: CHHapticEngine?
+    private var hapticPlayer: CHHapticAdvancedPatternPlayer?
+    private var rumbling = false
+    private var rumbleFailed = false
+    private var testUntil: TimeInterval = 0
+    private var pulseUntil: TimeInterval = 0
 
     init() {
         buttonBindings = UserDefaults.standard.dictionary(forKey: Self.bindingsKey) as? [String: String] ?? [:]
@@ -111,6 +132,8 @@ final class ControllerInput: ObservableObject {
     deinit {
         observers.forEach { NotificationCenter.default.removeObserver($0) }
         controller?.extendedGamepad?.valueChangedHandler = nil
+        rumbleTimer?.invalidate()
+        hapticEngine?.stop(completionHandler: nil)
         clearControllerState()
     }
 
@@ -121,27 +144,137 @@ final class ControllerInput: ObservableObject {
             sample()
         } else {
             clearControllerState()
+            stopRumble()
+        }
+        enableGameRumble(value && foreground && rumbleEnabled && rumbleAvailable)
+    }
+
+    func setForeground(_ value: Bool) {
+        guard foreground != value else { return }
+        foreground = value
+        if value {
+            rumbleFailed = false
+            reconcile()
+            startRumbleTimer()
+        } else {
+            enableGameRumble(false)
+            stopRumble()
+            rumbleTimer?.invalidate()
+            rumbleTimer = nil
+            hapticEngine?.stop(completionHandler: nil)
+        }
+    }
+
+    func testRumble() {
+        guard foreground, rumbleEnabled, rumbleAvailable else { return }
+        rumbleFailed = false
+        testUntil = ProcessInfo.processInfo.systemUptime + 0.35
+        updateRumble()
+    }
+
+    private func stopRumble() {
+        testUntil = 0
+        pulseUntil = 0
+        try? hapticPlayer?.stop(atTime: CHHapticTimeImmediate)
+        rumbling = false
+    }
+
+    private func startRumbleTimer() {
+        guard foreground, rumbleAvailable, rumbleTimer == nil else { return }
+        let timer = Timer(timeInterval: 1.0 / 60, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.updateRumble() }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        rumbleTimer = timer
+    }
+
+    private func updateRumble() {
+        let requested = gameRumbleRequested()
+        guard foreground, rumbleEnabled, rumbleAvailable, !rumbleFailed else { return }
+        let now = ProcessInfo.processInfo.systemUptime
+        if active && requested { pulseUntil = now + 0.04 }
+        let wanted = now < testUntil || (active && now < pulseUntil)
+        guard wanted != rumbling else { return }
+        do {
+            if wanted, let engine = hapticEngine {
+                try engine.start()
+                if hapticPlayer == nil {
+                    let event = CHHapticEvent(eventType: .hapticContinuous, parameters: [
+                        CHHapticEventParameter(parameterID: .hapticIntensity, value: 0.7),
+                        CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.3)
+                    ], relativeTime: 0, duration: 1)
+                    let pattern = try CHHapticPattern(events: [event], parameters: [])
+                    let player = try engine.makeAdvancedPlayer(with: pattern)
+                    player.loopEnabled = true
+                    player.loopEnd = 1
+                    hapticPlayer = player
+                }
+                try hapticPlayer?.start(atTime: CHHapticTimeImmediate)
+                rumbleMessage = "Rumble supported by this controller."
+            } else {
+                try hapticPlayer?.stop(atTime: CHHapticTimeImmediate)
+            }
+            rumbling = wanted
+        } catch {
+            stopRumble()
+            rumbleFailed = true
+            hapticPlayer = nil
+            rumbleMessage = "Rumble could not start. Try Test Rumble again or reconnect."
+            NSLog("[controller] haptics failed: %@", error.localizedDescription)
         }
     }
 
     private func reconcile() {
+        let connected = GCController.controllers().filter { $0.extendedGamepad != nil }
+        // Connecting a second pad must not steal player one from the current pad.
+        let selected = connected.first { $0 === controller } ?? connected.first
 #if SQUIRRELPAD_SIM_INPUT
-        let next = SimulatorInputProbe.shared.controller ?? GCController.controllers().first { $0.extendedGamepad != nil }
+        let next = SimulatorInputProbe.shared.controller ?? selected
 #else
-        let next = GCController.controllers().first { $0.extendedGamepad != nil }
+        let next = selected
 #endif
         guard controller !== next else { return }
         controller?.extendedGamepad?.valueChangedHandler = nil
         clearControllerState()
+        stopRumble()
+        rumbleTimer?.invalidate()
+        rumbleTimer = nil
+        hapticEngine?.stop(completionHandler: nil)
+        hapticPlayer = nil
+        hapticEngine = next?.haptics?.createEngine(withLocality: .default)
+        rumbleFailed = false
         controller = next
         connectedName = next.map { $0.vendorName ?? "Game Controller" }
-        rumbleAvailable = next?.haptics != nil
+        rumbleAvailable = hapticEngine != nil
+        rumbleMessage = next == nil ? "Connect a controller to check rumble support."
+            : rumbleAvailable ? "Rumble supported by this controller."
+            : "This controller or connection does not expose rumble to iOS."
+        hapticEngine?.resetHandler = { [weak self, weak next] in
+            Task { @MainActor in
+                guard let self, self.controller === next else { return }
+                self.hapticPlayer = nil
+                self.rumbling = false
+                self.rumbleFailed = false
+            }
+        }
+        hapticEngine?.stoppedHandler = { [weak self, weak next] _ in
+            Task { @MainActor in
+                guard let self, self.controller === next else { return }
+                self.rumbling = false
+                self.hapticPlayer = nil
+            }
+        }
+        next?.handlerQueue = .main
         next?.extendedGamepad?.valueChangedHandler = { [weak self, weak next] _, _ in
-            DispatchQueue.main.async { [weak self, weak next] in
+            // Read this event before the next report can overwrite a short press.
+            MainActor.assumeIsolated {
                 guard let self, self.controller === next else { return }
                 self.sample()
             }
         }
+        enableGameRumble(active && foreground && rumbleEnabled && rumbleAvailable)
+        startRumbleTimer()
+        NSLog("[controller] connected=%@ rumble=%@", connectedName ?? "none", String(rumbleAvailable))
         sample()
     }
 

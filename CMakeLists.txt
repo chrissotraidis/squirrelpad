@@ -135,7 +135,7 @@ target_include_directories(SquirrelPad PRIVATE "${conker_source}/tools/N64Modern
 target_link_libraries(SquirrelPad PRIVATE ConkerRecomp
     "-framework SwiftUI" "-framework UniformTypeIdentifiers" "-framework CryptoKit"
     "-framework AudioToolbox" "-framework Metal" "-framework MetalKit" "-framework QuartzCore" "-framework UIKit")
-target_link_libraries(SquirrelPad PRIVATE "-framework GameController")
+target_link_libraries(SquirrelPad PRIVATE "-framework GameController" "-framework CoreHaptics")
 if (SQUIRRELPAD_RT64_ARCHIVE_DIR)
     target_sources(SquirrelPad PRIVATE Support/Conker/mobile_rt64_renderer.cpp Support/Conker/mobile_texture_packs.cpp)
     target_compile_definitions(SquirrelPad PRIVATE HLSL_CPU RT64_EMBEDDED_APPLE)

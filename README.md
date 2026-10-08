@@ -96,6 +96,12 @@ layouts are saved separately. The **•••** menu pauses the game and remains
 available when touch controls are hidden. **General → Return to Launcher**
 opens the launcher with the session paused; **Resume Game** brings you back.
 
+Pair Xbox, PlayStation, or another compatible controller in **iOS Settings →
+Bluetooth**, then check **SquirrelPad → Settings → Controls** for its name.
+Supported USB controllers are detected automatically too. The first connected
+controller controls player one. **Controller Rumble → Test Rumble** checks output
+when iOS exposes haptics for that controller and connection.
+
 ## Enhancements
 
 Open **••• → Enhancements** for 1×, 2×, or 3× rendering, Pixel/Smooth/Crisp
@@ -111,6 +117,22 @@ Mods default to off. Cash and lives can persist in saves.
 See [supported packs, setup, and credits](docs/ENHANCEMENTS.md).
 
 ## FAQ
+
+<details>
+<summary><strong>Can I play on a TV over HDMI?</strong></summary>
+
+Use a video-capable adapter for your iPhone or iPad and select its input on the
+TV. SquirrelPad uses the system's screen mirroring, including the native menus
+and touch controls. On iPads using an extended desktop, select display mirroring
+for this setup. With a controller connected, you can hide touch controls in
+**Controls**. A separate TV-only game view is not implemented.
+
+Controller rumble and HDMI picture/audio still need physical accessory testing;
+they are not certified across controller, adapter, or device models. See
+[controller and display checks](docs/CONTROLLERS_DISPLAYS.md) and Apple's
+[display setup guide](https://support.apple.com/guide/ipad/ipadf1276cde/ipados).
+
+</details>
 
 <details>
 <summary><strong>Is this an emulator?</strong></summary>
