@@ -16,6 +16,15 @@ std::mutex activity_mutex;
 std::condition_variable activity_changed;
 bool active = true;
 std::atomic<uint32_t> graphics_options{squirrelpad_graphics_options(2, 2, true)};
+std::atomic<uint32_t> visual_options{0};
+}
+
+extern "C" void squirrelpad_set_visual_effects(int color, int glow, int clarity, int crt) {
+    visual_options.store(squirrelpad_visual_options(color, glow, clarity, crt), std::memory_order_relaxed);
+}
+
+extern "C" uint32_t squirrelpad_get_visual_effects() {
+    return visual_options.load(std::memory_order_relaxed);
 }
 
 extern "C" void squirrelpad_set_graphics(int resolution, int filter, bool smoothing) {

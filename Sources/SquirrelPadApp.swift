@@ -103,6 +103,7 @@ struct SquirrelPadApp: App {
     @AppStorage("SquirrelPad.Mods.Skip") private var skipCutscenes = false
     @AppStorage("SquirrelPad.Mods.SkipBlocked") private var skipBlocked = false
     @StateObject private var renderer = RendererStatus()
+    @StateObject private var visualEffects = VisualEffectsSettings()
     @StateObject private var controllerInput = ControllerInput()
     @Environment(\.scenePhase) private var scenePhase
     @AppStorage("SquirrelPad.TouchControls") private var touchEnabled = true
@@ -626,6 +627,7 @@ struct SquirrelPadApp: App {
                 Text("Keep the N64 character. Make it your own.")
                     .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
             }
+            VisualEffectsCard(settings: visualEffects, running: session.running)
             SettingsCard(title: "Render quality", symbol: "sparkles") {
                 Text("Internal resolution").font(.subheadline.weight(.semibold))
                 Picker("Internal resolution", selection: $resolutionScale) {

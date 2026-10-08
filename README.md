@@ -20,7 +20,8 @@ SquirrelPad brings [CBFD-Recompiled](https://github.com/sciaschi/CBFD-Recompiled
 to iPhone and iPad with an RT64 Metal renderer, Files-based ROM import,
 editable touch layouts, controller bindings, local EEPROM saves, and selectable
 1×–3× rendering. Optional camera, audio, HUD, and accessibility improvements
-are built in.
+are built in. Experimental Picture lab presets add adjustable color, glow,
+clarity and CRT scanlines.
 
 <p align="center">
   <img src="docs/screenshots/ipad-gameplay.jpg" width="900" alt="Conker in the first playable area of SquirrelPad, with iPad touch controls"><br>

@@ -51,6 +51,7 @@ add_executable(SquirrelPad MACOSX_BUNDLE
     Sources/ControllerInput.swift
     Sources/TexturePackStore.swift
     Sources/EnhancementSettings.swift
+    Sources/VisualEffectsSettings.swift
     Resources/Assets.xcassets
     Support/Conker/mobile_entry.cpp
     Support/Conker/mobile_audio.cpp

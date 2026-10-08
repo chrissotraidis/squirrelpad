@@ -142,20 +142,25 @@ private:
     int pack_status = 0;
     void apply_graphics(bool notify) {
         const auto options = squirrelpad_get_graphics();
-        if (options == applied_options) return;
+        const auto effects = squirrelpad_get_visual_effects();
+        if (options == applied_options && effects == applied_effects) return;
         const bool resolution_changed = (options & 0xF) != (applied_options & 0xF);
         auto &config = app->userConfig;
         config.resolution = RT64::UserConfiguration::Resolution::Manual;
         config.resolutionMultiplier = options & 0xF;
         config.filtering = static_cast<RT64::UserConfiguration::Filtering>((options >> 4) & 0xF);
         config.threePointFiltering = (options & 0x100) != 0;
+        config.presentationEffects = effects;
         applied_options = options;
+        applied_effects = effects;
         if (notify) app->updateUserConfig(resolution_changed);
         std::printf("[mobile RT64] graphics: %ux filter=%u texture-smoothing=%u\n",
                     options & 0xF, (options >> 4) & 0xF, (options >> 8) & 1);
+        std::printf("[mobile RT64] visual effects: %08x\n", effects);
     }
 
     uint32_t applied_options = 0;
+    uint32_t applied_effects = 0;
     std::unique_ptr<RT64::Application> app;
 };
 }

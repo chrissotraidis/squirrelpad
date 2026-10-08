@@ -1,0 +1,147 @@
+diff --git a/src/common/rt64_user_configuration.h b/src/common/rt64_user_configuration.h
+index 4857f22..464bd1b 100644
+--- a/src/common/rt64_user_configuration.h
++++ b/src/common/rt64_user_configuration.h
+@@ -83,6 +83,8 @@ namespace RT64 {
+             OptionCount
+         };
+ 
++        // SquirrelPad presentation effects; managed by the native settings UI.
++        uint32_t presentationEffects = 0;
+         GraphicsAPI graphicsAPI;
+         Resolution resolution;
+         DisplayBuffering displayBuffering;
+diff --git a/src/hle/rt64_present_queue.cpp b/src/hle/rt64_present_queue.cpp
+index 7de5b69..454e5ae 100644
+--- a/src/hle/rt64_present_queue.cpp
++++ b/src/hle/rt64_present_queue.cpp
+@@ -101,6 +101,7 @@ namespace RT64 {
+         bool removeBlackBorders;
+         UserConfiguration::RefreshRate refreshRate;
+         UserConfiguration::Filtering filtering;
++        uint32_t presentationEffects;
+         uint32_t viOriginalRate;
+         uint32_t targetRate;
+         {
+@@ -110,6 +111,7 @@ namespace RT64 {
+             removeBlackBorders = ext.sharedResources->enhancementConfig.presentation.removeBlackBorders;
+             refreshRate = ext.sharedResources->userConfig.refreshRate;
+             filtering = ext.sharedResources->userConfig.filtering;
++            presentationEffects = ext.sharedResources->userConfig.presentationEffects;
+             viOriginalRate = ext.sharedResources->viOriginalRate;
+             targetRate = ext.sharedResources->targetRate;
+         }
+@@ -322,6 +324,7 @@ namespace RT64 {
+                     renderParams.resolutionScale = colorTarget->resolutionScale;
+                     renderParams.downsamplingScale = 1;
+                     renderParams.filtering = filtering;
++                    renderParams.presentationEffects = presentationEffects;
+                     renderParams.vi = &present.screenVI;
+                     renderParams.removeBlackBorders = removeBlackBorders;
+ 
+diff --git a/src/render/rt64_vi_renderer.cpp b/src/render/rt64_vi_renderer.cpp
+index b4ff4e9..5e422d1 100644
+--- a/src/render/rt64_vi_renderer.cpp
++++ b/src/render/rt64_vi_renderer.cpp
+@@ -77,6 +77,7 @@ namespace RT64 {
+         pushConstants.videoResolution = computeHDSize(hlslpp::float2(p.vi->fbSize()), p.resolutionScale, p.downsamplingScale);
+         pushConstants.textureResolution = { float(p.textureWidth), float(p.textureHeight) };
+         pushConstants.gamma = p.vi->gamma();
++        pushConstants.presentationEffects = p.presentationEffects;
+ 
+         p.commandList->setPipeline(shader->pipeline.get());
+         p.commandList->setGraphicsPipelineLayout(shader->pipelineLayout.get());
+diff --git a/src/render/rt64_vi_renderer.h b/src/render/rt64_vi_renderer.h
+index 8a3782a..84ea3e7 100644
+--- a/src/render/rt64_vi_renderer.h
++++ b/src/render/rt64_vi_renderer.h
+@@ -23,6 +23,7 @@ namespace RT64 {
+             const ShaderLibrary *shaderLibrary = nullptr;
+             RenderFormat textureFormat = RenderFormat::UNKNOWN;
+             hlslpp::float2 resolutionScale;
++            uint32_t presentationEffects = 0;
+             uint32_t downsamplingScale = 0;
+             uint32_t textureWidth = 0;
+             uint32_t textureHeight = 0;
+diff --git a/src/shaders/VideoInterfacePS.hlsl b/src/shaders/VideoInterfacePS.hlsl
+index 3f33475..91847c3 100644
+--- a/src/shaders/VideoInterfacePS.hlsl
++++ b/src/shaders/VideoInterfacePS.hlsl
+@@ -32,10 +32,62 @@ float4 PixelAntialiasing(float2 uv) {
+     return SampleInput(uvTexspace / gConstants.textureResolution);
+ }
+ 
++// Optional SquirrelPad effects, applied to the completed game image. The zero
++// path preserves the original filter exactly. Native controls are composited later.
++float3 BrightPass(float2 uv) {
++    float3 color = SampleInput(uv).rgb;
++    float luma = dot(color, float3(0.2126f, 0.7152f, 0.0722f));
++    return color * smoothstep(0.55f, 0.95f, luma);
++}
++
+ float4 PSMain(in float4 pos : SV_Position, in float2 uv : TEXCOORD0) : SV_TARGET {
+ #ifdef PIXEL_ANTIALIASING
+-    return PixelAntialiasing(uv);
++    float4 color = PixelAntialiasing(uv);
+ #else
+-    return SampleInput((uv / gConstants.textureResolution) * gConstants.videoResolution);
++    float4 color = SampleInput((uv / gConstants.textureResolution) * gConstants.videoResolution);
+ #endif
++    uint effects = gConstants.presentationEffects;
++    if (effects == 0) return color;
++    float grade = float(effects & 255u) / 100.0f;
++    float glow = float((effects >> 8) & 255u) / 100.0f;
++    float clarity = float((effects >> 16) & 255u) / 100.0f;
++    float crt = float((effects >> 24) & 255u) / 100.0f;
++    float2 sourceUV = uv * gConstants.videoResolution / gConstants.textureResolution;
++    float2 texel = 1.0f / gConstants.textureResolution;
++
++    if (clarity > 0.0f) {
++        float3 n = SampleInput(sourceUV - float2(0, texel.y)).rgb;
++        float3 s = SampleInput(sourceUV + float2(0, texel.y)).rgb;
++        float3 e = SampleInput(sourceUV + float2(texel.x, 0)).rgb;
++        float3 w = SampleInput(sourceUV - float2(texel.x, 0)).rgb;
++        float3 low = min(color.rgb, min(min(n, s), min(e, w)));
++        float3 high = max(color.rgb, max(max(n, s), max(e, w)));
++        // Bounded unsharp mask; no new bright/dark halos outside local extrema.
++        color.rgb = clamp(color.rgb + (color.rgb - (n+s+e+w)*0.25f) * clarity * 0.8f, low, high);
++    }
++    if (glow > 0.0f) {
++        // A small, fixed-cost halo rather than a full HDR bloom pyramid.
++        float2 radius = 2.0f * gConstants.videoResolution / (float2(320, 240) * gConstants.textureResolution);
++        float3 halo = BrightPass(sourceUV + float2(radius.x, 0)) + BrightPass(sourceUV - float2(radius.x, 0));
++        halo += BrightPass(sourceUV + float2(0, radius.y)) + BrightPass(sourceUV - float2(0, radius.y));
++        halo += BrightPass(sourceUV + radius) + BrightPass(sourceUV - radius);
++        halo += BrightPass(sourceUV + float2(radius.x, -radius.y)) + BrightPass(sourceUV + float2(-radius.x, radius.y));
++        color.rgb += halo * (glow * 0.045f);
++    }
++    if (grade > 0.0f) {
++        float luma = dot(color.rgb, float3(0.2126f, 0.7152f, 0.0722f));
++        float3 vivid = lerp(float3(luma, luma, luma), color.rgb, 1.22f);
++        vivid = (vivid - 0.5f) * 1.10f + 0.5f;
++        color.rgb = lerp(color.rgb, vivid, grade);
++    }
++    if (crt > 0.0f) {
++        // Native-resolution scanlines; derivatives suppress moire at small sizes.
++        float row = uv.y * 240.0f;
++        float scan = 0.5f + 0.5f * cos(row * 6.2831853f);
++        float visibility = 1.0f - smoothstep(0.5f, 1.0f, fwidth(row));
++        color.rgb *= 1.0f - crt * 0.28f * scan * visibility;
++        float2 centered = uv * 2.0f - 1.0f;
++        color.rgb *= 1.0f - crt * 0.10f * saturate(dot(centered, centered) * 0.5f);
++    }
++    return float4(saturate(color.rgb), 1.0f);
+ }
+\ No newline at end of file
+diff --git a/src/shared/rt64_video_interface.h b/src/shared/rt64_video_interface.h
+index b51cf09..c05a108 100644
+--- a/src/shared/rt64_video_interface.h
++++ b/src/shared/rt64_video_interface.h
+@@ -13,6 +13,7 @@ namespace interop {
+         float2 videoResolution;
+         float2 textureResolution;
+         float gamma;
++        uint presentationEffects;
+     };
+ #ifdef HLSL_CPU
+ };

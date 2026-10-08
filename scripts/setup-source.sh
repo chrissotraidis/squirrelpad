@@ -53,6 +53,7 @@ apply_once "$checkout/tools/rt64" "$project/patches/rt64-metal-sdk-scope.patch"
 apply_once "$checkout/tools/rt64/src/contrib/plume" "$project/patches/plume-ios-metal.patch"
 apply_once "$checkout/tools/rt64/src/contrib/plume" "$project/patches/plume-ios-device-type.patch"
 apply_once "$checkout/tools/rt64" "$project/patches/rt64-ios-texture-pair.patch"
+apply_once "$checkout/tools/rt64" "$project/patches/rt64-visual-effects.patch"
 apply_once "$checkout/tools/N64ModernRuntime/N64Recomp/lib/sljit" "$project/patches/sljit-ios-allocator.patch"
 
 python3 "$project/scripts/apply-source-patches.py" "$checkout" "${patches[@]}"

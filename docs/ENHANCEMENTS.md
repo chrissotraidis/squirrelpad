@@ -13,6 +13,19 @@ Open **••• → Enhancements**. Settings persist and apply when you play or
 **Restore Balanced Settings** resets these three choices without changing mods,
 texture packs, or saves. Original aspect ratio and game timing are retained.
 
+## Picture lab (experimental)
+
+Optional Metal filters, off by default. **Enhanced** combines richer color,
+soft glow and bounded sharpening. **CRT** adds scanlines and darker corners.
+Each effect has its own switch and strength slider. **Original** or the master
+switch bypasses all four effects while retaining your adjustments; resolution
+and texture-pack choices stay as selected.
+
+These filters affect the completed game picture, including its text. Native
+touch controls are unaffected. They are not AI upscaling, new texture artwork,
+HDR lighting or ray tracing. More effects cost GPU time; sustained thermal and
+battery measurements remain open. See [visual checks](VISUAL_EFFECTS_2026-10-08.md).
+
 ## Camera, HUD and accessibility
 
 Native adaptations of [ConkerBFDReloaded v1.3.1](https://github.com/DahSidiAbdallah/ConkerBFDReloaded/releases/tag/v1.3.1),
