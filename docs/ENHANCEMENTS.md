@@ -40,6 +40,10 @@ normal game save; turning a mod off does not restore previous saved values.
 The [HD Icons v1.3.2 pack](https://github.com/DahSidiAbdallah/ConkerBFDReloaded/releases/tag/v1.3.0)
 was tested in the iPadOS 27 Simulator: all 403 entries imported, menu/HUD/text
 replacements rendered, and live disable/re-enable restored/reapplied them.
+On 2026-10-08, the physical M2 iPad also imported all 403 entries through Files
+and displayed the sharper game-menu text. The updated build retained the pack;
+live off/on restored original text and reapplied the sharper text, with the
+runtime reporting zero and then 32 matching cached replacements.
 This is a sharper 2D artwork pack, not a complete environment retexture.
 Pack by **dahmedvall95**, using modified artwork by **GameBeast92** from the
 [4K Ultimate Texture Pack](https://github.com/GameBeast92/Conker-s-Bad-Fur-Day-4k-Ultimate-Texture-Pack).

@@ -1,5 +1,6 @@
 // Adapted from sciaschi/CBFD-Recompiled V0.1.5 (MIT), commit
 // 5ea55d149eef2ff1ea36718013025c5e67619db9, host/src/ultra_extras.cpp.
+// See UPSTREAM_LICENSE.txt for the upstream MIT license.
 // Static mobile hooks; the game thread owns sequence-player state.
 #include <chrono>
 #include "recomp.h"

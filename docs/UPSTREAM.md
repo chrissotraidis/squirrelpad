@@ -32,10 +32,11 @@ scene transitions and rendering on the iPad. Keep runtime code generation off.
 | Right-stick free camera and aiming | Retain as the next optional control improvement. Requires bridging Apple controller input, preserving C-buttons during aiming/cutscenes, and collision testing. |
 | Widescreen and smooth presentation | Defer until the renderer migration passes. Upstream includes coupled frustum, backdrop-allocation and interpolation fixes; flipping an aspect/FPS setting alone is insufficient. Game logic remains 30 Hz. |
 | Crosshair, save indicator, separate audio volumes and ledge assists | Reviewed in [Reloaded v1.3.1](https://github.com/DahSidiAbdallah/ConkerBFDReloaded/releases/tag/v1.3.1). Optional later ports, not requirements or claims for this alpha. |
-| HD Icons v1.3.2 | Separate optional 2D pack; never bundled. Verify mobile import and on/off behavior. |
+| HD Icons v1.3.2 | Separate optional 2D pack; never bundled. Files import, persistence through update, and live off/on passed on the physical iPad. |
 | Broader 4K textures | Excluded: incomplete upstream work, outside this release scope. |
 | New levels/campaigns | No validated mobile-compatible candidate identified. No promise of additional campaign content. |
 
-The MIT notice for the existing CBFD-Recompiled dependency also covers the music
-backport. Its source attribution records the exact upstream commit. No Reloaded
+The music backport includes the upstream MIT text in
+`Support/Conker/UPSTREAM_LICENSE.txt`; the app already bundles that dependency
+notice. Source attribution records the exact upstream commit. No Reloaded
 code, new texture artwork, or desktop binaries were added.

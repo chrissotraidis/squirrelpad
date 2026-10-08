@@ -8,7 +8,9 @@ engine pin remains unchanged.
 Latest mod pass: [compiled upstream mods and RT64 texture packs](MODS_TEXTURES_2026-10-07.md).
 Simulator gameplay, live texture replacement, and scene skips verified. Updated
 build installed on the physical iPad with material app data preserved; final
-hardware texture interaction is pending. Earlier entries below are historical.
+hardware texture import and menu rendering have since passed; see the current
+release-readiness record for the update and remaining gameplay checks. Earlier
+entries below are historical.
 
 
 Latest product pass: [acorn settings, About links, and rendering enhancements](SETTINGS_ENHANCEMENTS_2026-10-07.md). Verified on the physical iPad; phone interaction verification remains open.
