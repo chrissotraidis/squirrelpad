@@ -41,8 +41,8 @@ Launcher captured on an M2 iPad Pro running iPadOS 27.0.1.
 
 </details>
 
-**Experimental:** Simulator builds reach gameplay, and a signed build runs on
-the attached iPad. Sustained hardware play, full-story compatibility, audio
+**Experimental alpha:** Simulator builds reach gameplay, and a signed build runs on
+an M2 iPad Pro. Sustained hardware play, full-story compatibility, audio
 quality, and progressed-save reloads still need verification. iOS 17 is the build
 minimum, not a tested-device guarantee. See [release readiness](docs/RELEASE_READINESS.md).
 
@@ -56,14 +56,11 @@ Install the build tools once:
 brew install cmake ninja python pkgconf sdl2 freetype ripgrep
 ```
 
-**Current availability:** the recipe works from a local checkout. Public
-catalog access is pending publication of this currently private repository and
-a recipe release. Use [Build from this checkout](#build-from-this-checkout) now.
-The PadMint setup flow will be:
+Use **PadMint 0.4.11 or newer** for the SquirrelPad catalog entry, or
+[build from this checkout](#build-from-this-checkout).
 
 1. Open [PadMint](https://github.com/chrissotraidis/padmint/releases/latest) and
-   choose **SquirrelPad → iPhone / iPad**. The catalog entry requires a PadMint
-   version that includes SquirrelPad; developers can use the local recipe below.
+   choose **SquirrelPad → iPhone / iPad**.
 2. Select your own **64 MiB US big-endian ROM**. PadMint compiles a personal,
    unsigned IPA from it. No ROM or prebuilt game app is supplied here.
 3. Sign and install that IPA using your usual sideloading tool, such as
@@ -99,7 +96,9 @@ opens the launcher with the session paused; **Resume Game** brings you back.
 Pair Xbox, PlayStation, or another compatible controller in **iOS Settings →
 Bluetooth**, then check **SquirrelPad → Settings → Controls** for its name.
 Supported USB controllers are detected automatically too. The first connected
-controller controls player one. **Controller Rumble → Test Rumble** checks output
+controller controls player one. Touch controls hide automatically and return on
+disconnect; **Hide with Controller** lets you change this. Move a stick or press
+a button in Controls to check input before resuming. **Controller Rumble → Test Rumble** checks output
 when iOS exposes haptics for that controller and connection.
 
 ## Enhancements
@@ -124,8 +123,8 @@ See [supported packs, setup, and credits](docs/ENHANCEMENTS.md).
 Use a video-capable adapter for your iPhone or iPad and select its input on the
 TV. SquirrelPad uses the system's screen mirroring, including the native menus
 and touch controls. On iPads using an extended desktop, select display mirroring
-for this setup. With a controller connected, you can hide touch controls in
-**Controls**. A separate TV-only game view is not implemented.
+for this setup. Touch controls hide automatically with a controller connected;
+you can change this in **Controls**. A separate TV-only game view is not implemented.
 
 Controller rumble and HDMI picture/audio still need physical accessory testing;
 they are not certified across controller, adapter, or device models. See

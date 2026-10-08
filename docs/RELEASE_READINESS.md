@@ -1,64 +1,57 @@
 # Release readiness
 
-Updated 2026-10-08. SquirrelPad is an experimental personal build. Public access
-is not live: the source repository is private and has no recipe release.
+Updated 2026-10-08. **v0.1.0 is an experimental source-and-recipe alpha.**
+Public assets are `SquirrelPad-v0.1.0-padmint.json` and `SHA256SUMS`.
+Players supply their own supported US ROM and build a personal IPA on an
+Apple Silicon Mac. Personal IPAs and generated game code are never release assets.
 
-The alpha's scope is the existing game, native Apple controls/settings, local
-saves, resolution/filter options, optional static mods, and optional 2D HD Icons.
-The incomplete broader HD texture pack is excluded. Additional camera/HUD/assist
-features are not release requirements; their disposition is in [UPSTREAM.md](UPSTREAM.md).
+## What is included
 
-## Closeout checks
+The existing game, native launcher/settings, customizable touch controls,
+controller bindings and automatic touch handoff, local EEPROM saves, 1×–3×
+rendering, optional picture effects, camera/audio/accessibility mods, and
+Files-based RT64 packs. The optional HD Icons pack covers 2D artwork only.
+Incomplete broader HD packs are excluded; community projects are tracked in
+[UPSTREAM.md](UPSTREAM.md).
 
-| Area | Evidence and next action |
-| --- | --- |
-| Source patch updates | The installer now accepts known earlier patch-stack prefixes, while preserving unknown local edits. Eight native and patch regression tests pass, including the new controls/audio/assist fixture. |
-| Music | V0.1.5 sequence-player fixes backported. State-machine regression passes; specific bar/dragon/game-over playback checks remain open. |
-| Builds | Both SDK builds and bundle audits pass (32 files, 26 notices). The actual PadMint runner completed a personal IPA; 13 PadMint manifest/gate tests pass. |
-| Physical device | Updated signed build installed. Independent before/after readbacks preserved 11 material files on the initial update and all eight core player-data files on the final enhancement update (OS caches/state excluded). Apple initially required online developer verification; launch succeeded on retry. Sustained play, controller feel, audio routes and progressed-save reloads remain open. |
-| Textures | The physical iPad imported all 403 entries through Files and visibly rendered sharper menu text before the update. The updated build retained the pack; disabling it restored original menu artwork and cleared cached replacements. Re-enabling restored the sharper artwork and 32 matching cached replacements. |
-| Public availability | Publish source and recipe/checksums only, then add the catalog entry and verify unauthenticated download/build. Never publish the personal IPA or private generated game code. |
+## Recorded checks
 
-## Release scope and remaining acceptance
+- Nine native, Swift controller and source-patch regressions pass. Controller
+  tests cover buttons/sticks, polling when callbacks are missing, pause/resume,
+  backgrounding, disconnect/reconnect and stable player-one selection.
+- Device and Simulator Release builds and package audits pass: 32 files,
+  26 notices, normal builds exclude the input probe.
+- The final controller build was installed in place on the M2 iPad Pro.
+  Independent backups matched 23 files; all nine core data files matched after
+  installation, including GAME2. The user accepted the updated build.
+- The physical iPad imported all 403 HD Icons entries through Files. Switching
+  the pack off restored the original artwork; switching it on restored the
+  sharper menu text. Pack data is not committed or bundled.
+- A progressed GAME2 test save was injected with readback verification and
+  loaded in the Simulator. This is not proof of hardware save progression.
+- Earlier complete PadMint personal builds succeeded. Release verification
+  must also use the published recipe and final source tag; local build records
+  and package audits do not establish public catalog delivery by themselves.
 
-A bounded hardware check needs normal controls, pause/resume, a progressed save
-and cold reload, and sleep/wake. HD Icons on/off passed on the physical iPad. It does not require claiming
-full-story compatibility. Until that pass is complete, describe builds as an
-experimental alpha with the limits above.
+## Remaining compatibility limits
 
-Release assets are the versioned copy of `padmint.json` and `SHA256SUMS`.
-The local catalog entry is in `../padforge/catalog/squirrelpad.json`; its null
-`manifest` is intentional because PadMint reads the recipe from a release.
-It is not evidence of a published catalog entry. Source publication is a separate
-visibility change, followed by a recipe release and catalog readback.
+Full-story compatibility, sustained performance across devices, representative
+late-game music, hardware progressed-save cold reload, and interruption/audio
+routes are not fully qualified. Xbox reconnection, physical rumble, and HDMI
+picture/audio require specific accessory results before they can be advertised
+as verified. The user's acceptance does not establish every individual check.
+iOS 17 is the deployment minimum, not a tested-device guarantee.
 
-## Verification record
+These limits belong in the alpha's documentation and issue reports. They are
+not a claim of full-game or all-device certification. See
+[controller/display checks](CONTROLLERS_DISPLAYS.md) and the historical
+[acceptance matrix](ACCEPTANCE.md).
 
-Private logs and artifacts are under `work/release-readiness/`.
+## Publication checks
 
-- Simulator executable: `6bf176b5d91d08f74bf8b80d7d9c10077889374bc65831284383c8649c4b317b`.
-- Device executable before signing: `a2cc354c6733e5aecc58c4138bd5e7b1ee75594b8071ba0cb9bd6b0eb351bd8f`.
-- PadMint build at `1b5d902c38969622b91e79230678aaed972fa06e`: completed, personal-only;
-  record `build/padmint/fadc658b52fd2460/runs/4549be59ae38494eab4f52761c9e86e3/record.json`.
-- Recipe and source-review archive passed both `padmint audit` and the reference
-  release gate. This does not make the personal IPA publishable.
-- Local catalog/recipe contract: zero problems, with release fetching substituted
-  by the candidate recipe. The live whole-catalog audit still reports SquirrelPad's
-  absent release and an unrelated BlueWake help-link mismatch. Neither is hidden
-  as a passing public-catalog check.
-- Updated Simulator app cold-started, retained the pack and GAME1, and loaded the
-  first playable field, paused, and resumed. This is retained-save smoke coverage, not progressed-save
-  acceptance or validation of the specific late-game music reports.
-
-
-- Physical Device Hub input opened native settings and controlled texture switching.
-  The enhancement follow-up fixed short taps lost between game polls; on the final
-  installed build, A advanced GAME1 to its New Game submenu. Sustained touch and
-  physical-controller gameplay acceptance remain open.
-
-## Native enhancement follow-up
-
-The [2026-10-08 integration record](ENHANCEMENTS_2026-10-08.md) records the new
-optional camera, audio, HUD and accessibility ports, build/package checks,
-simulator smoke tests and preserved hardware installation. Physical-controller
-and progressed-gameplay acceptance remain separate from those checks.
+Audit the source archive, reachable Git-history file contents, recipe and
+checksums before publication. Publish no personal builds. PadMint's catalog must
+pin the reviewed SquirrelPad revision, and its released packages must contain
+that entry. Verify anonymous recipe/checksum/source downloads and a personal
+build through the released PadMint package. Private verification output stays
+under `work/public-readiness/` and `work/controller-handoff/`.

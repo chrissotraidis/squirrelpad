@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 import GameController
 import CoreHaptics
 
@@ -93,6 +94,8 @@ final class ControllerInput: ObservableObject {
     }
 
     @Published private(set) var connectedName: String?
+    @Published private(set) var inputStatus = "Connect a controller to check input."
+    var isConnected: Bool { controller != nil }
     @Published private(set) var rumbleAvailable = false
     @Published private(set) var rumbleMessage = "Connect a controller to check rumble support."
     @Published var rumbleEnabled = UserDefaults.standard.object(forKey: "SquirrelPad.ControllerRumble") as? Bool ?? true {
@@ -106,7 +109,9 @@ final class ControllerInput: ObservableObject {
     private var active = false
     private var foreground = true
     private var observers: [NSObjectProtocol] = []
-    private var rumbleTimer: Timer?
+    private var controllerTimer: Timer?
+    private let controllers: () -> [GCController]
+    private var loggedInput = false
     private var hapticEngine: CHHapticEngine?
     private var hapticPlayer: CHHapticAdvancedPatternPlayer?
     private var rumbling = false
@@ -114,7 +119,8 @@ final class ControllerInput: ObservableObject {
     private var testUntil: TimeInterval = 0
     private var pulseUntil: TimeInterval = 0
 
-    init() {
+    init(controllers: @escaping () -> [GCController] = { GCController.controllers() }) {
+        self.controllers = controllers
         buttonBindings = UserDefaults.standard.dictionary(forKey: Self.bindingsKey) as? [String: String] ?? [:]
         let center = NotificationCenter.default
         for name in [Notification.Name.GCControllerDidConnect,
@@ -132,12 +138,15 @@ final class ControllerInput: ObservableObject {
     deinit {
         observers.forEach { NotificationCenter.default.removeObserver($0) }
         controller?.extendedGamepad?.valueChangedHandler = nil
-        rumbleTimer?.invalidate()
+        controllerTimer?.invalidate()
         hapticEngine?.stop(completionHandler: nil)
         clearControllerState()
     }
 
     func setActive(_ value: Bool) {
+        if active != value {
+            NSLog("[controller] gameplay active=%@ foreground=%@", String(value), String(foreground))
+        }
         active = value
         if value {
             reconcile()
@@ -155,12 +164,13 @@ final class ControllerInput: ObservableObject {
         if value {
             rumbleFailed = false
             reconcile()
-            startRumbleTimer()
+            startControllerTimer()
         } else {
+            clearControllerState()
             enableGameRumble(false)
             stopRumble()
-            rumbleTimer?.invalidate()
-            rumbleTimer = nil
+            controllerTimer?.invalidate()
+            controllerTimer = nil
             hapticEngine?.stop(completionHandler: nil)
         }
     }
@@ -179,13 +189,16 @@ final class ControllerInput: ObservableObject {
         rumbling = false
     }
 
-    private func startRumbleTimer() {
-        guard foreground, rumbleAvailable, rumbleTimer == nil else { return }
+    private func startControllerTimer() {
+        guard foreground, controller != nil, controllerTimer == nil else { return }
         let timer = Timer(timeInterval: 1.0 / 60, repeats: true) { [weak self] _ in
-            MainActor.assumeIsolated { self?.updateRumble() }
+            MainActor.assumeIsolated {
+                self?.sample()
+                self?.updateRumble()
+            }
         }
         RunLoop.main.add(timer, forMode: .common)
-        rumbleTimer = timer
+        controllerTimer = timer
     }
 
     private func updateRumble() {
@@ -225,7 +238,7 @@ final class ControllerInput: ObservableObject {
     }
 
     private func reconcile() {
-        let connected = GCController.controllers().filter { $0.extendedGamepad != nil }
+        let connected = controllers().filter { $0.extendedGamepad != nil }
         // Connecting a second pad must not steal player one from the current pad.
         let selected = connected.first { $0 === controller } ?? connected.first
 #if SQUIRRELPAD_SIM_INPUT
@@ -233,17 +246,25 @@ final class ControllerInput: ObservableObject {
 #else
         let next = selected
 #endif
-        guard controller !== next else { return }
+        guard controller !== next else {
+            bindController()
+            startControllerTimer()
+            sample()
+            return
+        }
         controller?.extendedGamepad?.valueChangedHandler = nil
+        controller?.playerIndex = .indexUnset
         clearControllerState()
         stopRumble()
-        rumbleTimer?.invalidate()
-        rumbleTimer = nil
+        controllerTimer?.invalidate()
+        controllerTimer = nil
         hapticEngine?.stop(completionHandler: nil)
         hapticPlayer = nil
         hapticEngine = next?.haptics?.createEngine(withLocality: .default)
         rumbleFailed = false
         controller = next
+        loggedInput = false
+        inputStatus = next == nil ? "Connect a controller to check input." : "Move a stick or press a button to check input."
         connectedName = next.map { $0.vendorName ?? "Game Controller" }
         rumbleAvailable = hapticEngine != nil
         rumbleMessage = next == nil ? "Connect a controller to check rumble support."
@@ -264,24 +285,40 @@ final class ControllerInput: ObservableObject {
                 self.hapticPlayer = nil
             }
         }
-        next?.handlerQueue = .main
-        next?.extendedGamepad?.valueChangedHandler = { [weak self, weak next] _, _ in
-            // Read this event before the next report can overwrite a short press.
-            MainActor.assumeIsolated {
-                guard let self, self.controller === next else { return }
-                self.sample()
-            }
-        }
+        bindController()
         enableGameRumble(active && foreground && rumbleEnabled && rumbleAvailable)
-        startRumbleTimer()
+        startControllerTimer()
         NSLog("[controller] connected=%@ rumble=%@", connectedName ?? "none", String(rumbleAvailable))
         sample()
     }
 
+    private func bindController() {
+        guard let controller else { return }
+        controller.playerIndex = .index1
+        controller.handlerQueue = .main
+        controller.extendedGamepad?.valueChangedHandler = { [weak self, weak controller] _, _ in
+            MainActor.assumeIsolated {
+                guard let self, self.controller === controller else { return }
+                self.sample()
+            }
+        }
+    }
+
     private func sample() {
-        guard active, let pad = controller?.extendedGamepad else {
-            clearControllerState()
-            return
+        guard foreground, let pad = controller?.extendedGamepad else { return }
+        let pressed = GamepadButton.allCases
+            .filter { $0 != .unbound && $0 != .bothTriggers && $0.isPressed(on: pad) }
+            .map(\.rawValue)
+        var inputs = pressed
+        if abs(pad.leftThumbstick.xAxis.value) > 0.15 || abs(pad.leftThumbstick.yAxis.value) > 0.15 { inputs.append("Left stick") }
+        if abs(pad.rightThumbstick.xAxis.value) > 0.15 || abs(pad.rightThumbstick.yAxis.value) > 0.15 { inputs.append("Right stick") }
+        if abs(pad.dpad.xAxis.value) > 0.15 || abs(pad.dpad.yAxis.value) > 0.15 { inputs.append("D-pad") }
+        let status = inputs.isEmpty ? "Move a stick or press a button to check input." : "Receiving: " + inputs.joined(separator: " · ")
+        if inputStatus != status { inputStatus = status }
+        guard active else { return }
+        if !inputs.isEmpty && !loggedInput {
+            loggedInput = true
+            NSLog("[controller] gameplay input received from %@", connectedName ?? "controller")
         }
         var buttons: UInt16 = 0
         for action in ControllerAction.allCases {

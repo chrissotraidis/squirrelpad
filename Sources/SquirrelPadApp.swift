@@ -107,6 +107,7 @@ struct SquirrelPadApp: App {
     @StateObject private var controllerInput = ControllerInput()
     @Environment(\.scenePhase) private var scenePhase
     @AppStorage("SquirrelPad.TouchControls") private var touchEnabled = true
+    @AppStorage("SquirrelPad.HideTouchOnController") private var hideTouchOnController = true
     @AppStorage("SquirrelPad.TouchTransparency") private var touchTransparency = false
     @AppStorage("SquirrelPad.TouchOpacity") private var touchOpacity = 1.0
     @AppStorage("SquirrelPad.ControlScale") private var controlScale = 1.0
@@ -155,7 +156,8 @@ struct SquirrelPadApp: App {
                     // Discard local gesture state when focus is lost, as well
                     // as clearing the native input state in the lifecycle handler.
                     if session.running && !showingLauncher && touchEnabled && (!menuOpen || editingLayout)
-                        && scenePhase == .active && !audioInterrupted {
+                        && scenePhase == .active && !audioInterrupted
+                        && (editingLayout || !hideTouchOnController || !controllerInput.isConnected) {
                         TouchControlsView(opacity: editingLayout ? 1.0 : (touchTransparency ? touchOpacity : 1.0),
                                           scale: controlScale,
                                           showDpad: showDpad, showCButtons: showCButtons,
@@ -173,6 +175,7 @@ struct SquirrelPadApp: App {
                                                   editedPositions[id] = center
                                               }
                                           })
+                            .onDisappear { clearTouchInput() }
                     }
                     if (!session.running || showingLauncher) && !menuOpen {
                         SquirrelPadLauncher(size: geometry.size,
@@ -295,6 +298,8 @@ struct SquirrelPadApp: App {
             }
             .onChange(of: editingLayout) { _ in updateCoreActivity() }
             .onChange(of: touchEnabled) { enabled in if !enabled { clearTouchInput() } }
+            .onChange(of: controllerInput.isConnected) { _ in clearTouchInput() }
+            .onChange(of: hideTouchOnController) { _ in clearTouchInput() }
             .onChange(of: showDpad) { _ in clearTouchInput() }
             .onChange(of: showCButtons) { _ in clearTouchInput() }
             .onChange(of: resolutionScale) { _ in applyGraphics() }
@@ -399,7 +404,10 @@ struct SquirrelPadApp: App {
                                 SettingsCard(title: "Touch controls", symbol: "hand.tap") {
                                     Toggle("Show Touch Controls", isOn: $touchEnabled)
                                         .tint(SquirrelPadTheme.accent)
-                                    Text("Use the on-screen N64 controls. Layouts are saved separately for iPhone and iPad.")
+                                    Toggle("Hide with Controller", isOn: $hideTouchOnController)
+                                        .tint(SquirrelPadTheme.accent)
+                                        .disabled(!touchEnabled)
+                                    Text("Controls hide when a controller connects and return when it disconnects. Use the on-screen N64 controls. Layouts are saved separately for iPhone and iPad.")
                                         .font(.subheadline)
                                         .foregroundStyle(SquirrelPadTheme.secondary)
                                     Button("Edit Touch Layout") { beginLayoutEdit(compact: compact) }
@@ -461,6 +469,10 @@ struct SquirrelPadApp: App {
                                             .foregroundStyle(.white.opacity(0.68))
                                     }
                                     .font(.subheadline)
+                                    Text(controllerInput.inputStatus)
+                                        .font(.subheadline)
+                                        .foregroundStyle(SquirrelPadTheme.secondary)
+                                        .accessibilityIdentifier("controller-input-status")
                                     Text("Pair an Xbox or PlayStation controller in Settings → Bluetooth, or connect a supported USB controller. It appears here automatically; the first connected controller controls player one.")
                                         .font(.subheadline)
                                         .foregroundStyle(SquirrelPadTheme.secondary)
@@ -806,6 +818,7 @@ struct SquirrelPadApp: App {
 
     private func restoreTouchDefaults() {
         touchEnabled = true
+        hideTouchOnController = true
         touchTransparency = false
         touchOpacity = 1
         controlScale = 1
