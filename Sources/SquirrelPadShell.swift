@@ -165,12 +165,12 @@ struct SquirrelPadLauncher: View {
             .shadow(color: .black.opacity(0.35), radius: 10, y: 4)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("Conker’s Bad Fur Day")
-            Text(paused ? "A little breather. Then back to the trouble."
-                 : hasROM ? "A very bad day. A very good time."
-                 : "Bring your own US ROM. We’ll take it from here.")
-                .font(.system(size: compact ? 14 : 18))
-                .foregroundStyle(.white.opacity(0.82))
-                .fixedSize(horizontal: false, vertical: true)
+            if !hasROM && !paused {
+                Text("Choose your own US ROM to get started.")
+                    .font(.system(size: compact ? 14 : 18))
+                    .foregroundStyle(.white.opacity(0.82))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             if !message.isEmpty && !paused {
                 Label(message, systemImage: "exclamationmark.circle")
                     .font(.subheadline)

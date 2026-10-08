@@ -33,6 +33,8 @@ clarity and CRT scanlines.
 
 ![SquirrelPad's woodland launcher with Play Conker, Settings, and Help](docs/screenshots/ipad-launcher.jpg)
 
+Launcher captured on an M2 iPad Pro running iPadOS 27.0.1.
+
 ![SquirrelPad's acorn-themed settings and rendering enhancements](docs/screenshots/ipad-enhancements.jpg)
 
 ![SquirrelPad About page with project links and credits](docs/screenshots/ipad-about.jpg)
@@ -102,9 +104,10 @@ Add right-stick free camera, an aiming crosshair, intro skipping, save/cash
 feedback, and movement assists. **Audio** has separate music, effects, and speech
 volumes. Cheats, hold-to-skip, and Files-based RT64 `.rtz` imports are optional.
 Changes apply on resume; intro skipping applies on the next cold launch.
-The optional HD Icons pack covers 2D menus, HUD, and text only. The incomplete
-full-game HD texture pack is excluded from this release's scope. Mods default
-to off. Cash and lives can persist in saves.
+The optional HD Icons pack covers 2D menus, HUD, and text only. SquirrelPad
+[tracks community texture projects](docs/UPSTREAM.md#texture-projects) rather
+than creating its own replacements. Incomplete full-game packs are excluded.
+Mods default to off. Cash and lives can persist in saves.
 See [supported packs, setup, and credits](docs/ENHANCEMENTS.md).
 
 ## FAQ

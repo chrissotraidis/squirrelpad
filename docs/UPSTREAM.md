@@ -23,6 +23,23 @@ rebasing the Apple host changes, removing the now-redundant music backport,
 regenerating private code, rebuilding both SDKs, and checking saved-game reloads,
 scene transitions and rendering on the iPad. Keep runtime code generation off.
 
+## Texture projects
+
+Last checked: **2026-10-08**. SquirrelPad tracks other creators' work; producing
+or completing replacement textures is outside this project's scope. Packs are
+downloaded separately and are never bundled or automatically updated.
+
+| Project | Tracked version / scope | SquirrelPad status | Revisit when |
+| --- | --- | --- | --- |
+| [Reloaded HD Icons](https://github.com/DahSidiAbdallah/ConkerBFDReloaded/releases/tag/v1.3.0) by dahmedvall95 | HD Icons v1.3.2; 403 menu, HUD and text replacements. The pack version differs from the hosting release tag. | Optional import verified on the physical iPad; see [setup and credits](ENHANCEMENTS.md#texture-packs). | A new HD Icons asset is published on the [release page](https://github.com/DahSidiAbdallah/ConkerBFDReloaded/releases). |
+| [4K Ultimate Texture Pack](https://github.com/GameBeast92/Conker-s-Bad-Fur-Day-4k-Ultimate-Texture-Pack) by GameBeast92 | Broader game artwork; upstream still describes it as about 30% complete. Also the artwork source credited by HD Icons. | Tracked only. Incomplete packs are excluded from release recommendations; mobile compatibility is unverified. | Upstream reports complete coverage and provides a candidate compatible with our importer. |
+
+For each candidate update, record its version, asset checksum, coverage and
+license/credits, then check the [import requirements](ENHANCEMENTS.md#texture-packs).
+Verify import, visible replacements, live off/on and persistence on iPad before
+changing the supported version here. A desktop release alone is not mobile
+acceptance. This is a review record, not an automatic download service.
+
 ## Decisions
 
 | Change | Decision |
