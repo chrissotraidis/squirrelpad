@@ -58,6 +58,15 @@ import keeps the previous selection.
 DDS textures, prebuilt mip caches, `.htc`/Rice packs, arbitrary `.nrm` mods,
 asset-only ROM hacks, and automatic downloads are not supported. Desktop support
 for these features does not establish compatibility with this pinned iOS build.
-The full 4K Ultimate pack has not been tested or converted here.
+The incomplete full 4K Ultimate pack is excluded from the release scope. It is
+not bundled, recommended for installation, or treated as a release requirement.
+
+## Compatibility fixes
+
+The mobile build backports V0.1.5's music sequence-player fixes: a song's stop
+wait yields to the audio thread, and a queued start is not mistaken for a finished
+song. These are automatic fixes, not cheat switches. Native regressions verify
+the state transitions; specific late-game audio scenes still need playback
+verification. See [upstream review](UPSTREAM.md) for the remaining migration.
 
 See [the verification record](MODS_TEXTURES_2026-10-07.md) for the exact test scope.

@@ -1,5 +1,10 @@
 # SquirrelPad evidence ledger
 
+**Current summary (2026-10-08):** see [release readiness](RELEASE_READINESS.md)
+and the [upstream candidate review](UPSTREAM.md). The incomplete broader HD
+texture pack is excluded. Only V0.1.5 music fixes have been backported; the
+engine pin remains unchanged.
+
 Latest mod pass: [compiled upstream mods and RT64 texture packs](MODS_TEXTURES_2026-10-07.md).
 Simulator gameplay, live texture replacement, and scene skips verified. Updated
 build installed on the physical iPad with material app data preserved; final
@@ -10,7 +15,7 @@ Latest product pass: [acorn settings, About links, and rendering enhancements](S
 
 Updated 2026-10-07. See the [latest hardware test](HARDWARE_TEST_2026-10-07.md) for the title/menu refinement, physical-iPad startup fix, signed install, and remaining input check. Historical evidence follows. The private ROM, generated game code, builds, logs, saves and diagnostic gameplay captures stay under ignored `ref/` or `work/`; selected README images are documented in [SOURCE_BOUNDARY](SOURCE_BOUNDARY.md).
 
-**Current continuation:** clean replay now builds macOS and both mobile SDKs;
+**Historical continuation (2026-10-02):** clean replay now builds macOS and both mobile SDKs;
 package audits and real save-writer fault regression pass. The new normal app
 loaded retained GAME1 on iPhone 18.5 and passed bounded pause/menu/Home checks.
 Old iPad `605FB671…` still stalls and its app-data directory is now absent.

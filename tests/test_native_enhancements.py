@@ -28,6 +28,13 @@ class NativeEnhancementTests(unittest.TestCase):
                         '-o', str(executable)], check=True, capture_output=True)
         subprocess.run([str(executable)], check=True, capture_output=True)
 
+    def test_music_transitions(self):
+        executable = self.folder / 'music'
+        subprocess.run(['clang++', '-std=c++20', '-I' + str(SOURCE/'tools/N64ModernRuntime/N64Recomp/include'),
+                        str(ROOT/'tests/music_runtime.cpp'), str(ROOT/'Support/Conker/mobile_music.cpp'),
+                        '-o', str(executable)], check=True, capture_output=True)
+        subprocess.run([str(executable)], check=True, capture_output=True)
+
     def test_pack_validation(self):
         archive = SOURCE/'host/build-macos-metal/rt64/rt64.a'
         if not archive.exists():

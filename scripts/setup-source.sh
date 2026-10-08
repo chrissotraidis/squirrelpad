@@ -3,11 +3,12 @@ set -euo pipefail
 
 project=$(cd "$(dirname "$0")/.." && pwd)
 checkout=${SQUIRRELPAD_CHECKOUT:-"$project/work/CBFD-Recompiled"}
-expected=c55359c579448fe5c212faf4bb5c2415d6ec7fa8
+expected=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["upstream"]["commit"])' "$project/sources.lock.json")
+upstream=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["upstream"]["url"])' "$project/sources.lock.json")
 
 if [ ! -d "$checkout/.git" ]; then
     mkdir -p "$project/work"
-    git clone https://github.com/sciaschi/CBFD-Recompiled.git "$checkout"
+    git clone "$upstream" "$checkout"
     git -C "$checkout" checkout --detach "$expected"
 fi
 if [ "$(git -C "$checkout" rev-parse HEAD)" != "$expected" ]; then
@@ -40,6 +41,7 @@ apply_once "$checkout" "$project/patches/conker-macos-window-init.patch"
 apply_once "$checkout" "$project/patches/conker-mobile-audio.patch"
 apply_once "$checkout" "$project/patches/conker-mobile-lifecycle.patch"
 apply_once "$checkout" "$project/patches/conker-mobile-mods.patch"
+apply_once "$checkout" "$project/patches/conker-mobile-music.patch"
 apply_once "$checkout/tools/rt64/src/contrib/hlslpp" "$project/patches/hlslpp-stdlib.patch"
 apply_once "$checkout/tools/rt64" "$project/patches/rt64-ios.patch"
 apply_once "$checkout/tools/rt64" "$project/patches/rt64-ios-sampler-limit.patch"

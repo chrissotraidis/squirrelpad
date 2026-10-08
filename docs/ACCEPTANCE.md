@@ -1,11 +1,14 @@
 # Developer-build acceptance
 
+**Current alpha closeout:** [release readiness, 2026-10-08](RELEASE_READINESS.md).
+The broader full-story matrix below is historical and remains incomplete.
+
 Updated 2026-10-02. **Incomplete: no full-story playability claim.**
 This matrix preserves the full scope in [GOAL_LOOP.md](GOAL_LOOP.md).
 The detailed dated record is [STATUS.md](STATUS.md); each passing check covers
 only its stated scope.
 
-## Current artifacts
+## Historical artifacts (2026-10-02)
 
 | Artifact | Executable SHA-256 | Scope |
 | --- | --- | --- |

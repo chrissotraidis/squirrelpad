@@ -19,7 +19,7 @@
 SquirrelPad brings [CBFD-Recompiled](https://github.com/sciaschi/CBFD-Recompiled)
 to iPhone and iPad with an RT64 Metal renderer, Files-based ROM import,
 editable touch layouts, controller bindings, local EEPROM saves, and selectable
-1×–3× rendering, optional upstream cheats and cutscene skipping, and RT64 texture-pack import.
+1×–3× rendering. Optional cutscene skipping and mods are in Settings.
 
 <p align="center">
   <img src="docs/screenshots/ipad-gameplay.jpg" width="900" alt="Conker in the first playable area of SquirrelPad, with iPad touch controls"><br>
@@ -37,10 +37,10 @@ editable touch layouts, controller bindings, local EEPROM saves, and selectable
 
 </details>
 
-**Experimental:** earlier iPhone and iPad Simulator builds reached the first
-playable field. Physical-device acceptance, full-story compatibility, audio
-quality, and meaningful in-level save fidelity remain open. iOS 17 is the build
-minimum, not a tested-device guarantee. See [current evidence](docs/STATUS.md).
+**Experimental:** Simulator builds reach gameplay, and a signed build runs on
+the attached iPad. Sustained hardware play, full-story compatibility, audio
+quality, and progressed-save reloads still need verification. iOS 17 is the build
+minimum, not a tested-device guarantee. See [release readiness](docs/RELEASE_READINESS.md).
 
 ## Get started
 
@@ -98,8 +98,9 @@ Open **••• → Enhancements** for 1×, 2×, or 3× rendering, Pixel/Smooth
 screen filters, and N64 texture filtering. Start with **2× · Balanced**.
 You can also enable upstream health/lives/wallet mods and cutscene skipping,
 or import an RT64 `.rtz` texture pack from Files. Changes apply on resume.
-The optional HD Icons pack sharpens menus, HUD, and text; switch it off to return
-to original textures. Mods default to off. Cash and lives can persist in saves.
+The optional HD Icons pack covers 2D menus, HUD, and text only. The incomplete
+full-game HD texture pack is excluded from this release's scope. Mods default
+to off. Cash and lives can persist in saves.
 See [supported packs, setup, and credits](docs/ENHANCEMENTS.md).
 
 ## FAQ

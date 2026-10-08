@@ -38,17 +38,23 @@ def apply(checkout, stack):
             path.parent.mkdir(parents=True, exist_ok=True)
             if content is not None:
                 path.write_bytes(content)
+        known = {relative: {content} for relative, content in originals.items()}
         for folder, patch in patches:
             destination = staged / folder.relative_to(checkout)
             destination.mkdir(parents=True, exist_ok=True)
             subprocess.run(['git', 'apply', str(patch)], cwd=destination, check=True)
+            # An existing checkout may have an earlier complete prefix of the
+            # stack. Accept only bytes reproduced from pinned HEAD and patches.
+            for relative in originals:
+                path = staged / relative
+                known[relative].add(path.read_bytes() if path.exists() else None)
         updates = []
         for relative, original in originals.items():
             actual = checkout / relative
             expected_path = staged / relative
             expected = expected_path.read_bytes() if expected_path.exists() else None
             current = actual.read_bytes() if actual.exists() else None
-            if actual.is_symlink() or current not in (original, expected):
+            if actual.is_symlink() or current not in known[relative]:
                 raise ValueError(f'Preserving unexpected local source changes: {relative}')
             if current != expected:
                 updates.append((actual, expected))

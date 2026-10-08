@@ -44,6 +44,11 @@ class SourcePatchesTests(unittest.TestCase):
             MODULE.apply(self.repo, self.stack)
         self.assertEqual((self.repo / 'file.txt').read_text(), 'my work\n')
 
+    def test_upgrade_from_earlier_patch_stack(self):
+        MODULE.apply(self.repo, self.stack[:1])
+        MODULE.apply(self.repo, self.stack)
+        self.assertEqual((self.repo / 'file.txt').read_text(), 'final\n')
+
     def test_broken_patch_leaves_source_untouched(self):
         (self.root / '1.patch').write_text('invalid patch\n')
         with self.assertRaises(subprocess.CalledProcessError):

@@ -23,7 +23,7 @@ if (NOT EXISTS "${conker_source}/RecompiledFuncs/inputs.sha256")
 endif()
 add_subdirectory("${conker_source}/host" "${CMAKE_CURRENT_BINARY_DIR}/conker-host")
 
-target_compile_definitions(RecompiledFuncs PRIVATE SQUIRRELPAD_STATIC_MODS)
+target_compile_definitions(RecompiledFuncs PRIVATE SQUIRRELPAD_STATIC_MODS SQUIRRELPAD_MOBILE_FIXES)
 
 set(SQUIRRELPAD_RT64_ARCHIVE_DIR "" CACHE PATH "Verified RT64 iOS archive directory")
 set(rt64_bridge Support/RT64/rt64_bridge_stub.cpp)
@@ -54,6 +54,7 @@ add_executable(SquirrelPad MACOSX_BUNDLE
     Support/Conker/mobile_audio.cpp
     Support/Conker/mobile_input.cpp
     Support/Conker/mobile_mods.cpp
+    Support/Conker/mobile_music.cpp
     ${rt64_bridge}
 )
 set_source_files_properties(Resources/Assets.xcassets PROPERTIES

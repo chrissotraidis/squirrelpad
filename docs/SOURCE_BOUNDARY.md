@@ -1,6 +1,6 @@
 # Source and package boundary
 
-This is a source inventory for the local developer build, not a release clearance. The exact upstream and submodule revisions are in `sources.lock.json`; the controlled ignored `work/source-final-replay` checkout is the current build input. The iOS target in `CMakeLists.txt` links `ConkerRecomp`, `librecomp`, `ultramodern`, RT64, Plume, re-spirv and zstd. `CONKER_RT64=OFF` omits the desktop RecompFrontend from the iOS host build.
+This is a source inventory for the local developer build, not a release clearance. The exact upstream and submodule revisions are in `sources.lock.json`; the primary ignored engine checkout is `work/CBFD-Recompiled`. Historical replay paths below describe their dated runs. The iOS target in `CMakeLists.txt` links `ConkerRecomp`, `librecomp`, `ultramodern`, RT64, Plume, re-spirv and zstd. `CONKER_RT64=OFF` omits the desktop RecompFrontend from the iOS host build.
 
 | Source in the pinned checkout | License text found at | Build relationship |
 | --- | --- | --- |

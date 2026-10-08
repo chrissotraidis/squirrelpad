@@ -94,9 +94,11 @@
       {
         "name": "pkg-config",
         "version_args": [
-          "--version"
+          "--modversion",
+          "freetype2"
         ],
         "player": true,
+        "label": "FreeType",
         "note": "Install pkgconf and FreeType: brew install pkgconf freetype"
       },
       {
