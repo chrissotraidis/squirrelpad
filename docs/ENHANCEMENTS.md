@@ -13,7 +13,39 @@ Open **••• → Enhancements**. Settings persist and apply when you play or
 **Restore Balanced Settings** resets these three choices without changing mods,
 texture packs, or saves. Original aspect ratio and game timing are retained.
 
-## Upstream mods
+## Camera, HUD and accessibility
+
+Native adaptations of [ConkerBFDReloaded v1.3.1](https://github.com/DahSidiAbdallah/ConkerBFDReloaded/releases/tag/v1.3.1),
+commit `90a014dbac5019c20a1b7a820ea16a1f0553052f`. Optional assists default off;
+the original inverted vertical stick aim is retained. This is a source port,
+not a desktop mod loader.
+
+| Option | Behavior |
+| --- | --- |
+| Right-stick free camera | Connected controllers orbit with collision handling and aim with the right stick. Fixed cameras retain their framing; touch C-buttons stay available. Speed and axis inversion are configurable. |
+| Aiming crosshair | Native overlay using upstream barn-knife calibration. Other weapons need further playtesting. |
+| Skip intro on launch | Opens the file menu automatically after the initial logo load; takes effect on a cold launch. |
+| Show save confirmation | Shows Saved after a successful save write and finalization, never merely on opening the menu. |
+| Cash display | Off, On change, or Always; uses the game's animated cash artwork. Hidden during cutscenes and when cash is zero. |
+| Keep health visible | Keeps the original chocolate health HUD on screen. |
+| Reduce motion blur | Suppresses the game's motion-blur pass. |
+| Toggle R-look / crouch | Press once to hold, again to release. Pausing or changing options clears the latch. |
+| Hold L to walk | Reduces the stick to a gentle walk on foot; jumping and swimming retain full movement. |
+| Push up to swim upward | Reverses underwater pitch only. |
+| Longer tail spin | Reduces gravity and caps downward speed during the tail spin. |
+| Easier ledge grabs | Allows more straight edges to be caught, once per fall. Corners retain upstream limitations. |
+
+In **Audio**, music, sound effects, and streamed speech have independent sliders
+in addition to master volume. Some ambience follows Music and short voice sounds
+follow Effects. Changes apply as voices update; Restore Audio Mix resets all
+three to 100%.
+
+See [the integration checks](ENHANCEMENTS_2026-10-08.md) for what was verified.
+These options do not establish complete-game compatibility or full hardware
+controller coverage. Widescreen and frame interpolation remain deferred with
+the renderer migration.
+
+## Cheats and cutscene skipping
 
 These are compiled-in adaptations of [sciaschi's Cheats and Skip Any Cutscene](https://github.com/sciaschi/CBFD-Recompiled/tree/c55359c579448fe5c212faf4bb5c2415d6ec7fa8/mods).
 All default to off. There is no runtime code generation or `.nrm` importer.
@@ -21,12 +53,13 @@ All default to off. There is no runtime code generation or `.nrm` importer.
 | Option | Behavior |
 | --- | --- |
 | Skip unseen cutscenes | L skips eligible scenes, including ones you have not watched. The opening uses Start after its initial timing gate. |
+| Hold L to skip | Requires 1.2 seconds, with progress feedback, and a release before another skip. Only applies with Skip unseen cutscenes enabled. |
 | Also skip protected scenes | Optional, experimental override for scripted scenes. The opening throne-room and hangover transitions were tested; other scenes may depend on their scripts completing. |
 | Infinite health | Refills health to six while alive; does not resurrect Conker after health reaches zero. |
 | Nine lives | Refills the life counter to nine. |
 | Full wallet | Refills cash to $9,999. |
 
-**Turn Off All Mods** stops these effects. Lives and cash can be written into the
+**Turn Off Cheats & Skipping** stops these effects. Lives and cash can be written into the
 normal game save; turning a mod off does not restore previous saved values.
 
 ## Texture packs

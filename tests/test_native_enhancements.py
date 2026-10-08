@@ -28,6 +28,20 @@ class NativeEnhancementTests(unittest.TestCase):
                         '-o', str(executable)], check=True, capture_output=True)
         subprocess.run([str(executable)], check=True, capture_output=True)
 
+    def test_adventure_controls_and_audio(self):
+        executable = self.folder / 'adventure'
+        ports = ROOT/'Support/Conker/Reloaded'
+        files = ['mobile_enhancements', 'accessibility', 'look_aim', 'free_camera',
+                 'crosshair', 'sound_mix', 'skip_intro', 'ledge_grab']
+        subprocess.run(['clang++', '-std=c++20', '-I'+str(ports),
+                        '-I'+str(SOURCE/'tools/N64ModernRuntime/N64Recomp/include'),
+                        str(ROOT/'tests/adventure_runtime.cpp'),
+                        str(ROOT/'Support/Conker/mobile_input.cpp'),
+                        str(ROOT/'Support/Conker/mobile_mods.cpp'),
+                        *[str(ports/(name+'.cpp')) for name in files],
+                        '-o', str(executable)], check=True)
+        subprocess.run([str(executable)], check=True)
+
     def test_music_transitions(self):
         executable = self.folder / 'music'
         subprocess.run(['clang++', '-std=c++20', '-I' + str(SOURCE/'tools/N64ModernRuntime/N64Recomp/include'),

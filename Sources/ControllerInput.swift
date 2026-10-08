@@ -6,6 +6,9 @@ private func setControllerState(_ buttons: UInt16, _ x: Float, _ y: Float)
 @_silgen_name("squirrelpad_controller_clear")
 private func clearControllerState()
 
+@_silgen_name("squirrelpad_controller_camera")
+private func setCameraState(_ x: Float, _ y: Float)
+
 enum GamepadButton: String, CaseIterable {
     case unbound = "Unbound"
     case a = "A", b = "B", x = "X", y = "Y"
@@ -157,6 +160,7 @@ final class ControllerInput: ObservableObject {
         if pad.dpad.right.isPressed { buttons |= 0x0100 }
         let cx = pad.rightThumbstick.xAxis.value
         let cy = pad.rightThumbstick.yAxis.value
+        setCameraState(cx, cy)
         if cy > 0.5 { buttons |= 0x0008 }
         if cy < -0.5 { buttons |= 0x0004 }
         if cx < -0.5 { buttons |= 0x0002 }

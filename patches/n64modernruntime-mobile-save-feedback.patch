@@ -1,0 +1,22 @@
+--- a/librecomp/src/pi.cpp
++++ b/librecomp/src/pi.cpp
+@@ -112,6 +112,9 @@
+     save_context.save_file_path = save_folder_path / (name + u8".bin");
+ }
+ 
++#if defined(SQUIRRELPAD_SAVE_FEEDBACK)
++extern "C" void squirrelpad_save_completed();
++#endif
+ void update_save_file() {
+     bool saving_failed = false;
+     {
+@@ -132,6 +135,9 @@
+     if (!saving_failed) {
+         saving_failed = !recomp::finalize_output_file_with_backup(ultramodern::get_save_file_path());
+     }
++#if defined(SQUIRRELPAD_SAVE_FEEDBACK)
++    if (!saving_failed) squirrelpad_save_completed();
++#endif
+     if (saving_failed) {
+         ultramodern::error_handling::message_box("Failed to write to the save file. Check your file permissions and whether the save folder has been moved to Dropbox or similar, as this can cause issues.");
+     }

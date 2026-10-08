@@ -6,6 +6,9 @@
 extern "C" void squirrelpad_set_mods(unsigned);
 extern "C" void squirrelpad_mod_frame(uint8_t*);
 extern "C" int squirrelpad_mod_skip(uint8_t*, int);
+extern "C" void squirrelpad_enhancement_frame(uint8_t*) {}
+extern "C" int squirrelpad_skip_buttons(uint16_t buttons, bool) { return buttons; }
+extern "C" void squirrelpad_skip_consumed() {}
 int main() {
     std::vector<uint8_t> ram(8 * 1024 * 1024); auto *rdram = ram.data();
     MEM_BU(0,S32(0x800CC49A))=2; MEM_BU(0,S32(0x800D2144))=3; MEM_W(0,S32(0x800D2148))=100;

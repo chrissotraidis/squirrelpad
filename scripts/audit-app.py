@@ -42,6 +42,8 @@ def main():
     }
     for path in (root / "Support/Notices").glob("*.txt"):
         expected_notices[path.name] = path.read_bytes()
+    for name in ("LICENSE", "THIRD_PARTY_LICENSE"):
+        expected_notices[f"Reloaded-{name}.txt"] = (root / f"Support/Conker/Reloaded/{name}.txt").read_bytes()
     bundled_notices = {path.name: path.read_bytes() for path in (args.app / "ThirdPartyNotices").glob("*.txt")}
     if bundled_notices.keys() != expected_notices.keys():
         failures.append("Notice file set differs from source manifest")

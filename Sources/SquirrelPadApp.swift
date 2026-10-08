@@ -94,6 +94,7 @@ private final class GameSession: ObservableObject {
 @main
 struct SquirrelPadApp: App {
     @StateObject private var session = GameSession()
+    @StateObject private var enhancements = EnhancementSettings()
     @StateObject private var texturePacks = TexturePackStore()
     @State private var importingTexturePack = false
     @AppStorage("SquirrelPad.Mods.Health") private var infiniteHealth = false
@@ -147,6 +148,9 @@ struct SquirrelPadApp: App {
                         .allowsHitTesting(false)
                         .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
 
+                    if session.running && !showingLauncher && !menuOpen && scenePhase == .active {
+                        AdventureOverlay(settings: enhancements)
+                    }
                     // Discard local gesture state when focus is lost, as well
                     // as clearing the native input state in the lifecycle handler.
                     if session.running && !showingLauncher && touchEnabled && (!menuOpen || editingLayout)
@@ -548,6 +552,7 @@ struct SquirrelPadApp: App {
                                         .accessibilityLabel("Master Volume")
                                     Text("Adjust game audio without changing your device volume.")
                                         .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
+                                    AudioMixSettings(settings: enhancements)
                                     Button("Restore Default Volume") { masterVolume = 1.0 }
                                         .buttonStyle(SquirrelPadButtonStyle())
                                 }
@@ -657,11 +662,13 @@ struct SquirrelPadApp: App {
                 }
                 .buttonStyle(SquirrelPadButtonStyle())
             }
+            AdventureSettings(settings: enhancements)
             SettingsCard(title: "A little extra mischief", symbol: "wand.and.stars") {
                 Toggle("Skip unseen cutscenes", isOn: $skipCutscenes)
-                Text("Press L during a cutscene. The opening uses Start after a short lead-in.")
+                Text("Use L during a cutscene; Hold L requires 1.2 seconds. The opening uses Start after a short lead-in.")
                     .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
                 if skipCutscenes {
+                    Toggle("Hold L to skip", isOn: enhancements.option(6))
                     Toggle("Also skip protected scenes", isOn: $skipBlocked)
                     Text("Experimental: some scripted scenes may not continue correctly when skipped.")
                         .font(.caption).foregroundStyle(SquirrelPadTheme.secondary)
@@ -672,7 +679,7 @@ struct SquirrelPadApp: App {
                 Toggle("Full wallet · $9,999", isOn: $maxCash)
                 Text("Adapted from the upstream Conker mods. Changes apply on resume. Lives and cash can be saved by the game; switching a mod off does not undo saved changes.")
                     .font(.caption).foregroundStyle(SquirrelPadTheme.secondary)
-                Button("Turn Off All Mods") {
+                Button("Turn Off Cheats & Skipping") {
                     infiniteHealth = false; infiniteLives = false; maxCash = false
                     skipCutscenes = false; skipBlocked = false
                 }.buttonStyle(SquirrelPadButtonStyle())

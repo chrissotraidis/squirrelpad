@@ -23,6 +23,7 @@ if (NOT EXISTS "${conker_source}/RecompiledFuncs/inputs.sha256")
 endif()
 add_subdirectory("${conker_source}/host" "${CMAKE_CURRENT_BINARY_DIR}/conker-host")
 
+target_compile_definitions(librecomp PRIVATE SQUIRRELPAD_SAVE_FEEDBACK)
 target_compile_definitions(RecompiledFuncs PRIVATE SQUIRRELPAD_STATIC_MODS SQUIRRELPAD_MOBILE_FIXES)
 
 set(SQUIRRELPAD_RT64_ARCHIVE_DIR "" CACHE PATH "Verified RT64 iOS archive directory")
@@ -49,12 +50,22 @@ add_executable(SquirrelPad MACOSX_BUNDLE
     Sources/TouchControlsView.swift
     Sources/ControllerInput.swift
     Sources/TexturePackStore.swift
+    Sources/EnhancementSettings.swift
     Resources/Assets.xcassets
     Support/Conker/mobile_entry.cpp
     Support/Conker/mobile_audio.cpp
     Support/Conker/mobile_input.cpp
     Support/Conker/mobile_mods.cpp
     Support/Conker/mobile_music.cpp
+    Support/Conker/Reloaded/accessibility.cpp
+    Support/Conker/Reloaded/look_aim.cpp
+    Support/Conker/Reloaded/sound_mix.cpp
+    Support/Conker/Reloaded/crosshair.cpp
+    Support/Conker/Reloaded/cash_hud.cpp
+    Support/Conker/Reloaded/skip_intro.cpp
+    Support/Conker/Reloaded/mobile_enhancements.cpp
+    Support/Conker/Reloaded/free_camera.cpp
+    Support/Conker/Reloaded/ledge_grab.cpp
     ${rt64_bridge}
 )
 set_source_files_properties(Resources/Assets.xcassets PROPERTIES
@@ -104,6 +115,12 @@ foreach(notice IN LISTS third_party_notices)
     configure_file("${notice_source}" "${notice_copy}" COPYONLY)
     set_source_files_properties("${notice_copy}" PROPERTIES
         MACOSX_PACKAGE_LOCATION "Resources/ThirdPartyNotices")
+    target_sources(SquirrelPad PRIVATE "${notice_copy}")
+endforeach()
+foreach(notice_name LICENSE THIRD_PARTY_LICENSE)
+    set(notice_copy "${CMAKE_CURRENT_BINARY_DIR}/notices/Reloaded-${notice_name}.txt")
+    configure_file("Support/Conker/Reloaded/${notice_name}.txt" "${notice_copy}" COPYONLY)
+    set_source_files_properties("${notice_copy}" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources/ThirdPartyNotices")
     target_sources(SquirrelPad PRIVATE "${notice_copy}")
 endforeach()
 foreach(notice_name concurrentqueue lightweightsemaphore sse2neon)

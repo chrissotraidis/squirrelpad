@@ -12,10 +12,10 @@ features are not release requirements; their disposition is in [UPSTREAM.md](UPS
 
 | Area | Evidence and next action |
 | --- | --- |
-| Source patch updates | The installer now accepts known earlier patch-stack prefixes, while preserving unknown local edits. Seven native and patch regression tests pass. |
+| Source patch updates | The installer now accepts known earlier patch-stack prefixes, while preserving unknown local edits. Eight native and patch regression tests pass, including the new controls/audio/assist fixture. |
 | Music | V0.1.5 sequence-player fixes backported. State-machine regression passes; specific bar/dragon/game-over playback checks remain open. |
-| Builds | Both SDK builds and bundle audits pass (30 files, 24 notices). The actual PadMint runner completed a personal IPA; 13 PadMint manifest/gate tests pass. |
-| Physical device | Updated signed build installed. Independent before/after readbacks preserve 11 material files. Apple initially required online developer verification; launch succeeded on retry. Sustained play, controller feel, audio routes and progressed-save reloads remain open. |
+| Builds | Both SDK builds and bundle audits pass (32 files, 26 notices). The actual PadMint runner completed a personal IPA; 13 PadMint manifest/gate tests pass. |
+| Physical device | Updated signed build installed. Independent before/after readbacks preserved 11 material files on the initial update and all eight core player-data files on the final enhancement update (OS caches/state excluded). Apple initially required online developer verification; launch succeeded on retry. Sustained play, controller feel, audio routes and progressed-save reloads remain open. |
 | Textures | The physical iPad imported all 403 entries through Files and visibly rendered sharper menu text before the update. The updated build retained the pack; disabling it restored original menu artwork and cleared cached replacements. Re-enabling restored the sharper artwork and 32 matching cached replacements. |
 | Public availability | Publish source and recipe/checksums only, then add the catalog entry and verify unauthenticated download/build. Never publish the personal IPA or private generated game code. |
 
@@ -51,6 +51,14 @@ Private logs and artifacts are under `work/release-readiness/`.
   acceptance or validation of the specific late-game music reports.
 
 
-- Physical DeviceHub input opened native settings and controlled texture switching,
-  but remote A/Start gestures did not advance GAME1. Direct touch/controller
-  gameplay acceptance is still open; this is not recorded as a passing input test.
+- Physical Device Hub input opened native settings and controlled texture switching.
+  The enhancement follow-up fixed short taps lost between game polls; on the final
+  installed build, A advanced GAME1 to its New Game submenu. Sustained touch and
+  physical-controller gameplay acceptance remain open.
+
+## Native enhancement follow-up
+
+The [2026-10-08 integration record](ENHANCEMENTS_2026-10-08.md) records the new
+optional camera, audio, HUD and accessibility ports, build/package checks,
+simulator smoke tests and preserved hardware installation. Physical-controller
+and progressed-gameplay acceptance remain separate from those checks.

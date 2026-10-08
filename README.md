@@ -19,7 +19,8 @@
 SquirrelPad brings [CBFD-Recompiled](https://github.com/sciaschi/CBFD-Recompiled)
 to iPhone and iPad with an RT64 Metal renderer, Files-based ROM import,
 editable touch layouts, controller bindings, local EEPROM saves, and selectable
-1×–3× rendering. Optional cutscene skipping and mods are in Settings.
+1×–3× rendering. Optional camera, audio, HUD, and accessibility improvements
+are built in.
 
 <p align="center">
   <img src="docs/screenshots/ipad-gameplay.jpg" width="900" alt="Conker in the first playable area of SquirrelPad, with iPad touch controls"><br>
@@ -96,8 +97,10 @@ opens the launcher with the session paused; **Resume Game** brings you back.
 
 Open **••• → Enhancements** for 1×, 2×, or 3× rendering, Pixel/Smooth/Crisp
 screen filters, and N64 texture filtering. Start with **2× · Balanced**.
-You can also enable upstream health/lives/wallet mods and cutscene skipping,
-or import an RT64 `.rtz` texture pack from Files. Changes apply on resume.
+Add right-stick free camera, an aiming crosshair, intro skipping, save/cash
+feedback, and movement assists. **Audio** has separate music, effects, and speech
+volumes. Cheats, hold-to-skip, and Files-based RT64 `.rtz` imports are optional.
+Changes apply on resume; intro skipping applies on the next cold launch.
 The optional HD Icons pack covers 2D menus, HUD, and text only. The incomplete
 full-game HD texture pack is excluded from this release's scope. Mods default
 to off. Cash and lives can persist in saves.
@@ -158,6 +161,8 @@ Thanks to [sciaschi and CBFD-Recompiled](https://github.com/sciaschi/CBFD-Recomp
 [N64Recomp](https://github.com/N64Recomp/N64Recomp),
 [N64ModernRuntime](https://github.com/N64Recomp/N64ModernRuntime), and
 [RT64](https://github.com/rt64/rt64), plus their contributors and dependencies.
+Camera, HUD, audio, and accessibility ports build on
+[dahmedvall95’s ConkerBFDReloaded](https://github.com/DahSidiAbdallah/ConkerBFDReloaded).
 SquirrelPad adds the Apple mobile integration. See the
 [source and notices inventory](docs/SOURCE_BOUNDARY.md) for component licensing.
 

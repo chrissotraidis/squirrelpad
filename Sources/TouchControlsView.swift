@@ -28,6 +28,7 @@ private struct TouchButton: View {
     let select: (String) -> Void
     let move: (String, CGPoint) -> Void
     @State private var held = false
+    @State private var accessibilityPress: Task<Void, Never>?
 
     private var size: CGFloat { (compact ? control.phoneSize : control.tabletSize) * scale }
     private var width: CGFloat { control.shoulder ? size * 1.9 : size }
@@ -61,9 +62,22 @@ private struct TouchButton: View {
             .accessibilityLabel(control.id)
             .accessibilityAddTraits(.isButton)
             .accessibilityAddTraits(selected ? .isSelected : [])
+            .accessibilityAction {
+                if editing { select(control.id); return }
+                guard !held else { return }
+                held = true
+                setTouchButton(control.mask, 1)
+                accessibilityPress = Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(150))
+                    guard !Task.isCancelled else { return }
+                    release()
+                }
+            }
     }
 
     private func release() {
+        accessibilityPress?.cancel()
+        accessibilityPress = nil
         guard held else { return }
         held = false
         setTouchButton(control.mask, 0)
