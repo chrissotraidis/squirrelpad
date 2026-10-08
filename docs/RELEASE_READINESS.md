@@ -29,9 +29,13 @@ Incomplete broader HD packs are excluded; community projects are tracked in
   sharper menu text. Pack data is not committed or bundled.
 - A progressed GAME2 test save was injected with readback verification and
   loaded in the Simulator. This is not proof of hardware save progression.
-- Earlier complete PadMint personal builds succeeded. Release verification
-  must also use the published recipe and final source tag; local build records
-  and package audits do not establish public catalog delivery by themselves.
+- The public v0.1.0 source and recipe were fetched anonymously into a fresh
+  PadMint data folder. The complete personal IPA build finished in 293 seconds
+  with no supplied build cache. Its executable SHA-256 matches the tested iPad
+  build: `6711f0f3a2d56809bb266c34b727a335bc415047fbcd3479128c2efb97a86e8d`.
+- PadMint 0.4.11 includes SquirrelPad. All 294 PadMint tests, eight cross-platform
+  CI jobs, and the full catalog audit pass. Windows CI and local release packages
+  match byte-for-byte. Recipe and checksum downloads match the audited assets.
 
 ## Remaining compatibility limits
 
