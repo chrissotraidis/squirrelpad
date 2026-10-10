@@ -1,9 +1,22 @@
 # Release readiness
 
-Updated 2026-10-08. **v0.1.0 is an experimental source-and-recipe alpha.**
-Public assets are `SquirrelPad-v0.1.0-padmint.json` and `SHA256SUMS`.
+Updated 2026-10-11. **v0.1.1 is an experimental source-and-recipe alpha.**
+Public assets are `SquirrelPad-v0.1.1-padmint.json` and `SHA256SUMS`.
 Players supply their own supported US ROM and build a personal IPA on an
 Apple Silicon Mac. Personal IPAs and generated game code are never release assets.
+
+## v0.1.1
+
+The recipe now runs `build-personal.py` with `python3`, the Python 3.11+ that
+PadMint checks. v0.1.0 ran it with PadMint's own Python, Apple's 3.9 when
+`PadMint.command` starts PadMint, so the build stopped at
+`hashlib.file_digest` although every check passed
+([padmint#142](https://github.com/chrissotraidis/padmint/issues/142)).
+PadMint 0.4.13 run with Apple Python 3.9.6 and Xcode 27.0 reproduced that
+failure with v0.1.0. With this recipe it built a complete personal IPA (0.1.1,
+build 2) in 655 seconds from a fresh checkout and PadMint folder without a
+build cache; the publication gate passed. The game code is unchanged, so the
+v0.1.0 device checks below still describe it; this IPA was not reinstalled.
 
 ## What is included
 
