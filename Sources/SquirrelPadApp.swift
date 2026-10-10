@@ -751,7 +751,7 @@ struct SquirrelPadApp: App {
                         .accessibilityHint("Opens the SquirrelPad project on GitHub")
                     Text("A little mischief. A bigger screen.")
                         .font(.subheadline).foregroundStyle(SquirrelPadTheme.secondary)
-                    Text("Version \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.1.0") · iPhone & iPad")
+                    Text("Version \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.1.1") · iPhone & iPad")
                         .font(.caption).foregroundStyle(SquirrelPadTheme.secondary)
                 }
             }

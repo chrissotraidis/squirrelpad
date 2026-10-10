@@ -31,7 +31,7 @@
         {
           "stage": "compile",
           "command": [
-            "{python}",
+            "python3",
             "{repo}/scripts/build-personal.py",
             "--rom",
             "{disc}",
