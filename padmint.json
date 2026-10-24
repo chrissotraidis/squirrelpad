@@ -47,7 +47,7 @@
     }
   },
   "requirements": {
-    "disk_gb": 30,
+    "disk_gb": 6,
     "tools": [
       {
         "name": "git",
