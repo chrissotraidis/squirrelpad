@@ -49,7 +49,7 @@ minimum, not a tested-device guarantee. See [release readiness](docs/RELEASE_REA
 ## Get started
 
 You need an **Apple Silicon Mac, full Xcode with the iOS platform and Metal
-Toolchain**, about **30 GB free for the build**, and your own supported US ROM.
+Toolchain**, about **6 GB free for the build**, and your own supported US ROM.
 Install the build tools once:
 
 ```sh
