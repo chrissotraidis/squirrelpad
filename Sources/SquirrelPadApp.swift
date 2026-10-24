@@ -1,7 +1,6 @@
 import AVFAudio
 import CryptoKit
 import SwiftUI
-import UIKit
 import UniformTypeIdentifiers
 
 private extension UTType {
@@ -139,135 +138,140 @@ struct SquirrelPadApp: App {
 
     var body: some Scene {
         WindowGroup {
-            GeometryReader { geometry in
-                let compact = geometry.size.height < 560
-                let menuSize: CGFloat = compact && !menuOpen ? 32 : compact ? 44 : 38
-                let menuSideMargin = compact ? compactMenuSideMargin() : 28
-                ZStack {
-                    Color.black
-                    RT64Surface(renderer: renderer)
-                        .frame(width: geometry.size.width, height: geometry.size.height)
-                        .allowsHitTesting(false)
-                        .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
+            GeometryReader { window in
+                GeometryReader { geometry in
+                    let compact = geometry.size.height < 560
+                    let menuSize: CGFloat = compact && !menuOpen ? 32 : compact ? 44 : 38
+                    // Keep compact Settings clear of the iPhone cutout. Read the inset from
+                    // SwiftUI: looking up the key UIKit window here froze iPhone screens.
+                    let cutout = max(window.safeAreaInsets.leading, window.safeAreaInsets.trailing)
+                    let menuSideMargin = compact ? max(32, cutout + 8) : 28
+                    ZStack {
+                        Color.black
+                        RT64Surface(renderer: renderer)
+                            .frame(width: geometry.size.width, height: geometry.size.height)
+                            .allowsHitTesting(false)
+                            .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
 
-                    if session.running && !showingLauncher && !menuOpen && scenePhase == .active {
-                        AdventureOverlay(settings: enhancements)
-                    }
-                    // Discard local gesture state when focus is lost, as well
-                    // as clearing the native input state in the lifecycle handler.
-                    if session.running && !showingLauncher && touchEnabled && (!menuOpen || editingLayout)
-                        && scenePhase == .active && !audioInterrupted
-                        && (editingLayout || !hideTouchOnController || !controllerInput.isConnected) {
-                        TouchControlsView(opacity: editingLayout ? 1.0 : (touchTransparency ? touchOpacity : 1.0),
-                                          scale: controlScale,
-                                          showDpad: showDpad, showCButtons: showCButtons,
-                                          editing: editingLayout,
-                                          selectedControl: selectedControl,
-                                          onSelect: { selectedControl = $0 },
-                                          layout: editingLayout && editingCompact == compact
-                                              ? editedPositions : savedLayout(compact: compact),
-                                          controlSizes: editingLayout && editingCompact == compact
-                                              ? editedControlSizes : savedControlSizes(compact: compact),
-                                          hiddenControls: editingLayout && editingCompact == compact
-                                              ? editedHiddenControls : savedHiddenControls(compact: compact),
-                                          onMove: { id, center in
-                                              if editingLayout && editingCompact == compact {
-                                                  editedPositions[id] = center
-                                              }
-                                          })
-                            .onDisappear { clearTouchInput() }
-                    }
-                    if (!session.running || showingLauncher) && !menuOpen {
-                        SquirrelPadLauncher(size: geometry.size,
-                                            hasROM: session.storedROM != nil,
-                                            paused: session.running,
-                                            message: session.message,
-                                            play: {
-                                                if session.running { showingLauncher = false }
-                                                else if let rom = session.storedROM { session.importROM(rom) }
-                                            },
-                                            chooseROM: { importing = true },
-                                            settings: { menuOpen = true })
-                    }
-                    if menuOpen {
-                        SquirrelPadTheme.background.opacity(0.88)
-                            .onTapGesture { menuOpen = false }
-                        controlsPanel(compact: compact, size: geometry.size,
-                                      sideMargin: menuSideMargin)
-                            .position(x: geometry.size.width / 2,
-                                      y: geometry.size.height / 2)
-                    }
-                    if editingLayout {
-                        VStack(spacing: 8) {
-                            HStack(spacing: 14) {
-                                Text(selectedControl.map { "\($0 == "Stick" ? "Control Stick" : $0) · Drag to move" }
-                                     ?? "Tap a control to select")
-                                Button("Reset Layout") {
-                                    editedPositions = [:]
-                                    editedControlSizes = [:]
-                                    editedHiddenControls = []
-                                    selectedControl = nil
-                                }
-                                Button("Done") { finishLayoutEdit() }
-                            }
-                            HStack(spacing: 10) {
-                                Text("Size")
-                                Slider(value: Binding(
-                                    get: { selectedControl.flatMap { editedControlSizes[$0] } ?? 1 },
-                                    set: { value in
-                                        if let id = selectedControl { editedControlSizes[id] = value }
-                                    }), in: 0.7...1.5)
-                                    .frame(width: compact ? 180 : 240)
-                                    .disabled(selectedControl == nil)
-                                    .accessibilityLabel("Selected Control Size")
-                                Text(selectedControl.map {
-                                    "\(Int(((editedControlSizes[$0] ?? 1) * 100).rounded()))%"
-                                } ?? "—")
-                                    .monospacedDigit()
-                                    .fixedSize(horizontal: true, vertical: false)
-                                    .frame(width: 64, alignment: .trailing)
-                                Button(selectedControl.map { editedHiddenControls.contains($0) ? "Show" : "Hide" } ?? "Hide") {
-                                    guard let id = selectedControl, id != "Stick" else { return }
-                                    if editedHiddenControls.contains(id) {
-                                        editedHiddenControls.remove(id)
-                                    } else {
-                                        editedHiddenControls.insert(id)
+                        if session.running && !showingLauncher && !menuOpen && scenePhase == .active {
+                            AdventureOverlay(settings: enhancements)
+                        }
+                        // Discard local gesture state when focus is lost, as well
+                        // as clearing the native input state in the lifecycle handler.
+                        if session.running && !showingLauncher && touchEnabled && (!menuOpen || editingLayout)
+                            && scenePhase == .active && !audioInterrupted
+                            && (editingLayout || !hideTouchOnController || !controllerInput.isConnected) {
+                            TouchControlsView(opacity: editingLayout ? 1.0 : (touchTransparency ? touchOpacity : 1.0),
+                                              scale: controlScale,
+                                              showDpad: showDpad, showCButtons: showCButtons,
+                                              editing: editingLayout,
+                                              selectedControl: selectedControl,
+                                              onSelect: { selectedControl = $0 },
+                                              layout: editingLayout && editingCompact == compact
+                                                  ? editedPositions : savedLayout(compact: compact),
+                                              controlSizes: editingLayout && editingCompact == compact
+                                                  ? editedControlSizes : savedControlSizes(compact: compact),
+                                              hiddenControls: editingLayout && editingCompact == compact
+                                                  ? editedHiddenControls : savedHiddenControls(compact: compact),
+                                              onMove: { id, center in
+                                                  if editingLayout && editingCompact == compact {
+                                                      editedPositions[id] = center
+                                                  }
+                                              })
+                                .onDisappear { clearTouchInput() }
+                        }
+                        if (!session.running || showingLauncher) && !menuOpen {
+                            SquirrelPadLauncher(size: geometry.size,
+                                                hasROM: session.storedROM != nil,
+                                                paused: session.running,
+                                                message: session.message,
+                                                play: {
+                                                    if session.running { showingLauncher = false }
+                                                    else if let rom = session.storedROM { session.importROM(rom) }
+                                                },
+                                                chooseROM: { importing = true },
+                                                settings: { menuOpen = true })
+                        }
+                        if menuOpen {
+                            SquirrelPadTheme.background.opacity(0.88)
+                                .onTapGesture { menuOpen = false }
+                            controlsPanel(compact: compact, size: geometry.size,
+                                          sideMargin: menuSideMargin)
+                                .position(x: geometry.size.width / 2,
+                                          y: geometry.size.height / 2)
+                        }
+                        if editingLayout {
+                            VStack(spacing: 8) {
+                                HStack(spacing: 14) {
+                                    Text(selectedControl.map { "\($0 == "Stick" ? "Control Stick" : $0) · Drag to move" }
+                                         ?? "Tap a control to select")
+                                    Button("Reset Layout") {
+                                        editedPositions = [:]
+                                        editedControlSizes = [:]
+                                        editedHiddenControls = []
+                                        selectedControl = nil
                                     }
+                                    Button("Done") { finishLayoutEdit() }
                                 }
-                                .frame(minWidth: 44)
-                                .disabled(selectedControl == nil || selectedControl == "Stick")
-                                .opacity(selectedControl == nil || selectedControl == "Stick" ? 0.45 : 1)
-                                .accessibilityLabel("Selected Control Visibility")
-                                .accessibilityValue(selectedControl.map { editedHiddenControls.contains($0) ? "Hidden" : "Visible" } ?? "No selection")
+                                HStack(spacing: 10) {
+                                    Text("Size")
+                                    Slider(value: Binding(
+                                        get: { selectedControl.flatMap { editedControlSizes[$0] } ?? 1 },
+                                        set: { value in
+                                            if let id = selectedControl { editedControlSizes[id] = value }
+                                        }), in: 0.7...1.5)
+                                        .frame(width: compact ? 180 : 240)
+                                        .disabled(selectedControl == nil)
+                                        .accessibilityLabel("Selected Control Size")
+                                    Text(selectedControl.map {
+                                        "\(Int(((editedControlSizes[$0] ?? 1) * 100).rounded()))%"
+                                    } ?? "—")
+                                        .monospacedDigit()
+                                        .fixedSize(horizontal: true, vertical: false)
+                                        .frame(width: 64, alignment: .trailing)
+                                    Button(selectedControl.map { editedHiddenControls.contains($0) ? "Show" : "Hide" } ?? "Hide") {
+                                        guard let id = selectedControl, id != "Stick" else { return }
+                                        if editedHiddenControls.contains(id) {
+                                            editedHiddenControls.remove(id)
+                                        } else {
+                                            editedHiddenControls.insert(id)
+                                        }
+                                    }
+                                    .frame(minWidth: 44)
+                                    .disabled(selectedControl == nil || selectedControl == "Stick")
+                                    .opacity(selectedControl == nil || selectedControl == "Stick" ? 0.45 : 1)
+                                    .accessibilityLabel("Selected Control Visibility")
+                                    .accessibilityValue(selectedControl.map { editedHiddenControls.contains($0) ? "Hidden" : "Visible" } ?? "No selection")
+                                }
                             }
+                            .font(.system(size: compact ? 14 : 17, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(.black.opacity(0.82), in: RoundedRectangle(cornerRadius: 18))
+                            .position(x: geometry.size.width / 2, y: compact ? 54 : 60)
+                        } else if session.running && !showingLauncher && !menuOpen {
+                            Button(action: toggleMenu) {
+                                Text("•••")
+                                    .font(.system(size: compact ? 17 : 15, weight: .semibold))
+                                    .foregroundStyle(.white)
+                                    .frame(width: menuSize, height: menuSize)
+                                    .background(.black.opacity(0.42), in: Circle())
+                                    .overlay(Circle().stroke(.white.opacity(0.65), lineWidth: 2))
+                                    .padding(compact && !menuOpen ? 6 : 0)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Menu")
+                            .accessibilityIdentifier("squirrelpad-menu")
+                            .position(x: compact ? geometry.size.width / 2 : geometry.size.width - 32,
+                                      y: compact && menuOpen ? geometry.size.height - 36 : 32)
                         }
-                        .font(.system(size: compact ? 14 : 17, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(.black.opacity(0.82), in: RoundedRectangle(cornerRadius: 18))
-                        .position(x: geometry.size.width / 2, y: compact ? 54 : 60)
-                    } else if session.running && !showingLauncher && !menuOpen {
-                        Button(action: toggleMenu) {
-                            Text("•••")
-                                .font(.system(size: compact ? 17 : 15, weight: .semibold))
-                                .foregroundStyle(.white)
-                                .frame(width: menuSize, height: menuSize)
-                                .background(.black.opacity(0.42), in: Circle())
-                                .overlay(Circle().stroke(.white.opacity(0.65), lineWidth: 2))
-                                .padding(compact && !menuOpen ? 6 : 0)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("Menu")
-                        .accessibilityIdentifier("squirrelpad-menu")
-                        .position(x: compact ? geometry.size.width / 2 : geometry.size.width - 32,
-                                  y: compact && menuOpen ? geometry.size.height - 36 : 32)
                     }
+                    .frame(width: geometry.size.width, height: geometry.size.height)
                 }
-                .frame(width: geometry.size.width, height: geometry.size.height)
+                .ignoresSafeArea()
             }
             .background(.black)
-            .ignoresSafeArea()
             .statusBarHidden()
             .preferredColorScheme(.dark)
             .tint(SquirrelPadTheme.accent)
@@ -344,14 +348,6 @@ struct SquirrelPadApp: App {
                 }
             }
         }
-    }
-
-    private func compactMenuSideMargin() -> CGFloat {
-        let insets = UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap(\.windows)
-            .first(where: \.isKeyWindow)?.safeAreaInsets ?? .zero
-        return max(32, max(insets.left, insets.right) + 8)
     }
 
     private func controlsPanel(compact: Bool, size: CGSize, sideMargin: CGFloat) -> some View {
