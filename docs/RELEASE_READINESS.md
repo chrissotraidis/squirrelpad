@@ -1,9 +1,27 @@
 # Release readiness
 
-Updated 2026-10-11. **v0.1.1 is an experimental source-and-recipe alpha.**
-Public assets are `SquirrelPad-v0.1.1-padmint.json` and `SHA256SUMS`.
+Updated 2026-10-25. **v0.1.2 is an experimental source-and-recipe alpha.**
+Public assets are `SquirrelPad-v0.1.2-padmint.json` and `SHA256SUMS`.
 Players supply their own supported US ROM and build a personal IPA on an
 Apple Silicon Mac. Personal IPAs and generated game code are never release assets.
+
+## v0.1.2
+
+On iPhone with iOS 27, the launcher froze after its first frame: **Play Conker**
+started the game behind it, and **Settings** and **Choose ROM** did not respond
+([#2](https://github.com/chrissotraidis/squirrelpad/issues/2),
+[#3](https://github.com/chrissotraidis/squirrelpad/issues/3)). Every landscape
+iPhone uses the compact layout, which looked up the UIKit key window while
+building its view to keep Settings clear of the Dynamic Island. It now reads that
+inset from SwiftUI's safe area
+([#4](https://github.com/chrissotraidis/squirrelpad/pull/4)). On the iOS 27.0
+Simulator (iPhone 17 Pro), Settings, Play, the in-game menu, Return to Launcher
+and Change ROM work, and the iPad launcher is unchanged. No physical iPhone was
+tested. A reported iPhone crash at the end of the opening cutscene is separate
+and not addressed.
+
+The recipe now asks for 6 GB free instead of 30 GB. A measured first build peaked
+at 3.0 GiB ([#5](https://github.com/chrissotraidis/squirrelpad/pull/5)).
 
 ## v0.1.1
 
