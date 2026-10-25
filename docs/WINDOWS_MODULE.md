@@ -52,6 +52,8 @@ The Windows generators carry a process-local UTF-8 manifest. Visual Studio path
 discovery, its environment output and Python child processes use explicit encodings,
 so non-English folder names do not require changing Windows settings. Old direct
 upstream generator build caches are reconfigured once for the maintained wrapper.
+Source patch replay also decodes Git's repository paths as UTF-8; its preservation
+and retry tests use non-English source directories on both Mac and Windows.
 
 The next recipe uses PadMint's existing `ios_module` pipeline. For developer
 validation with a local matching empty IPA:
