@@ -81,6 +81,17 @@ Recorded during development on 26 October 2026 (Japan time):
   module in 35 seconds. Tools and source were cached; this is not a clean-machine
   or native-x64-hardware result. Readback confirmed the same contract digest in
   the final shell and module.
+- A second packaged run from SquirrelPad `63068a2` started with a fresh local
+  checkout, no upstream source, and an absent `PADMINT_HOME`. PadMint downloaded
+  its complete managed tool set and built the private IPA without manual repair:
+  5 minutes 21 seconds including downloads, with 99 seconds in the build stage.
+  The existing Visual Studio prerequisite supplied its native ARM64 compiler.
+  All 127 generated files again matched Mac after newline normalization; final
+  shell/module identities matched, the module exported only its table getter,
+  and strict imports passed (117 app callbacks, 21 known runtime names, 9 standard
+  C++ names). No files in the supplied shell changed; only the module was added.
+  This validates a clean PadMint environment on the existing Windows ARM64 VM,
+  not a newly installed Windows system or native x64 hardware.
 - Apple `/usr/bin/python3` (3.9) completed the same next-release module recipe
   with the development PadMint code and matching local shell, again with cached
   tools/source. The previous full static Mac route also produced an audited IPA.
@@ -91,7 +102,7 @@ Recorded during development on 26 October 2026 (Japan time):
   setup. These tests do not establish iOS loader or gameplay compatibility.
 
 This is build evidence only. Install/launch/gameplay of the module-based IPA,
-representative saves, native Windows x64 hardware, clean packaged-player builds,
-and publication are still separate gates. The existing full static Mac build also produced an audited iOS IPA in this pass.
-That maintainer build is separate from the required current-main PadMint player
-checks before and after a future game release. Current released catalog flags stay unchanged.
+representative saves, native Windows x64 hardware, and publication are still
+separate gates. The static maintainer build and the development-package tests
+are separate from the required current-main PadMint player checks before and
+after a future game release. Current released catalog flags stay unchanged.
