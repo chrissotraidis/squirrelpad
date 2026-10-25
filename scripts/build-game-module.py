@@ -26,14 +26,15 @@ def generator_environment():
     installer = Path(env.get("ProgramFiles(x86)", r"C:\Program Files (x86)")) / "Microsoft Visual Studio/Installer/vswhere.exe"
     if not installer.is_file():
         raise ValueError("Install Visual Studio Build Tools with Desktop development with C++ and a Windows SDK, then run PadMint again.")
-    installation = subprocess.check_output([str(installer), "-latest", "-products", "*", "-requiresAny", "-requires",
-                                            "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
-                                            "Microsoft.VisualStudio.Component.VC.Tools.ARM64",
+    native_arm64 = platform.machine().lower() in ("arm64", "aarch64")
+    requirements = ["-requires", "Microsoft.VisualStudio.Component.VC.Tools.x86.x64"]
+    if native_arm64:
+        requirements = ["-requiresAny", *requirements, "Microsoft.VisualStudio.Component.VC.Tools.ARM64"]
+    installation = subprocess.check_output([str(installer), "-latest", "-products", "*", *requirements,
                                             "-property", "installationPath"], text=True).strip()
     tools = Path(installation) / "VC/Tools/MSVC"
     versions = sorted(tools.glob("*"), reverse=True)
-    native = platform.machine().lower() in ("arm64", "aarch64")
-    arm = native and any((version / "bin/Hostarm64/arm64/cl.exe").is_file() for version in versions)
+    arm = native_arm64 and any((version / "bin/Hostarm64/arm64/cl.exe").is_file() for version in versions)
     arch = "arm64" if arm else "x64"
     if not any((version / f"bin/Host{arch}/{arch}/cl.exe").is_file() for version in versions):
         raise ValueError(f"Visual Studio is missing its {arch} C++ compiler. Add Desktop development with C++ and a Windows SDK in Visual Studio Installer.")
