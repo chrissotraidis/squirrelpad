@@ -46,6 +46,19 @@ an M2 iPad Pro. Sustained hardware play, full-story compatibility, audio
 quality, and progressed-save reloads still need verification. iOS 17 is the build
 minimum, not a tested-device guarantee. See [release readiness](docs/RELEASE_READINESS.md).
 
+## Windows module development
+
+This branch prepares the next release's game-module route. It is **not available
+in the current public release**: the new recipe needs a matching empty iOS shell,
+passed locally with PadMint's `--app` option until release validation is complete.
+The existing full Mac build remains available through `scripts/build-personal.py`.
+
+The Windows development build uses Visual Studio Build Tools with Desktop
+development with C++ and a Windows SDK; PadMint supplies its pinned compiler,
+linker and open-source headers for the iOS module. The ROM and translated game
+code remain on the player's computer. See [module build and evidence](docs/WINDOWS_MODULE.md)
+for the exact checks and remaining device/release gates.
+
 ## Get started
 
 You need an **Apple Silicon Mac, full Xcode with the iOS platform and Metal

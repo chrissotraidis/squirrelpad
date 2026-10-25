@@ -1,3 +1,6 @@
+#if defined(SQUIRRELPAD_MODULE_SHELL)
+#include "../game_module_forward.h"
+#endif
 // Adapted for SquirrelPad from ConkerBFDReloaded v1.3.1,
 // commit 90a014dbac5019c20a1b7a820ea16a1f0553052f. See LICENSE.txt and THIRD_PARTY_LICENSE.txt.
 #include <atomic>

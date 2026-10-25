@@ -23,113 +23,44 @@
   "targets": {
     "ios": {
       "hosts": {
-        "macos-arm64": "experimental"
+        "macos-arm64": "experimental",
+        "windows-arm64": "experimental"
       },
       "output": "ipa",
       "check": "ipa",
+      "tools": [
+        "git",
+        "cmake",
+        "ninja",
+        "llvm",
+        "libcxx"
+      ],
+      "published_app": "SquirrelPad-v{version}-ios-shell.ipa",
+      "ios_module": {
+        "file": "{work}/module/SquirrelPadGame.dylib",
+        "into": "Frameworks/SquirrelPadGame.dylib"
+      },
       "steps": [
         {
           "stage": "compile",
           "command": [
-            "python3",
-            "{repo}/scripts/build-personal.py",
+            "{python}",
+            "{repo}/scripts/build-game-module.py",
             "--rom",
             "{disc}",
-            "--sdk",
-            "iphoneos",
+            "--toolchain",
+            "{ios_toolchain}",
+            "--build-dir",
+            "{work}/module",
             "--jobs",
-            "{jobs}",
-            "--output",
-            "{output}"
+            "{jobs}"
           ]
         }
       ]
     }
   },
   "requirements": {
-    "disk_gb": 6,
-    "tools": [
-      {
-        "name": "git",
-        "version_args": [
-          "--version"
-        ],
-        "player": true,
-        "note": "Install Xcode command-line tools."
-      },
-      {
-        "name": "cmake",
-        "version_args": [
-          "--version"
-        ],
-        "player": true,
-        "note": "Install CMake: brew install cmake",
-        "min_version": "3.28"
-      },
-      {
-        "name": "ninja",
-        "version_args": [
-          "--version"
-        ],
-        "player": true,
-        "note": "Install Ninja: brew install ninja"
-      },
-      {
-        "name": "python3",
-        "version_args": [
-          "--version"
-        ],
-        "player": true,
-        "note": "Install Python 3.11 or newer: brew install python",
-        "min_version": "3.11"
-      },
-      {
-        "name": "sdl2-config",
-        "version_args": [
-          "--version"
-        ],
-        "player": true,
-        "note": "Install SDL2: brew install sdl2"
-      },
-      {
-        "name": "pkg-config",
-        "version_args": [
-          "--modversion",
-          "freetype2"
-        ],
-        "player": true,
-        "label": "FreeType",
-        "note": "Install pkgconf and FreeType: brew install pkgconf freetype"
-      },
-      {
-        "name": "rg",
-        "version_args": [
-          "--version"
-        ],
-        "player": true,
-        "note": "Install ripgrep: brew install ripgrep"
-      },
-      {
-        "name": "xcodebuild",
-        "version_args": [
-          "-version"
-        ],
-        "player": true,
-        "note": "Install full Xcode, open it once, and install the iOS platform."
-      },
-      {
-        "name": "xcrun",
-        "version_args": [
-          "--sdk",
-          "macosx",
-          "metal",
-          "--version"
-        ],
-        "player": true,
-        "label": "Metal Toolchain",
-        "note": "Install the Metal Toolchain in Xcode Settings > Components."
-      }
-    ]
+    "disk_gb": 6
   },
   "publication": {
     "public_binaries": false,

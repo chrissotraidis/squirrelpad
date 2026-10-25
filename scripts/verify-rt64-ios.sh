@@ -5,8 +5,11 @@ project=$(cd "$(dirname "$0")/.." && pwd)
 checkout=${SQUIRRELPAD_CHECKOUT:-"$project/work/CBFD-Recompiled"}
 build_tag=${SQUIRRELPAD_RT64_BUILD_TAG:-}
 source="$checkout/tools/rt64"
-host_build="$checkout/host/build-macos-metal"
+host_build=${SQUIRRELPAD_SHADER_HOST:-"$checkout/host/build-macos-metal"}
 file_to_c="$host_build/rt64/src/tools/file_to_c/file_to_c"
+if [ ! -x "$file_to_c" ]; then
+    file_to_c="$host_build/src/tools/file_to_c/file_to_c"
+fi
 sdk=${1:-iphonesimulator}
 case "$sdk" in
     iphonesimulator) target=arm64-apple-ios17.0-simulator; metal_target=air64-apple-ios17.0-simulator ;;
