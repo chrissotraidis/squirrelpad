@@ -18,8 +18,8 @@ source-contract digest before starting the core. All N64 runtime state remains
 in the app. The app force-loads its runtime/support archives so APIs called only
 by the module remain exported.
 
-The contract digest covers source pins, the entire patch stack, the Conker bridge
-and enhancement source. Paths sort by exact repository-relative POSIX names and
+The contract digest covers source pins, the entire patch stack, the Conker bridge,
+enhancement source and host-generator CMake wrapper/UTF-8 manifest. Paths sort by exact repository-relative POSIX names and
 line endings normalize to LF so Windows and Mac compute the same digest. New
 releases must produce the shell and recipe from the same revision. A mismatched
 module gives an actionable launcher error instead of entering the game.
@@ -48,6 +48,10 @@ required. Native ARM64 tools are used when installed, otherwise x64 tools are
 used; Windows x64 needs the x64/x86 C++ component. Source and build folders should
 be on a local NTFS drive. CMake's Windows link/archive commands cannot use a UNC
 network share as their working directory.
+The Windows generators carry a process-local UTF-8 manifest. Visual Studio path
+discovery, its environment output and Python child processes use explicit encodings,
+so non-English folder names do not require changing Windows settings. Old direct
+upstream generator build caches are reconfigured once for the maintained wrapper.
 
 The next recipe uses PadMint's existing `ios_module` pipeline. For developer
 validation with a local matching empty IPA:
@@ -118,6 +122,19 @@ Recorded during development on 26 October 2026 (Japan time):
   table version/size/identity, absent callbacks, missing modules, and retry after
   a rejected module. Run `python3 scripts/check-module-loader.py` after source
   setup. These tests do not establish iOS loader or gameplay compatibility.
+- The Unicode-path follow-up passed all 28 Apple Python 3.9 tests and 17 portable
+  tests under bundled Windows Python. A fresh native ARM64 MSVC generator build
+  executed public CPU/RSP fixtures with Unicode working, build, temporary, input
+  and output paths; both embedded manifests retained `asInvoker` and UTF-8.
+  The bundled interpreter started with UTF-8 mode off. A fresh Mac generator build
+  passed the same public fixtures. These checks use no original game input.
+- A matching Mac shell/private-module pair was rebuilt after the host-wrapper
+  identity changed. All 127 regenerated files matched the earlier Mac output
+  after newline normalization; imports remained 117 app callbacks, 21 known
+  runtime names and 9 classified C++ names. Packaging preserved all 32 shell
+  entries and added only the module. The earlier private Windows proofs remain
+  tied to their recorded source revisions; this follow-up is not a new Windows
+  private-game or device-runtime acceptance claim.
 
 This is build evidence only. Install/launch/gameplay of the module-based IPA,
 representative saves, a full private build on native Windows x64 hardware, and

@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.20)
+project(SquirrelPadHostTools LANGUAGES C CXX)
+set(SQUIRRELPAD_CONKER_SOURCE "" CACHE PATH "Pinned, patched Conker source")
+if(NOT EXISTS "${SQUIRRELPAD_CONKER_SOURCE}/tools/N64Recomp/CMakeLists.txt")
+    message(FATAL_ERROR "Prepare the pinned source before building host generators")
+endif()
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+add_subdirectory("${SQUIRRELPAD_CONKER_SOURCE}/tools/N64Recomp" upstream)
+
+# Keep UTF-8 paths within these processes, without changing Windows settings.
+if(MSVC)
+    foreach(target N64RecompCLI RSPRecomp)
+        target_sources(${target} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/windows-utf8.manifest")
+    endforeach()
+endif()

@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parent.parent
 def identity():
     digest = hashlib.sha256()
     paths = [ROOT / "sources.lock.json", *sorted((ROOT / "patches").glob("*.patch")),
+             ROOT / "cmake/host-tools/CMakeLists.txt", ROOT / "cmake/host-tools/windows-utf8.manifest",
              *sorted((ROOT / "Support/Conker").rglob("*.h")),
              *sorted((ROOT / "Support/Conker").rglob("*.cpp")),
              ROOT / "Support/Conker/game_module_functions.inc"]

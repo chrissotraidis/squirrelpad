@@ -3,6 +3,8 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
 import unittest
 from unittest import mock
@@ -20,6 +22,31 @@ def module(name):
 SETUP = module("setup-source")
 GENERATED = module("check-generated")
 BUILD = module("build-game-module")
+
+
+class UnicodePythonTests(unittest.TestCase):
+    def test_redirected_isolated_python_accepts_non_english_paths(self):
+        code = """import importlib.util, sys, types
+spec = importlib.util.spec_from_file_location('setup', sys.argv[1])
+setup = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(setup)
+setup.os = types.SimpleNamespace(name='nt')
+sys.stdout.reconfigure(encoding='cp1252')
+sys.stderr.reconfigure(encoding='cp1252')
+setup.configure_output()
+print('private \\u96ea folder')
+print('private \\u96ea error', file=sys.stderr)
+"""
+        result = subprocess.run([sys.executable, '-I', '-c', code, str(ROOT / 'scripts/setup-source.py')],
+                                capture_output=True, check=True)
+        self.assertEqual(result.stdout.decode('utf-8').strip(), 'private 雪 folder')
+        self.assertEqual(result.stderr.decode('utf-8').strip(), 'private 雪 error')
+
+    def test_private_generator_child_explicitly_uses_utf8(self):
+        with mock.patch.object(BUILD, 'build_generators', return_value=ROOT / 'host build'), \
+                mock.patch.object(BUILD, 'run') as run:
+            BUILD.generate(ROOT / 'source 雪', 1)
+        self.assertEqual(run.call_args.args[:3], (sys.executable, '-X', 'utf8'))
 
 
 class InputStagingTests(unittest.TestCase):
@@ -108,6 +135,8 @@ class ModuleIdentityTests(unittest.TestCase):
             root = Path(temporary)
             files = {
                 "sources.lock.json": b"pins\n",
+                "cmake/host-tools/CMakeLists.txt": b"host build\n",
+                "cmake/host-tools/windows-utf8.manifest": b"manifest\n",
                 "patches/source.patch": b"patch\r\n",
                 "Support/Conker/Z.cpp": b"upper\n",
                 "Support/Conker/a.cpp": b"lower\n",
@@ -118,7 +147,7 @@ class ModuleIdentityTests(unittest.TestCase):
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(data)
             expected = hashlib.sha256()
-            for name in ("Support/Conker/Z.cpp", "Support/Conker/a.cpp", "Support/Conker/game_module_functions.inc", "patches/source.patch", "sources.lock.json"):
+            for name in ("Support/Conker/Z.cpp", "Support/Conker/a.cpp", "Support/Conker/game_module_functions.inc", "cmake/host-tools/CMakeLists.txt", "cmake/host-tools/windows-utf8.manifest", "patches/source.patch", "sources.lock.json"):
                 expected.update(name.encode() + b"\0" + files[name].replace(b"\r\n", b"\n") + b"\0")
             with mock.patch.object(identity, "ROOT", root):
                 self.assertEqual(identity.identity(), expected.hexdigest())
@@ -145,7 +174,7 @@ class WindowsCompilerTests(unittest.TestCase):
             root = Path(temporary)
             installer = root / 'Microsoft Visual Studio/Installer/vswhere.exe'
             installer.parent.mkdir(parents=True); installer.touch()
-            old, new = root / 'older-x64', root / 'newer-arm'
+            old, new = root / 'older-x64 雪', root / 'newer-arm 雪'
             for installation, arch in ((old, 'x64'), (new, 'arm64')):
                 compiler = installation / f'VC/Tools/MSVC/14.44/bin/Host{arch}/{arch}/cl.exe'
                 compiler.parent.mkdir(parents=True); compiler.touch()
@@ -153,17 +182,24 @@ class WindowsCompilerTests(unittest.TestCase):
             calls = []
             def query(command, **kwargs):
                 calls.append(command)
+                self.assertEqual(kwargs['encoding'], 'utf-8')
+                self.assertEqual(command[-1], '-utf8')
                 return str(new if '-requiresAny' in command and arm_available else old)
-            process = types.SimpleNamespace(stdout='PATH=prepared-compiler\n')
-            with mock.patch.object(BUILD, 'os', types.SimpleNamespace(name='nt', environ={'ProgramFiles(x86)': str(root)})), \
+            original = {'ProgramFiles(x86)': str(root), 'TEMP': 'private 雪 path'}
+            process = types.SimpleNamespace(stdout='PATH=prepared-compiler\nTEMP=private 雪 path\n')
+            with mock.patch.object(BUILD, 'os', types.SimpleNamespace(name='nt', environ=original)), \
                     mock.patch.object(BUILD.platform, 'machine', return_value=host), \
                     mock.patch.object(BUILD.shutil, 'which', side_effect=[None, 'cl.exe']), \
                     mock.patch.object(BUILD.subprocess, 'check_output', side_effect=query), \
                     mock.patch.object(BUILD.subprocess, 'run', return_value=process) as run:
-                BUILD.generator_environment()
+                prepared = BUILD.generator_environment()
             self.assertEqual('-requiresAny' in calls[0], host == 'ARM64')
             self.assertIn(str(selected / 'VC/Auxiliary/Build/vcvarsall.bat'), run.call_args.args[0])
             self.assertIn(' ' + expected_arch + ' >nul', run.call_args.args[0])
+            self.assertIn(' /d /u /s /c ', run.call_args.args[0])
+            self.assertEqual(run.call_args.kwargs['encoding'], 'utf-16-le')
+            self.assertEqual(prepared['TEMP'], 'private 雪 path')
+            self.assertEqual(original, {'ProgramFiles(x86)': str(root), 'TEMP': 'private 雪 path'})
 
     def test_newer_arm_only_install_does_not_hide_x64_compiler(self):
         self.check_selection('AMD64', True, 'x64')
@@ -173,6 +209,33 @@ class WindowsCompilerTests(unittest.TestCase):
 
     def test_arm_host_keeps_x64_fallback(self):
         self.check_selection('ARM64', False, 'x64')
+
+
+class GeneratorCacheTests(unittest.TestCase):
+    def test_relative_build_override_uses_the_command_working_directory(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            build = root / 'relative build'
+            build.mkdir()
+            (build / 'CMakeCache.txt').write_text('CMAKE_HOME_DIRECTORY:INTERNAL=/old/upstream\n', encoding='utf-8')
+            with mock.patch.object(BUILD, 'ROOT', root), mock.patch.object(BUILD, 'run') as run:
+                result = BUILD.build_generators(root / 'source', Path('relative build'), 1)
+            self.assertEqual(result, build.resolve())
+            self.assertEqual(run.call_args_list[0].args[:2], ('cmake', '--fresh'))
+            self.assertEqual(run.call_args_list[0].args[5], build.resolve())
+
+    def test_old_upstream_cache_gets_one_fresh_configure(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            build = Path(temporary)
+            cache = build / 'CMakeCache.txt'
+            cache.write_text('CMAKE_HOME_DIRECTORY:INTERNAL=/old/upstream\n', encoding='utf-8')
+            with mock.patch.object(BUILD, 'run') as run:
+                BUILD.build_generators(build / 'source', build, 1)
+            self.assertEqual(run.call_args_list[0].args[:2], ('cmake', '--fresh'))
+            cache.write_text('CMAKE_HOME_DIRECTORY:INTERNAL=' + str((ROOT / 'cmake/host-tools').resolve()) + '\n', encoding='utf-8')
+            with mock.patch.object(BUILD, 'run') as run:
+                BUILD.build_generators(build / 'source', build, 1)
+            self.assertNotIn('--fresh', run.call_args_list[0].args)
 
 if __name__ == "__main__":
     unittest.main()

@@ -31,7 +31,7 @@ def generator_environment():
     if native_arm64:
         requirements = ["-requiresAny", *requirements, "Microsoft.VisualStudio.Component.VC.Tools.ARM64"]
     installation = subprocess.check_output([str(installer), "-latest", "-products", "*", *requirements,
-                                            "-property", "installationPath"], text=True).strip()
+                                            "-property", "installationPath", "-utf8"], text=True, encoding="utf-8").strip()
     tools = Path(installation) / "VC/Tools/MSVC"
     versions = sorted(tools.glob("*"), reverse=True)
     arm = native_arm64 and any((version / "bin/Hostarm64/arm64/cl.exe").is_file() for version in versions)
@@ -40,9 +40,9 @@ def generator_environment():
         raise ValueError(f"Visual Studio is missing its {arch} C++ compiler. Add Desktop development with C++ and a Windows SDK in Visual Studio Installer.")
     script = Path(installation) / "VC/Auxiliary/Build/vcvarsall.bat"
     command = f'"{script}" {arch} >nul && set'
-    command_line = subprocess.list2cmdline([env.get("COMSPEC", "cmd.exe")]) + ' /d /s /c "' + command + '"'
+    command_line = subprocess.list2cmdline([env.get("COMSPEC", "cmd.exe")]) + ' /d /u /s /c "' + command + '"'
     result = subprocess.run(command_line,
-                            capture_output=True, text=True, check=True, env=env)
+                            capture_output=True, text=True, encoding="utf-16-le", check=True, env=env)
     for line in result.stdout.splitlines():
         key, separator, value = line.partition("=")
         if separator and key:
@@ -54,11 +54,26 @@ def generator_environment():
     return env
 
 
+def build_generators(source, build, jobs, env=None):
+    wrapper = (ROOT / "cmake/host-tools").resolve()
+    build = (ROOT / build).resolve()
+    cache = build / "CMakeCache.txt"
+    home = None
+    if cache.is_file():
+        home = next((line.partition("=")[2] for line in cache.read_text(encoding="utf-8").splitlines()
+                     if line.startswith("CMAKE_HOME_DIRECTORY:INTERNAL=")), None)
+    # Upgrade old direct-upstream caches once, retaining ordinary warm builds.
+    fresh = cache.is_file() and (home is None or Path(home).resolve() != wrapper)
+    run("cmake", *(["--fresh"] if fresh else []), "-S", wrapper, "-B", build, "-G", "Ninja",
+        "-DCMAKE_BUILD_TYPE=Release", f"-DSQUIRRELPAD_CONKER_SOURCE={source.resolve()}", env=env)
+    run("cmake", "--build", build, "--target", "N64RecompCLI", "RSPRecomp", "--parallel", jobs, env=env)
+    return build
+
+
 def generate(source, jobs, env=None):
     build = Path(os.environ.get("SQUIRRELPAD_GENERATOR_BUILD", source / ("tools/N64Recomp/build-padmint-" + platform.system().lower() + "-" + platform.machine().lower())))
-    run("cmake", "-S", source / "tools/N64Recomp", "-B", build, "-G", "Ninja", "-DCMAKE_BUILD_TYPE=Release", env=env)
-    run("cmake", "--build", build, "--target", "N64RecompCLI", "RSPRecomp", "--parallel", jobs, env=env)
-    run(sys.executable, source / "recomp/recompile.py", "--bin", build, env=env)
+    build = build_generators(source, build, jobs, env)
+    run(sys.executable, "-X", "utf8", source / "recomp/recompile.py", "--bin", build, env=env)
 
 
 def main():
@@ -92,6 +107,7 @@ def main():
 
 
 if __name__ == "__main__":
+    setup.configure_output()
     try:
         main()
     except (OSError, ValueError, subprocess.CalledProcessError) as error:

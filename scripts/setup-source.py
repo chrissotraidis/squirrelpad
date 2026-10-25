@@ -53,6 +53,15 @@ def run(*args):
     subprocess.run([str(arg) for arg in args], check=True)
 
 
+def configure_output():
+    # Embedded Python ignores PYTHONUTF8. Redirected Windows logs must still
+    # accept a player's non-English folder name without failing the build.
+    if os.name == "nt":
+        for stream in (sys.stdout, sys.stderr):
+            if hasattr(stream, "reconfigure"):
+                stream.reconfigure(encoding="utf-8")
+
+
 def check_rom(path):
     expected = json.loads((ROOT / "sources.lock.json").read_text())["rom"]
     digest = hashlib.sha1()
@@ -110,7 +119,7 @@ def prepare(checkout, *, module_only=False):
         if module_only and folder.startswith("tools/rt64"):
             continue
         stack.append(f"{checkout / folder}|{(checkout if origin == 'checkout' else ROOT) / patch}")
-    run(sys.executable, ROOT / "scripts/apply-source-patches.py", checkout, *stack)
+    run(sys.executable, "-X", "utf8", ROOT / "scripts/apply-source-patches.py", checkout, *stack)
     print(f"Pinned and patched source ready at {checkout}", flush=True)
     return checkout
 
@@ -129,6 +138,7 @@ def main():
 
 
 if __name__ == "__main__":
+    configure_output()
     try:
         main()
     except (OSError, ValueError, subprocess.CalledProcessError) as error:
