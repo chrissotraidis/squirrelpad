@@ -46,6 +46,12 @@ class SourcePatchesTests(unittest.TestCase):
         MODULE.apply(self.repo, self.stack)
         self.assertEqual((self.repo / 'file.txt').read_bytes(), b'final\n')
 
+    def test_existing_known_crlf_source_can_upgrade(self):
+        MODULE.apply(self.repo, self.stack[:1])
+        (self.repo / 'file.txt').write_bytes(b'first\r\n')
+        MODULE.apply(self.repo, self.stack)
+        self.assertEqual((self.repo / 'file.txt').read_bytes(), b'final\n')
+
     def test_preserves_unexpected_local_edit(self):
         (self.repo / 'file.txt').write_text('my work\n')
         with self.assertRaisesRegex(ValueError, 'Preserving unexpected'):
