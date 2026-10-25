@@ -26,7 +26,10 @@ def generator_environment():
     installer = Path(env.get("ProgramFiles(x86)", r"C:\Program Files (x86)")) / "Microsoft Visual Studio/Installer/vswhere.exe"
     if not installer.is_file():
         raise ValueError("Install Visual Studio Build Tools with Desktop development with C++ and a Windows SDK, then run PadMint again.")
-    installation = subprocess.check_output([str(installer), "-latest", "-products", "*", "-property", "installationPath"], text=True).strip()
+    installation = subprocess.check_output([str(installer), "-latest", "-products", "*", "-requiresAny", "-requires",
+                                            "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
+                                            "Microsoft.VisualStudio.Component.VC.Tools.ARM64",
+                                            "-property", "installationPath"], text=True).strip()
     tools = Path(installation) / "VC/Tools/MSVC"
     versions = sorted(tools.glob("*"), reverse=True)
     native = platform.machine().lower() in ("arm64", "aarch64")
@@ -67,6 +70,11 @@ def main():
     args = parser.parse_args()
     if not args.generate_only and (not args.toolchain or not args.toolchain.is_file()):
         parser.error("--toolchain must name PadMint's existing iOS module toolchain")
+    if not args.generate_only:
+        include = args.toolchain.resolve().parent / "usr/include"
+        missing = [name for name in ("assert.h", "sys/mman.h") if not (include / name).is_file()]
+        if missing:
+            parser.error("This PadMint build is missing iPhone module headers needed by SquirrelPad. Update PadMint before building again (missing: " + ", ".join(missing) + ").")
     host_env = generator_environment()
     setup.check_rom(args.rom)
     source = setup.prepare(Path(os.environ.get("SQUIRRELPAD_CHECKOUT", ROOT / "work/CBFD-Recompiled")), module_only=True)

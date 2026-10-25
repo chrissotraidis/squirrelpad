@@ -124,5 +124,18 @@ class ModuleIdentityTests(unittest.TestCase):
                 self.assertEqual(identity.identity(), expected.hexdigest())
 
 
+class ToolchainPreflightTests(unittest.TestCase):
+    def test_older_padmint_sdk_stops_before_fetching_or_generating(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            toolchain = Path(temporary) / "toolchain.cmake"
+            toolchain.write_text("# old SDK fixture\n")
+            argv = ["build-game-module.py", "--rom", str(Path(temporary) / "private.rom"), "--toolchain", str(toolchain)]
+            with mock.patch.object(BUILD.sys, "argv", argv), mock.patch.object(BUILD.setup, "prepare") as prepare:
+                with self.assertRaises(SystemExit) as stopped:
+                    BUILD.main()
+                self.assertEqual(stopped.exception.code, 2)
+                prepare.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()

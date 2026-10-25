@@ -3,6 +3,10 @@
 This is a draft next-release route. Current SquirrelPad v0.1.2 remains a Mac-only
 source-and-recipe release. The changed recipe requires a matching game-free shell
 that has not been published. Do not use an older IPA as its base.
+It also requires the shared SDK and import checks in
+[PadMint PR #177](https://github.com/chrissotraidis/padmint/pull/177), which are not
+in public PadMint 0.5.14. Release the PadMint prerequisite first, then the matching
+SquirrelPad shell and recipe; no new public version number is claimed here.
 
 The Swift/Metal app, N64ModernRuntime, mobile integration and enhancements stay
 in the shell. Only generated game functions, TLB code/data, the generated RSP
@@ -77,5 +81,6 @@ Recorded during development on 26 October 2026 (Japan time):
 
 This is build evidence only. Install/launch/gameplay of the module-based IPA,
 representative saves, native Windows x64 hardware, clean packaged-player builds,
-and publication are still separate gates. The existing static Mac path must
-continue to pass before any release. Current released catalog flags stay unchanged.
+and publication are still separate gates. The existing full static Mac build also produced an audited iOS IPA in this pass.
+That maintainer build is separate from the required current-main PadMint player
+checks before and after a future game release. Current released catalog flags stay unchanged.
