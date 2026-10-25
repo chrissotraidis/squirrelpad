@@ -74,6 +74,17 @@ Recorded during development on 26 October 2026 (Japan time):
   PadMint's open-source SDK. The corresponding empty shell compiles on Mac;
   normal package checks and PadMint's public-content gate pass with zero
   address-named game functions. Private module imports are checked separately.
+- The development PadMint Windows ZIP (PadMint source `4a78bb0`) completed the
+  normal `padmint build` flow from SquirrelPad `fff85cf` in a local Windows path
+  containing spaces. Its bundled x64 Python 3.13.15 correctly reported a Windows
+  ARM64 host, used native ARM64 generator tools, and built/checked/inserted the
+  module in 35 seconds. Tools and source were cached; this is not a clean-machine
+  or native-x64-hardware result. Readback confirmed the same contract digest in
+  the final shell and module.
+- Apple `/usr/bin/python3` (3.9) completed the same next-release module recipe
+  with the development PadMint code and matching local shell, again with cached
+  tools/source. The previous full static Mac route also produced an audited IPA.
+  All 19 repository tests passed after source setup.
 - Synthetic native-Mac loader tests exercise all forwards, rejection of wrong
   table version/size/identity, absent callbacks, missing modules, and retry after
   a rejected module. Run `python3 scripts/check-module-loader.py` after source
