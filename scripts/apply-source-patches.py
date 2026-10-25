@@ -42,7 +42,9 @@ def apply(checkout, stack):
         for folder, patch in patches:
             destination = staged / folder.relative_to(checkout)
             destination.mkdir(parents=True, exist_ok=True)
-            subprocess.run(['git', 'apply', str(patch)], cwd=destination, check=True)
+            # Git blobs are LF even when the recipe checkout converts patches to CRLF.
+            patch_bytes = patch.read_bytes().replace(b'\r\n', b'\n')
+            subprocess.run(['git', 'apply', '-'], input=patch_bytes, cwd=destination, check=True)
             # An existing checkout may have an earlier complete prefix of the
             # stack. Accept only bytes reproduced from pinned HEAD and patches.
             for relative in originals:
