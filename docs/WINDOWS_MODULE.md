@@ -7,6 +7,8 @@ It also requires the shared SDK and import checks in
 [PadMint PR #177](https://github.com/chrissotraidis/padmint/pull/177), which are not
 in public PadMint 0.5.14. Release the PadMint prerequisite first, then the matching
 SquirrelPad shell and recipe; no new public version number is claimed here.
+The draft recipe marks Windows ARM64 and x64 as experimental. Their build
+evidence has different limits, recorded below.
 
 The Swift/Metal app, N64ModernRuntime, mobile integration and enhancements stay
 in the shell. Only generated game functions, TLB code/data, the generated RSP
@@ -43,8 +45,9 @@ Windows needs Visual Studio Build Tools, Desktop development with C++, and a
 Windows SDK. The backend finds the installation with `vswhere` and sets up its
 compiler environment for the child process; a developer command prompt is not
 required. Native ARM64 tools are used when installed, otherwise x64 tools are
-used. Source and build folders should be on a local NTFS drive. CMake's Windows
-link/archive commands cannot use a UNC network share as their working directory.
+used; Windows x64 needs the x64/x86 C++ component. Source and build folders should
+be on a local NTFS drive. CMake's Windows link/archive commands cannot use a UNC
+network share as their working directory.
 
 The next recipe uses PadMint's existing `ios_module` pipeline. For developer
 validation with a local matching empty IPA:
@@ -92,17 +95,32 @@ Recorded during development on 26 October 2026 (Japan time):
   C++ names). No files in the supplied shell changed; only the module was added.
   This validates a clean PadMint environment on the existing Windows ARM64 VM,
   not a newly installed Windows system or native x64 hardware.
+- [Native Windows x64 CI](https://github.com/chrissotraidis/squirrelpad/actions/runs/40211903260)
+  built the pinned MSVC generators from fresh public sources and executed
+  hand-authored MIPS and RSP fixtures. Separate x64 generator executables running
+  under Windows ARM64 emulation translated the private ROM; all 127 generated
+  files matched Mac after newline normalization.
+- A complete private backend build from `c8eede2` used x64 LLVM 21.1.8 and x64
+  MSVC generators under Windows ARM64 emulation, completing in 146 seconds.
+  The compiler, linker and both generators were verified as x64 PE executables;
+  native ARM64 helper tools and cached source were reused. The resulting arm64
+  iOS module passed the same strict import check (117 app callbacks, 21 known
+  runtime names, 9 standard C++ names). Independent IPA readback confirmed
+  matching shell/module identities and unchanged shell files, with only the
+  module added. This was a backend build using development PadMint helpers,
+  not a fresh complete player run on native x64 hardware. Standard C++ names are
+  classified by namespace; their device availability is not verified.
 - Apple `/usr/bin/python3` (3.9) completed the same next-release module recipe
   with the development PadMint code and matching local shell, again with cached
   tools/source. The previous full static Mac route also produced an audited IPA.
-  All 19 repository tests passed after source setup.
+  All 21 repository tests passed after source setup.
 - Synthetic native-Mac loader tests exercise all forwards, rejection of wrong
   table version/size/identity, absent callbacks, missing modules, and retry after
   a rejected module. Run `python3 scripts/check-module-loader.py` after source
   setup. These tests do not establish iOS loader or gameplay compatibility.
 
 This is build evidence only. Install/launch/gameplay of the module-based IPA,
-representative saves, native Windows x64 hardware, and publication are still
-separate gates. The static maintainer build and the development-package tests
-are separate from the required current-main PadMint player checks before and
+representative saves, a full private build on native Windows x64 hardware, and
+publication are still separate gates. The static maintainer build and the
+development-package tests are separate from the required current-main PadMint player checks before and
 after a future game release. Current released catalog flags stay unchanged.

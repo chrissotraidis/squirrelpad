@@ -53,9 +53,10 @@ in the current public release**: the new recipe needs a matching empty iOS shell
 passed locally with PadMint's `--app` option until release validation is complete.
 The existing full Mac build remains available through `scripts/build-personal.py`.
 
-The Windows development build uses Visual Studio Build Tools with Desktop
-development with C++ and a Windows SDK; PadMint supplies its pinned compiler,
-linker and open-source headers for the iOS module. The ROM and translated game
+The experimental Windows ARM64 and x64 development builds use Visual Studio
+Build Tools with Desktop development with C++ and a Windows SDK; PadMint supplies
+its pinned compiler, linker and open-source headers for the iOS module. The ROM
+and translated game
 code remain on the player's computer. See [module build and evidence](docs/WINDOWS_MODULE.md)
 for the exact checks and remaining device/release gates.
 
@@ -94,8 +95,10 @@ python3 scripts/build-personal.py --rom "/path/to/conker-us.z64" \
 
 For Simulator, use `--sdk iphonesimulator` without `--output`. Detailed manual
 steps, installation, and the local Mac comparison app are in
-[Building SquirrelPad](docs/BUILDING.md). The PadMint recipe is
-[padmint.json](padmint.json); Windows, Linux, and Intel Mac builds are not supported.
+[Building SquirrelPad](docs/BUILDING.md). The current public release supports only
+Apple Silicon Macs. The next-release [PadMint recipe](padmint.json) adds the
+experimental Windows module route described above; Linux and Intel Mac builds
+are not supported.
 
 ## Controls
 
