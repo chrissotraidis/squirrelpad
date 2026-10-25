@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build the game-free iOS shell on a Mac, without a ROM or translated sources.
 
-This developer route is separate from the unchanged player-facing Mac recipe.
+This developer route is separate from the existing full Mac build.
 Publishing its result still requires PadMint's release gate and a tested module.
 """
 import argparse
