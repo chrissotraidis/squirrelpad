@@ -43,6 +43,7 @@ struct SquirrelPadLauncher: View {
     let hasROM: Bool
     let paused: Bool
     let message: String
+    let importingROM: Bool
     let play: () -> Void
     let chooseROM: () -> Void
     let settings: () -> Void
@@ -183,8 +184,9 @@ struct SquirrelPadLauncher: View {
             HStack(spacing: compact ? 16 : 22) {
                 Button(action: paused || hasROM ? play : chooseROM) {
                     HStack(spacing: 12) {
-                        Image(systemName: paused || hasROM ? "play.fill" : "folder.fill")
-                        Text(paused ? "Resume Game" : hasROM ? "Play Conker" : "Choose ROM")
+                        if importingROM { ProgressView().tint(SquirrelPadTheme.background) }
+                        else { Image(systemName: paused || hasROM ? "play.fill" : "folder.fill") }
+                        Text(importingROM ? "Importing…" : paused ? "Resume Game" : hasROM ? "Play Conker" : "Choose ROM")
                         Spacer(minLength: 16)
                         Image(systemName: "arrow.right")
                     }
@@ -200,6 +202,7 @@ struct SquirrelPadLauncher: View {
                     .accessibilityLabel("Choose another ROM")
                 }
             }
+            .disabled(importingROM)
             .padding(.top, compact ? 0 : 6)
         }
     }
