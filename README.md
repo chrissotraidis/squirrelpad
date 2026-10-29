@@ -51,8 +51,9 @@ minimum, not a tested-device guarantee. See [release readiness](docs/RELEASE_REA
 This branch prepares an experimental game-module route. It is **not available
 in the current public release**. A player can build the game-free shell in a
 private GitHub repository, then use PadMint 0.5.15 or newer with `--app` to build
-the game module from their ROM locally on Windows. The new shell workflow and
-its device behavior still need validation; no shell or personal IPA is published.
+the game module from their ROM locally on Windows. The hosted shell build and a
+Windows ARM64 handoff passed at `102ec408`. Private workflow downloads and device
+behavior still need validation; no shell or personal IPA is published.
 The existing full Mac build remains available through `scripts/build-personal.py`.
 
 The experimental Windows ARM64 and x64 development builds use Visual Studio
@@ -175,8 +176,9 @@ which contain translated game code. See the [source boundary](docs/SOURCE_BOUNDA
 The current public release requires an Apple Silicon Mac with full Xcode.
 This branch's [experimental Windows route](docs/WINDOWS_MODULE.md#personal-shell-on-github)
 builds only the empty shell on GitHub and keeps the ROM and game-module build on
-your Windows computer. It still needs hosted-build and device acceptance. There
-is no announced App Store or TestFlight release.
+your Windows computer. Hosted shell and generator checks passed at `102ec408`;
+private workflow downloads and device acceptance remain open. There is no
+announced App Store or TestFlight release.
 
 </details>
 

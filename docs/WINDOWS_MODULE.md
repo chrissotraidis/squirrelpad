@@ -28,8 +28,9 @@ module gives an actionable launcher error instead of entering the game.
 
 ## Personal shell on GitHub
 
-**Pending hosted-build and device validation.** This workflow is part of the
-Windows-module draft; it is not a claim that the public release supports Windows.
+**Hosted shell build verified; private manual runs/downloads and device acceptance
+remain untested.** This workflow is part of the Windows-module draft; it is not a
+claim that the public release supports Windows.
 A Windows computer with Visual Studio C++ Build Tools is still required for the
 local module step. A phone alone cannot finish this build.
 
@@ -211,7 +212,21 @@ The draft now includes main's provider-tolerant, asynchronous ROM import (#8).
 Module validation runs after import and before starting the core, preserving the
 loader's rejection messages. The synthetic ROM-import runtime test and Swift syntax
 check pass. Apple Python 3.9 passes all 3 shell-package tests, 17 portable-module
-tests and 6 source-preservation tests; both workflows pass actionlint. The shell-only workflow and local `--app` handoff
-avoid needing a published shell. Hosted execution, a fresh current-main PadMint
-player check, and physical-device launch/audio/save validation remain pending.
-Earlier Windows and shell results above apply to their recorded revisions.
+tests and 6 source-preservation tests; both workflows pass actionlint. The shell-only
+workflow and local `--app` handoff avoid needing a published shell.
+
+At `102ec408`, the [hosted shell build](https://github.com/chrissotraidis/squirrelpad/actions/runs/40833079369)
+and [native Windows x64 generator checks](https://github.com/chrissotraidis/squirrelpad/actions/runs/40833079361)
+passed; both pull-request runs retained zero artifacts. A fresh local shell build
+also passed its audit and PadMint's content gate. The documented Windows handoff
+then completed in 164 seconds with the public PadMint 0.5.24 ZIP, one job, an
+existing managed tool cache, and that fresh shell in the Windows 11 ARM64 VM.
+Independent IPA readback passed ZIP CRC, matching shell/module source identities
+and iOS architecture/minimum-version checks. All 32 shell files were unchanged;
+only the private game module was added. This is not a fresh Windows installation
+or a full private build on native x64 hardware.
+
+Private `workflow_dispatch` runs and artifact downloads have not been exercised.
+A fresh current-main Mac PadMint player check remains pending. Physical-device launch/audio/save validation
+also remains pending. The evidence above is tied to `102ec408`; earlier Windows
+and shell results remain tied to their recorded revisions.
