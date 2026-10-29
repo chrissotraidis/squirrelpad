@@ -54,7 +54,7 @@ cmake -S "$source" -B "$build" -G Ninja \
     -DRT64_EMBEDDED_APPLE=ON \
     -DRT64_PREGENERATED_SHADER_DIR="$generated" \
     -DRT64_EMBEDDED_APPLE_SOURCE_DIR="$project/Support/RT64"
-cmake --build "$build" --target rt64 --parallel 4 > "$build/build.log" 2>&1 || {
+cmake --build "$build" --target rt64 --parallel "${SQUIRRELPAD_JOBS:-4}" > "$build/build.log" 2>&1 || {
     rg -n 'FAILED:|error:' "$build/build.log" | tail -n 40 >&2 || true
     exit 1
 }

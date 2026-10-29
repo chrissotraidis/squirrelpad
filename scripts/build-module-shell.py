@@ -58,7 +58,7 @@ def main():
     run("cmake", "-S", source / "tools/rt64", "-B", shaders, "-G", "Ninja",
         "-DCMAKE_BUILD_TYPE=Release", "-DRT64_STATIC=ON", "-DZSTD_BUILD_PROGRAMS=OFF")
     run("cmake", "--build", shaders, "--target", "rt64", "--parallel", args.jobs)
-    env = dict(os.environ, SQUIRRELPAD_CHECKOUT=str(source), SQUIRRELPAD_SHADER_HOST=str(shaders))
+    env = dict(os.environ, SQUIRRELPAD_JOBS=str(args.jobs), SQUIRRELPAD_CHECKOUT=str(source), SQUIRRELPAD_SHADER_HOST=str(shaders))
     run("/bin/bash", ROOT / "scripts/verify-rt64-ios.sh", args.sdk, env=env)
     build = ROOT / f"work/build-shell-{args.sdk}"
     run("cmake", "-S", ROOT, "-B", build, "-G", "Xcode", "-DCMAKE_SYSTEM_NAME=iOS",
