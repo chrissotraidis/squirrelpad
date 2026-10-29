@@ -226,7 +226,15 @@ and iOS architecture/minimum-version checks. All 32 shell files were unchanged;
 only the private game module was added. This is not a fresh Windows installation
 or a full private build on native x64 hardware.
 
+The required `scripts/player-check.sh` subsequently passed from clean SquirrelPad
+`388900cf0e6dd470cccdffaea6b2efa9db693e24` with current PadMint main
+`d6f0f59e7f9376b0c7c85607301b8ac808485cd0` and Apple's `/usr/bin/python3` 3.9.6.
+It used a fresh source clone, an empty PadMint folder, and the matching shell from
+`102ec408`; the build and packaging stage took 65 seconds after tool setup.
+Independent IPA readback confirmed all 32 shell files unchanged, only the module
+added, matching source identities, valid ZIP CRC, and compatible iOS versions.
+
 Private `workflow_dispatch` runs and artifact downloads have not been exercised.
-A fresh current-main Mac PadMint player check remains pending. Physical-device launch/audio/save validation
-also remains pending. The evidence above is tied to `102ec408`; earlier Windows
-and shell results remain tied to their recorded revisions.
+Physical-device launch/audio/save validation remains pending. Hosted and Windows
+evidence above is tied to `102ec408`, and the fresh Mac player check to `388900c`;
+earlier Windows and shell results remain tied to their recorded revisions.
