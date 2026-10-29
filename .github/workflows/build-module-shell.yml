@@ -9,6 +9,7 @@ on:
     paths:
       - .github/workflows/build-module-shell.yml
       - CMakeLists.txt
+      - 'Config/**'
       - 'Sources/**'
       - 'Support/**'
       - 'Resources/**'
