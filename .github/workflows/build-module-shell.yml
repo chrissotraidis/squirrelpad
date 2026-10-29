@@ -1,0 +1,80 @@
+name: Build SquirrelPad shell for Windows
+
+# Build only the app/runtime. The player's ROM and generated game module stay
+# on their Windows computer. PR checks never retain binaries; manual downloads
+# are available only in the player's private repository, never this public repo.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/build-module-shell.yml
+      - CMakeLists.txt
+      - 'Sources/**'
+      - 'Support/**'
+      - 'Resources/**'
+      - 'cmake/**'
+      - 'patches/**'
+      - 'scripts/**'
+      - 'tests/test_shell_package.py'
+      - sources.lock.json
+
+permissions:
+  contents: read
+
+jobs:
+  shell:
+    runs-on: macos-15
+    timeout-minutes: 180
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+      HOMEBREW_NO_INSTALL_CLEANUP: '1'
+    steps:
+      - name: Keep manual output in the player's private repository
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          REPOSITORY: ${{ github.repository }}
+          REPOSITORY_PRIVATE: ${{ github.event.repository.private }}
+        run: |
+          if [ "$REPOSITORY_PRIVATE" != true ] || [ "$REPOSITORY" = chrissotraidis/squirrelpad ]; then
+            echo "::error::Run this workflow in your own private repository. See docs/WINDOWS_MODULE.md."
+            exit 1
+          fi
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: chrissotraidis/padmint
+          ref: d6f0f59e7f9376b0c7c85607301b8ac808485cd0 # PadMint 0.5.24
+          path: work/padmint
+          persist-credentials: false
+      - name: Install build tools
+        run: |
+          brew install cmake ninja pkgconf sdl2 freetype ripgrep
+          xcrun --sdk macosx metal --version || xcodebuild -downloadComponent MetalToolchain
+      - name: Check packaging and ROM import
+        run: |
+          /usr/bin/python3 -m unittest discover -s tests -p test_shell_package.py
+          /usr/bin/python3 -m unittest discover -s tests -p test_rom_import.py
+      - name: Build and audit the game-free shell
+        run: |
+          /usr/bin/python3 scripts/build-module-shell.py --jobs 4 --output "$RUNNER_TEMP/out/SquirrelPad-shell.ipa"
+          PYTHONPATH="$GITHUB_WORKSPACE/work/padmint" /usr/bin/python3 -m padmint audit "$RUNNER_TEMP/out/SquirrelPad-shell.ipa"
+          git rev-parse HEAD > "$RUNNER_TEMP/out/SOURCE_COMMIT.txt"
+          /usr/bin/python3 scripts/module-identity.py > "$RUNNER_TEMP/out/MODULE_IDENTITY.txt"
+      - name: Checksums
+        working-directory: ${{ runner.temp }}/out
+        run: shasum -a 256 SquirrelPad-shell.ipa SOURCE_COMMIT.txt MODULE_IDENTITY.txt > SHA256SUMS
+      - name: Download your shell for the local Windows build
+        if: github.event_name == 'workflow_dispatch' && github.event.repository.private && github.repository != 'chrissotraidis/squirrelpad'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: SquirrelPad-shell-${{ github.run_number }}
+          path: |
+            ${{ runner.temp }}/out/SquirrelPad-shell.ipa
+            ${{ runner.temp }}/out/SOURCE_COMMIT.txt
+            ${{ runner.temp }}/out/MODULE_IDENTITY.txt
+            ${{ runner.temp }}/out/SHA256SUMS
+          retention-days: 1
+          if-no-files-found: error

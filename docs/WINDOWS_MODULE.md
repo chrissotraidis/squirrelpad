@@ -1,14 +1,16 @@
 # Windows-host iOS module development
 
-This is a draft next-release route. Current SquirrelPad v0.1.2 remains a Mac-only
-source-and-recipe release. The changed recipe requires a matching game-free shell
-that has not been published. Do not use an older IPA as its base.
-It also requires the shared SDK and import checks in
-[PadMint PR #177](https://github.com/chrissotraidis/padmint/pull/177), which are not
-in public PadMint 0.5.14. Release the PadMint prerequisite first, then the matching
-SquirrelPad shell and recipe; no new public version number is claimed here.
-The draft recipe marks Windows ARM64 and x64 as experimental. Their build
-evidence has different limits, recorded below.
+This is an experimental development route. Current SquirrelPad v0.1.2 remains a
+Mac-only source-and-recipe release; the public PadMint catalog does not enable
+Windows builds. PadMint **0.5.15 or newer** includes the shared SDK and import
+checks from [PadMint #177](https://github.com/chrissotraidis/padmint/pull/177).
+Use the latest PadMint, this reviewed source branch, and a matching game-free
+shell through `--app`. Do not use an older personal IPA as its base.
+
+The shell can be built on GitHub without a ROM, then combined with a game module
+built on the player's Windows computer. Releases remain source and recipe only:
+this route does not require publishing a shell or a personal IPA. Windows ARM64
+and x64 remain experimental; their recorded evidence has different limits below.
 
 The Swift/Metal app, N64ModernRuntime, mobile integration and enhancements stay
 in the shell. Only generated game functions, TLB code/data, the generated RSP
@@ -24,6 +26,63 @@ line endings normalize to LF so Windows and Mac compute the same digest. New
 releases must produce the shell and recipe from the same revision. A mismatched
 module gives an actionable launcher error instead of entering the game.
 
+## Personal shell on GitHub
+
+**Pending hosted-build and device validation.** This workflow is part of the
+Windows-module draft; it is not a claim that the public release supports Windows.
+A Windows computer with Visual Studio C++ Build Tools is still required for the
+local module step. A phone alone cannot finish this build.
+
+1. Create an empty **private** repository in your GitHub account. Copy the reviewed
+   Windows-module branch into it. Replace the account and repository placeholders:
+
+   ```powershell
+   git clone --branch codex/windows-module --single-branch https://github.com/chrissotraidis/squirrelpad.git SquirrelPad-source
+   git -C SquirrelPad-source remote add personal https://github.com/YOUR_ACCOUNT/YOUR_PRIVATE_REPOSITORY.git
+   git -C SquirrelPad-source push personal HEAD:main
+   ```
+
+2. In that private repository, open **Actions → Build SquirrelPad shell for Windows
+   → Run workflow**. The Mac runner builds only the app and runtime from public
+   source. There is no ROM input, game-module upload or cache. This uses your
+   private-repository Actions allowance.
+3. Open the completed run. Under **Artifacts** at the bottom, download
+   **SquirrelPad-shell-…** and extract it into a `SquirrelPad-shell` folder beside
+   your source folder. Sign into GitHub to see the download. On a phone, GitHub's
+   desktop website view can make Actions and Artifacts easier to find. Downloads
+   are retained for one day.
+4. Keep `SOURCE_COMMIT.txt`, `MODULE_IDENTITY.txt` and `SHA256SUMS` with the shell.
+   They identify the source and module contract the shell was built against.
+   The unsigned shell alone cannot play the game.
+
+Manual runs refuse public repositories and the official SquirrelPad repository.
+Pull-request checks build and audit the shell but upload no artifact. No release
+is created by the workflow.
+
+### Finish locally on Windows
+
+Install Visual Studio Build Tools with **Desktop development with C++** and a
+Windows SDK, as described below. Extract the latest Windows PadMint ZIP. From
+PowerShell in the folder containing `SquirrelPad-source` and `SquirrelPad-shell`,
+run the following, replacing the PadMint and ROM paths with your own:
+
+```powershell
+$source = (Resolve-Path ".\SquirrelPad-source").Path
+$shell = (Resolve-Path ".\SquirrelPad-shell\SquirrelPad-shell.ipa").Path
+$revision = (Get-Content ".\SquirrelPad-shell\SOURCE_COMMIT.txt" -Raw).Trim()
+git -C "$source" checkout --detach "$revision"
+& "C:\Tools\PadMint\PadMint.cmd" tools squirrelpad --repo "$source" --target ios
+& "C:\Tools\PadMint\PadMint.cmd" build squirrelpad --repo "$source" --revision "$revision" --disc "C:\Games\conker-us.z64" --app "$shell" --target ios --jobs 4
+```
+
+PadMint downloads its managed tools, builds the private module from your ROM,
+checks its imports against the supplied shell, and prints the personal IPA's
+location. `--app` uses your downloaded shell; it does not fetch a shell from a
+public release. Keep that IPA on your own computer, sign and install it using
+your usual sideloading tool, then import the same supported ROM in the app.
+Use the existing bundle ID and signing account when installing over an earlier
+copy to keep saves. This route's launch, audio and save acceptance is still open.
+
 ## Build
 
 On an Apple Silicon Mac with the existing documented Xcode/tools:
@@ -34,8 +93,10 @@ python3 scripts/build-module-shell.py --sdk iphoneos --jobs 4
 
 This builds RT64 shaders directly from the renderer and needs no ROM or generated
 game source. Its result is `work/build-shell-iphoneos/Release-iphoneos/SquirrelPad.app`.
-It still needs the normal source/binary release gates and packaging before any
-publication. The old full app comparison route is unchanged:
+To create a local unsigned shell IPA after the app audit, add
+`--output /path/to/new/SquirrelPad-shell.ipa`. The GitHub workflow also runs
+PadMint's content gate before allowing a private artifact download. The old full
+app comparison route is unchanged:
 
 ```sh
 python3 scripts/build-personal.py --rom "/path/to/your supported US ROM" --sdk iphoneos --jobs 4
@@ -140,6 +201,17 @@ Recorded during development on 26 October 2026 (Japan time):
 
 This is build evidence only. Install/launch/gameplay of the module-based IPA,
 representative saves, a full private build on native Windows x64 hardware, and
-publication are still separate gates. The static maintainer build and the
+release availability are still separate gates. The static maintainer build and the
 development-package tests are separate from the required current-main PadMint player checks before and
 after a future game release. Current released catalog flags stay unchanged.
+
+## October 29 integration
+
+The draft now includes main's provider-tolerant, asynchronous ROM import (#8).
+Module validation runs after import and before starting the core, preserving the
+loader's rejection messages. The synthetic ROM-import runtime test and Swift syntax
+check pass. Apple Python 3.9 passes all 3 shell-package tests, 17 portable-module
+tests and 6 source-preservation tests; both workflows pass actionlint. The shell-only workflow and local `--app` handoff
+avoid needing a published shell. Hosted execution, a fresh current-main PadMint
+player check, and physical-device launch/audio/save validation remain pending.
+Earlier Windows and shell results above apply to their recorded revisions.

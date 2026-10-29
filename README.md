@@ -48,9 +48,11 @@ minimum, not a tested-device guarantee. See [release readiness](docs/RELEASE_REA
 
 ## Windows module development
 
-This branch prepares the next release's game-module route. It is **not available
-in the current public release**: the new recipe needs a matching empty iOS shell,
-passed locally with PadMint's `--app` option until release validation is complete.
+This branch prepares an experimental game-module route. It is **not available
+in the current public release**. A player can build the game-free shell in a
+private GitHub repository, then use PadMint 0.5.15 or newer with `--app` to build
+the game module from their ROM locally on Windows. The new shell workflow and
+its device behavior still need validation; no shell or personal IPA is published.
 The existing full Mac build remains available through `scripts/build-personal.py`.
 
 The experimental Windows ARM64 and x64 development builds use Visual Studio
@@ -96,7 +98,7 @@ python3 scripts/build-personal.py --rom "/path/to/conker-us.z64" \
 For Simulator, use `--sdk iphonesimulator` without `--output`. Detailed manual
 steps, installation, and the local Mac comparison app are in
 [Building SquirrelPad](docs/BUILDING.md). The current public release supports only
-Apple Silicon Macs. The next-release [PadMint recipe](padmint.json) adds the
+Apple Silicon Macs. This branch's [PadMint recipe](padmint.json) prepares the
 experimental Windows module route described above; Linux and Intel Mac builds
 are not supported.
 
@@ -170,9 +172,11 @@ which contain translated game code. See the [source boundary](docs/SOURCE_BOUNDA
 <details>
 <summary><strong>Can I build without a Mac?</strong></summary>
 
-This recipe requires an Apple Silicon Mac with full Xcode. PadMint running on
-another operating system does not make this game's build route available there.
-There is no announced App Store or TestFlight release.
+The current public release requires an Apple Silicon Mac with full Xcode.
+This branch's [experimental Windows route](docs/WINDOWS_MODULE.md#personal-shell-on-github)
+builds only the empty shell on GitHub and keeps the ROM and game-module build on
+your Windows computer. It still needs hosted-build and device acceptance. There
+is no announced App Store or TestFlight release.
 
 </details>
 
