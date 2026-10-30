@@ -1,9 +1,32 @@
 # Release readiness
 
-Updated 2026-10-25. **v0.1.2 is an experimental source-and-recipe alpha.**
-Public assets are `SquirrelPad-v0.1.2-padmint.json` and `SHA256SUMS`.
+Updated 2026-10-30. **v0.1.3 is an experimental source-and-recipe alpha.**
+Public assets are `SquirrelPad-v0.1.3-padmint.json` and `SHA256SUMS`.
 Players supply their own supported US ROM and build a personal IPA on an
 Apple Silicon Mac. Personal IPAs and generated game code are never release assets.
+
+## v0.1.3
+
+The ROM picker accepts filesystem items and checks their contents instead of
+depending on a file provider's type label. Coordinated reading, hashing and
+copying run off the UI thread, with an **Importing** message and duplicate
+import/play actions disabled. A rejected replacement preserves the existing
+ROM and saves. The supported ROM and game code are unchanged.
+
+App metadata now takes its version/build from `version.json`, and the package
+audit rejects mismatches. This prevents a newly built update from reporting an
+older version in Settings or to PadMint.
+
+This releases the import changes from
+[#8](https://github.com/chrissotraidis/squirrelpad/pull/8). The 0.1.2 report in
+[#3](https://github.com/chrissotraidis/squirrelpad/issues/3) remains open:
+the exact iOS 27.2 RC failure was not reproduced, and physical-device and
+cloud-provider confirmation is still needed. The existing native import tests,
+iPhone/iPad Simulator UI checks and clean player build are recorded in
+[ROM import](ROM_IMPORT.md). Simulator import is not gameplay acceptance.
+
+Rebuild SquirrelPad with PadMint to receive this version, then install over the
+existing app with the same signing setup. Do not delete the app to update it.
 
 ## v0.1.2
 
@@ -85,8 +108,10 @@ not a claim of full-game or all-device certification. See
 ## Publication checks
 
 Audit the source archive, reachable Git-history file contents, recipe and
-checksums before publication. Publish no personal builds. PadMint's catalog must
-pin the reviewed SquirrelPad revision, and its released packages must contain
-that entry. Verify anonymous recipe/checksum/source downloads and a personal
-build through the released PadMint package. Private verification output stays
+checksums before publication. Publish no personal builds. Verify that PadMint
+selects the intended SquirrelPad release and its matching recipe/source; the
+catalog follows the latest release. Run current PadMint main's player check
+with the clean checkout before tagging and without it after publishing, using
+Apple's Python and an empty PadMint folder. Verify anonymous recipe/checksum
+downloads. Private verification output stays
 under `work/public-readiness/` and `work/controller-handoff/`.

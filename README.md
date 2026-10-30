@@ -68,6 +68,13 @@ Use **PadMint 0.4.11 or newer** for the SquirrelPad catalog entry, or
 4. Copy the same ROM to Files on your device. Open SquirrelPad, tap
    **Choose ROM**, and select it. Later launches offer **Play Conker**.
 
+SquirrelPad 0.1.3 improves file-provider compatibility and shows **Importing**
+while it reads and checks your ROM without blocking the screen. If an older
+copy cannot select the ROM, rebuild with PadMint and install over it with the
+same signing setup. The [import investigation](docs/ROM_IMPORT.md) records the
+remaining device/provider checks; a rejected file preserves your current ROM
+and saves.
+
 The supported ROM has SHA-1 `4cbadd3c4e0729dec46af64ad018050eada4f47a`
 and starts with `80371240`. Its bytes must be big-endian even if its filename
 ends in `.v64` or `.n64`.
