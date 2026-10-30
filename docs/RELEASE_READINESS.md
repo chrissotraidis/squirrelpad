@@ -13,6 +13,10 @@ copying run off the UI thread, with an **Importing** message and duplicate
 import/play actions disabled. A rejected replacement preserves the existing
 ROM and saves. The supported ROM and game code are unchanged.
 
+App metadata now takes its version/build from `version.json`, and the package
+audit rejects mismatches. This prevents a newly built update from reporting an
+older version in Settings or to PadMint.
+
 This releases the import changes from
 [#8](https://github.com/chrissotraidis/squirrelpad/pull/8). The 0.1.2 report in
 [#3](https://github.com/chrissotraidis/squirrelpad/issues/3) remains open:

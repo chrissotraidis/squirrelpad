@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.28)
 project(SquirrelPad LANGUAGES Swift C CXX OBJC OBJCXX)
 
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version.json" squirrelpad_version_json)
+string(JSON squirrelpad_version GET "${squirrelpad_version_json}" version)
+string(JSON squirrelpad_build GET "${squirrelpad_version_json}" build)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/version.json")
+
 if (NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
     message(FATAL_ERROR "SquirrelPad is an iOS/iPadOS app")
 endif()
@@ -155,8 +160,8 @@ set_target_properties(SquirrelPad PROPERTIES
     MACOSX_BUNDLE TRUE
     MACOSX_BUNDLE_BUNDLE_NAME "SquirrelPad"
     MACOSX_BUNDLE_GUI_IDENTIFIER "com.chrissotraidis.squirrelpad"
-    MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.3"
-    MACOSX_BUNDLE_BUNDLE_VERSION "4"
+    MACOSX_BUNDLE_SHORT_VERSION_STRING "${squirrelpad_version}"
+    MACOSX_BUNDLE_BUNDLE_VERSION "${squirrelpad_build}"
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Config/Info.plist.in"
     XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
     XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO"

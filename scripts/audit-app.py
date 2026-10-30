@@ -52,6 +52,10 @@ def main():
             failures.append(f"Notice missing or bytes differ: {name}")
 
     info = plistlib.loads((args.app / "Info.plist").read_bytes())
+    version = json.loads((root / "version.json").read_text())
+    if (info.get("CFBundleShortVersionString") != version["version"]
+            or str(info.get("CFBundleVersion")) != str(version["build"])):
+        failures.append("Bundle version/build does not match version.json")
     if info.get("CFBundleIdentifier") != "com.chrissotraidis.squirrelpad":
         failures.append("Unexpected bundle identifier")
     executable = args.app / info["CFBundleExecutable"]
@@ -90,7 +94,9 @@ def main():
         failures.append("Private filename/content or symlink requires review")
     report = {
         "sdk": args.sdk, "architecture": architecture, "platform": platform,
-        "bundleID": info.get("CFBundleIdentifier"), "executableSHA256": digest(executable.read_bytes()),
+        "bundleID": info.get("CFBundleIdentifier"),
+        "version": info.get("CFBundleShortVersionString"), "build": info.get("CFBundleVersion"),
+        "executableSHA256": digest(executable.read_bytes()),
         "sourceRevisions": revisions, "noticeCount": len(bundled_notices),
         "excludedSymbolMatches": forbidden_symbols, "privateFilenameMatches": private_names,
         "privateContentMatches": private_content, "symlinks": symlinks,
