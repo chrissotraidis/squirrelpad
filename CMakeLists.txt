@@ -23,13 +23,16 @@ set(CONKER_RT64 OFF CACHE BOOL "Build the current core without the desktop front
 set(SQUIRRELPAD_CONKER_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/work/CBFD-Recompiled"
     CACHE PATH "Pinned patched Conker checkout")
 set(conker_source "${SQUIRRELPAD_CONKER_SOURCE}")
-if (NOT EXISTS "${conker_source}/RecompiledFuncs/inputs.sha256")
+option(SQUIRRELPAD_MODULE_SHELL "Build the empty app for a PadMint game module" OFF)
+if (NOT SQUIRRELPAD_MODULE_SHELL AND NOT EXISTS "${conker_source}/RecompiledFuncs/inputs.sha256")
     message(FATAL_ERROR "Run scripts/setup-source.sh and generate RecompiledFuncs first")
 endif()
 add_subdirectory("${conker_source}/host" "${CMAKE_CURRENT_BINARY_DIR}/conker-host")
 
 target_compile_definitions(librecomp PRIVATE SQUIRRELPAD_SAVE_FEEDBACK)
-target_compile_definitions(RecompiledFuncs PRIVATE SQUIRRELPAD_STATIC_MODS SQUIRRELPAD_MOBILE_FIXES)
+if(NOT SQUIRRELPAD_MODULE_SHELL)
+    target_compile_definitions(RecompiledFuncs PRIVATE SQUIRRELPAD_STATIC_MODS SQUIRRELPAD_MOBILE_FIXES)
+endif()
 
 set(SQUIRRELPAD_RT64_ARCHIVE_DIR "" CACHE PATH "Verified RT64 iOS archive directory")
 set(rt64_bridge Support/RT64/rt64_bridge_stub.cpp)
@@ -174,3 +177,22 @@ set_target_properties(SquirrelPad PROPERTIES
     XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
     XCODE_ATTRIBUTE_SWIFT_VERSION "5.0"
 )
+
+if(SQUIRRELPAD_MODULE_SHELL)
+    include(cmake/ModuleIdentity.cmake)
+    squirrelpad_module_identity(module_identity "${CMAKE_CURRENT_SOURCE_DIR}")
+    target_sources(SquirrelPad PRIVATE Support/Conker/game_module_loader.cpp)
+    target_include_directories(SquirrelPad PRIVATE "${conker_source}/host/src"
+        "${conker_source}/tools/N64ModernRuntime/librecomp/include"
+        "${conker_source}/tools/N64ModernRuntime/ultramodern/include"
+        "${conker_source}/tools/N64ModernRuntime/thirdparty"
+        "${conker_source}/tools/N64ModernRuntime/thirdparty/sse2neon")
+    target_compile_definitions(SquirrelPad PRIVATE SQUIRRELPAD_MODULE_SHELL
+        "SQUIRRELPAD_MODULE_ID=\"${module_identity}\"")
+    # Keep runtime APIs used only by the separately compiled game. Runtime state
+    # and thread-local variables have one owner: this executable.
+    target_link_options(SquirrelPad PRIVATE "LINKER:-export_dynamic"
+        "LINKER:-force_load,$<TARGET_FILE:ConkerRecomp>"
+        "LINKER:-force_load,$<TARGET_FILE:librecomp>"
+        "LINKER:-force_load,$<TARGET_FILE:ultramodern>")
+endif()

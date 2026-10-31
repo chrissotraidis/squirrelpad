@@ -1,0 +1,37 @@
+--- a/RSPRecomp/src/rsp_recomp.cpp
++++ b/RSPRecomp/src/rsp_recomp.cpp
+@@ -3,6 +3,7 @@
+ #include <array>
+ #include <vector>
+ #include <unordered_set>
++#include <set>
+ #include <unordered_map>
+ #include <cassert>
+ #include <iostream>
+@@ -577,7 +578,7 @@
+     fmt::print(output_file,
+         "do_indirect_jump:\n"
+         "    switch ((jump_target | 0x1000) & {:#X}) {{ \n", rsp_mem_mask);
+-    for (uint32_t branch_target: branch_targets.indirect_targets) {
++    for (uint32_t branch_target: std::set<uint32_t>(branch_targets.indirect_targets.begin(), branch_targets.indirect_targets.end())) {
+         fmt::print(output_file, "        case 0x{0:04X}: goto L_{0:04X};\n", branch_target);
+     }
+     fmt::print(output_file,
+@@ -1028,7 +1029,7 @@
+                 "    if (ctx->resume_delay) {{\n"
+                 "        switch (ctx->resume_address) {{\n");
+             
+-            for (uint32_t address : resume_targets.delay_targets) {
++            for (uint32_t address : std::set<uint32_t>(resume_targets.delay_targets.begin(), resume_targets.delay_targets.end())) {
+                 fmt::print(output_file, "            case 0x{0:04X}: goto R_{0:04X}_delay;\n", 
+                     address);
+             }
+@@ -1038,7 +1039,7 @@
+                 "    }} else {{\n"
+                 "        switch (ctx->resume_address) {{\n");
+             
+-            for (uint32_t address : resume_targets.non_delay_targets) {
++            for (uint32_t address : std::set<uint32_t>(resume_targets.non_delay_targets.begin(), resume_targets.non_delay_targets.end())) {
+                 fmt::print(output_file, "            case 0x{0:04X}: goto R_{0:04X};\n", 
+                     address);
+             }

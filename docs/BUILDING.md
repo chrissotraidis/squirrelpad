@@ -6,12 +6,16 @@ below remain useful for development and diagnostics.
 
 ## Local PadMint recipe
 
-From this repository, with a local PadMint source checkout:
+For this branch's module recipe, first obtain a matching game-free shell using
+[the shell builder or private GitHub workflow](WINDOWS_MODULE.md). With PadMint
+0.5.15 or newer and a clean committed SquirrelPad checkout:
 
 ```sh
+PYTHONPATH=/path/to/padmint python3 -m padmint tools squirrelpad --repo "$PWD" --target ios
 PYTHONPATH=/path/to/padmint python3 -m padmint build squirrelpad \
   --repo "$PWD" --revision "$(git rev-parse HEAD)" \
-  --disc "/path/to/conker-us.z64" --target ios --jobs 4
+  --disc "/path/to/conker-us.z64" --app "/path/to/matching/SquirrelPad-shell.ipa" \
+  --target ios --jobs 4
 ```
 
 PadMint requires a clean committed source checkout, records each attempt under

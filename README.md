@@ -46,6 +46,23 @@ an M2 iPad Pro. Sustained hardware play, full-story compatibility, audio
 quality, and progressed-save reloads still need verification. iOS 17 is the build
 minimum, not a tested-device guarantee. See [release readiness](docs/RELEASE_READINESS.md).
 
+## Windows module development
+
+This branch prepares an experimental game-module route. It is **not available
+in the current public release**. A player can build the game-free shell in a
+private GitHub repository, then use PadMint 0.5.15 or newer with `--app` to build
+the game module from their ROM locally on Windows. The hosted shell build and a
+Windows ARM64 handoff passed at `102ec408`. Private workflow downloads and device
+behavior still need validation; no shell or personal IPA is published.
+The existing full Mac build remains available through `scripts/build-personal.py`.
+
+The experimental Windows ARM64 and x64 development builds use Visual Studio
+Build Tools with Desktop development with C++ and a Windows SDK; PadMint supplies
+its pinned compiler, linker and open-source headers for the iOS module. The ROM
+and translated game
+code remain on the player's computer. See [module build and evidence](docs/WINDOWS_MODULE.md)
+for the exact checks and remaining device/release gates.
+
 ## Get started
 
 You need an **Apple Silicon Mac, full Xcode with the iOS platform and Metal
@@ -88,8 +105,10 @@ python3 scripts/build-personal.py --rom "/path/to/conker-us.z64" \
 
 For Simulator, use `--sdk iphonesimulator` without `--output`. Detailed manual
 steps, installation, and the local Mac comparison app are in
-[Building SquirrelPad](docs/BUILDING.md). The PadMint recipe is
-[padmint.json](padmint.json); Windows, Linux, and Intel Mac builds are not supported.
+[Building SquirrelPad](docs/BUILDING.md). The current public release supports only
+Apple Silicon Macs. This branch's [PadMint recipe](padmint.json) prepares the
+experimental Windows module route described above; Linux and Intel Mac builds
+are not supported.
 
 ## Controls
 
@@ -161,9 +180,12 @@ which contain translated game code. See the [source boundary](docs/SOURCE_BOUNDA
 <details>
 <summary><strong>Can I build without a Mac?</strong></summary>
 
-This recipe requires an Apple Silicon Mac with full Xcode. PadMint running on
-another operating system does not make this game's build route available there.
-There is no announced App Store or TestFlight release.
+The current public release requires an Apple Silicon Mac with full Xcode.
+This branch's [experimental Windows route](docs/WINDOWS_MODULE.md#personal-shell-on-github)
+builds only the empty shell on GitHub and keeps the ROM and game-module build on
+your Windows computer. Hosted shell and generator checks passed at `102ec408`;
+private workflow downloads and device acceptance remain open. There is no
+announced App Store or TestFlight release.
 
 </details>
 
