@@ -48,6 +48,14 @@ minimum, not a tested-device guarantee. See [release readiness](docs/RELEASE_REA
 
 ## Get started
 
+**No Mac?** Building SquirrelPad for iPhone or iPad needs an Apple Silicon Mac
+today. SquirrelPad reads your own ROM while it builds, so it can't use [GitHub's
+Mac](https://github.com/chrissotraidis/padmint#no-mac-build-on-githubs-mac) the
+way some other ports do: that would mean uploading your game file. A Windows
+build is in progress; [PadMint's Windows
+list](https://github.com/chrissotraidis/padmint/blob/main/docs/WINDOWS.md) shows
+where it stands.
+
 You need an **Apple Silicon Mac, full Xcode with the iOS platform and Metal
 Toolchain**, about **6 GB free for the build**, and your own supported US ROM.
 Install the build tools once:
