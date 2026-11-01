@@ -1,0 +1,12 @@
+#pragma once
+// Only the empty shell forwards these enhancement calls to the loaded module.
+#define func_1501C730 squirrelpad_bridge_1501C730
+#define func_151ED90C squirrelpad_bridge_151ED90C
+#define func_151EDB58 squirrelpad_bridge_151EDB58
+#define func_151EDBDC squirrelpad_bridge_151EDBDC
+#define func_151ED430 squirrelpad_bridge_151ED430
+#define func_151EADFC squirrelpad_bridge_151EADFC
+#define func_151EF954 squirrelpad_bridge_151EF954
+#define func_1509BE40 squirrelpad_bridge_1509BE40
+#define func_1509B570 squirrelpad_bridge_1509B570
+#define func_15044380 squirrelpad_bridge_15044380

@@ -1,0 +1,41 @@
+--- a/host/CMakeLists.txt
++++ b/host/CMakeLists.txt
+@@ -35,6 +35,7 @@
+         PROPERTIES COMPILE_OPTIONS "/Od")
+ endif()
+ 
++if(NOT SQUIRRELPAD_MODULE_SHELL)
+ # The recompiled game code. recomp/recompile.py records hashes of the files that shape it; stop if
+ # any has changed since, as the build would otherwise quietly use stale code.
+ set(RECOMP_INPUTS conker.toml recomp/conker.us.syms.toml recomp/code_rewrites.txt recomp/n64recomp.patch recomp/unpack_rom.py recomp/emit_tlb_pages.py recomp/audio_ucode.toml)
+@@ -77,6 +78,8 @@
+     )
+ endif()
+ 
++endif() # SQUIRRELPAD_MODULE_SHELL
++
+ set(CONKER_SOURCES
+     src/main.cpp
+     src/null_renderer.cpp
+@@ -87,6 +90,9 @@
+     # The audio microcode, recompiled by RSPRecomp (recomp/audio_ucode.toml, run by recomp/recompile.py).
+     "${REPO_ROOT}/RecompiledFuncs/rsp/audio_ucode.cpp"
+ )
++if(SQUIRRELPAD_MODULE_SHELL)
++    list(REMOVE_ITEM CONKER_SOURCES src/overlays.cpp "${REPO_ROOT}/RecompiledFuncs/rsp/audio_ucode.cpp")
++endif()
+ if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
+     # The UIKit app owns process main and calls the game's entrypoint after ROM import.
+     add_library(ConkerRecomp STATIC ${CONKER_SOURCES})
+@@ -101,7 +107,10 @@
+     "${REPO_ROOT}/tools/N64ModernRuntime/N64Recomp/include"
+     "${REPO_ROOT}/RecompiledFuncs"
+ )
+-target_link_libraries(ConkerRecomp PRIVATE RecompiledFuncs librecomp ultramodern)
++target_link_libraries(ConkerRecomp PRIVATE librecomp ultramodern)
++if(NOT SQUIRRELPAD_MODULE_SHELL)
++    target_link_libraries(ConkerRecomp PRIVATE RecompiledFuncs)
++endif()
+ 
+ if (CONKER_RT64)
+     set(RT64_STATIC ON CACHE BOOL "" FORCE)

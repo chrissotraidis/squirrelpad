@@ -5,6 +5,18 @@
 #include <string>
 #include "mobile_graphics.h"
 
+#if defined(SQUIRRELPAD_MODULE_SHELL)
+extern "C" const char* squirrelpad_load_game_module(const char* path);
+#endif
+extern "C" const char* squirrelpad_prepare_game_module(const char* path) {
+#if defined(SQUIRRELPAD_MODULE_SHELL)
+    return squirrelpad_load_game_module(path);
+#else
+    (void)path;
+    return nullptr;
+#endif
+}
+
 int conker_native_main(int argc, char **argv);
 extern "C" void squirrelpad_rt64_release_probe();
 extern "C" void squirrelpad_audio_stop();

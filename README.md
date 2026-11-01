@@ -48,13 +48,15 @@ minimum, not a tested-device guarantee. See [release readiness](docs/RELEASE_REA
 
 ## Get started
 
-**No Mac?** Building SquirrelPad for iPhone or iPad needs an Apple Silicon Mac
-today. SquirrelPad reads your own ROM while it builds, so it can't use [GitHub's
-Mac](https://github.com/chrissotraidis/padmint#no-mac-build-on-githubs-mac) the
-way some other ports do: that would mean uploading your game file. A Windows
-build is in progress; [PadMint's Windows
-list](https://github.com/chrissotraidis/padmint/blob/main/docs/WINDOWS.md) shows
-where it stands.
+**No Mac? Build it on a Windows PC (experimental).** PadMint 0.5.27 or newer
+builds SquirrelPad for iPhone or iPad on Windows 11 (x64 or ARM64) from your own
+Conker's Bad Fur Day (US) ROM. Install Visual Studio 2022 Build Tools with **Desktop development with
+C++**, then choose SquirrelPad in PadMint. PadMint downloads the game-free SquirrelPad app
+from this release and adds the game code it builds from your file on your PC;
+nothing of yours is uploaded. The Mac build is unchanged. This Windows route is
+new: builds pass on Windows 11 ARM64, but a Windows-built copy has not yet been
+played on a device. GitHub's Mac can't build SquirrelPad, because that would mean
+uploading your game file. Details: [Windows module](docs/WINDOWS_MODULE.md).
 
 You need an **Apple Silicon Mac, full Xcode with the iOS platform and Metal
 Toolchain**, about **6 GB free for the build**, and your own supported US ROM.
@@ -96,8 +98,10 @@ python3 scripts/build-personal.py --rom "/path/to/conker-us.z64" \
 
 For Simulator, use `--sdk iphonesimulator` without `--output`. Detailed manual
 steps, installation, and the local Mac comparison app are in
-[Building SquirrelPad](docs/BUILDING.md). The PadMint recipe is
-[padmint.json](padmint.json); Windows, Linux, and Intel Mac builds are not supported.
+[Building SquirrelPad](docs/BUILDING.md). The current public release supports only
+Apple Silicon Macs. This branch's [PadMint recipe](padmint.json) prepares the
+experimental Windows module route described above; Linux and Intel Mac builds
+are not supported.
 
 ## Controls
 
@@ -169,9 +173,12 @@ which contain translated game code. See the [source boundary](docs/SOURCE_BOUNDA
 <details>
 <summary><strong>Can I build without a Mac?</strong></summary>
 
-This recipe requires an Apple Silicon Mac with full Xcode. PadMint running on
-another operating system does not make this game's build route available there.
-There is no announced App Store or TestFlight release.
+The current public release requires an Apple Silicon Mac with full Xcode.
+This branch's [experimental Windows route](docs/WINDOWS_MODULE.md#personal-shell-on-github)
+builds only the empty shell on GitHub and keeps the ROM and game-module build on
+your Windows computer. Hosted shell and generator checks passed at `102ec408`;
+private workflow downloads and device acceptance remain open. There is no
+announced App Store or TestFlight release.
 
 </details>
 

@@ -2,6 +2,9 @@ import AVFAudio
 import SwiftUI
 import UniformTypeIdentifiers
 
+@_silgen_name("squirrelpad_prepare_game_module")
+private func prepareGameModule(_ path: UnsafePointer<CChar>) -> UnsafePointer<CChar>?
+
 @_silgen_name("squirrelpad_run_core")
 private func runConkerCore(_ rom: UnsafePointer<CChar>, _ dataDirectory: UnsafePointer<CChar>, _ seconds: Int32) -> Int32
 @_silgen_name("squirrelpad_set_active")
@@ -65,6 +68,11 @@ private final class GameSession: ObservableObject {
             NSLog("[mobile audio] session category: %@", AVAudioSession.sharedInstance().category.rawValue)
         } catch {
             NSLog("[mobile audio] session category failed: %@", error.localizedDescription)
+        }
+        let modulePath = Bundle.main.bundleURL.appendingPathComponent("Frameworks/SquirrelPadGame.dylib").path
+        if let error = modulePath.withCString({ prepareGameModule($0) }) {
+            message = String(cString: error)
+            return
         }
         message = "ROM verified. Starting the native game core…"
         running = true

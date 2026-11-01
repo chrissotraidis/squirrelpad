@@ -27,7 +27,7 @@ def apply(checkout, stack):
             while not parent.exists():
                 parent = parent.parent
             repo = Path(subprocess.check_output(['git', '-C', str(parent),
-                                                 'rev-parse', '--show-toplevel'], text=True).strip())
+                                                 'rev-parse', '--show-toplevel'], text=True, encoding='utf-8').strip())
             result = subprocess.run(['git', '-C', str(repo), 'show',
                                      'HEAD:' + path.relative_to(repo).as_posix()], capture_output=True)
             originals[relative] = result.stdout if result.returncode == 0 else None
@@ -42,7 +42,10 @@ def apply(checkout, stack):
         for folder, patch in patches:
             destination = staged / folder.relative_to(checkout)
             destination.mkdir(parents=True, exist_ok=True)
-            subprocess.run(['git', 'apply', str(patch)], cwd=destination, check=True)
+            # Git blobs are LF even when the recipe checkout converts patches to CRLF.
+            patch_bytes = patch.read_bytes().replace(b'\r\n', b'\n')
+            subprocess.run(['git', '-c', 'core.autocrlf=false', 'apply', '-'],
+                           input=patch_bytes, cwd=destination, check=True)
             # An existing checkout may have an earlier complete prefix of the
             # stack. Accept only bytes reproduced from pinned HEAD and patches.
             for relative in originals:
@@ -54,7 +57,11 @@ def apply(checkout, stack):
             expected_path = staged / relative
             expected = expected_path.read_bytes() if expected_path.exists() else None
             current = actual.read_bytes() if actual.exists() else None
-            if actual.is_symlink() or current not in known[relative]:
+            # Older Windows runs may have emitted CRLF under global Git settings.
+            # Accept only the same known text, never unrelated source edits.
+            normalized = None if current is None else current.replace(b'\r\n', b'\n')
+            known_text = {None if data is None else data.replace(b'\r\n', b'\n') for data in known[relative]}
+            if actual.is_symlink() or normalized not in known_text:
                 raise ValueError(f'Preserving unexpected local source changes: {relative}')
             if current != expected:
                 updates.append((actual, expected))

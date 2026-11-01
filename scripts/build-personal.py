@@ -47,7 +47,7 @@ def main():
     run("xcrun", "--sdk", "macosx", "metal", "--version")
     mac_sdk = subprocess.check_output(["xcrun", "--sdk", "macosx", "--show-sdk-path"], text=True).strip()
     source = Path(os.environ.get("SQUIRRELPAD_CHECKOUT", ROOT / "work/CBFD-Recompiled")).resolve()
-    env = dict(os.environ, SQUIRRELPAD_CHECKOUT=str(source))
+    env = dict(os.environ, SQUIRRELPAD_JOBS=str(args.jobs), SQUIRRELPAD_CHECKOUT=str(source))
     run("/bin/bash", ROOT / "scripts/setup-source.sh", rom, env=env)
     generator = source / "tools/N64Recomp/build"
     run("cmake", "-S", source / "tools/N64Recomp", "-B", generator, "-G", "Ninja",
