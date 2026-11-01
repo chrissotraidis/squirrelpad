@@ -1,7 +1,9 @@
 # ROM import investigation (#3)
 
-Updated 2026-10-27. These changes are unreleased; merging them does not update the
-recipe selected by PadMint. The report on iOS 27.2 RC remains open for device confirmation.
+Updated 2026-10-30. These changes are included in **SquirrelPad 0.1.3**.
+PadMint selects the latest published release, so an older 0.1.2 build must be
+rebuilt and installed over the existing app to receive them. The report on
+iOS 27.2 RC remains open for device confirmation.
 
 ## Findings and change
 
