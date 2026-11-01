@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "squirrelpad",
   "name": "SquirrelPad",
   "game": "Conker's Bad Fur Day (N64) via CBFD-Recompiled",
@@ -39,9 +39,30 @@
       "published_app": "SquirrelPad-v{version}-ios-shell.ipa",
       "ios_module": {
         "file": "{work}/module/SquirrelPadGame.dylib",
-        "into": "Frameworks/SquirrelPadGame.dylib"
+        "into": "Frameworks/SquirrelPadGame.dylib",
+        "on": [
+          "windows"
+        ]
       },
       "steps": [
+        {
+          "stage": "compile",
+          "command": [
+            "python3",
+            "{repo}/scripts/build-personal.py",
+            "--rom",
+            "{disc}",
+            "--sdk",
+            "iphoneos",
+            "--jobs",
+            "{jobs}",
+            "--output",
+            "{output}"
+          ],
+          "on": [
+            "macos"
+          ]
+        },
         {
           "stage": "compile",
           "command": [
@@ -55,6 +76,9 @@
             "{work}/module",
             "--jobs",
             "{jobs}"
+          ],
+          "on": [
+            "windows"
           ]
         }
       ]
@@ -63,6 +87,113 @@
   "requirements": {
     "disk_gb": 6,
     "tools": [
+      {
+        "name": "git",
+        "version_args": [
+          "--version"
+        ],
+        "player": true,
+        "note": "Install Xcode command-line tools.",
+        "hosts": [
+          "macos-arm64"
+        ]
+      },
+      {
+        "name": "cmake",
+        "version_args": [
+          "--version"
+        ],
+        "player": true,
+        "note": "Install CMake: brew install cmake",
+        "min_version": "3.28",
+        "hosts": [
+          "macos-arm64"
+        ]
+      },
+      {
+        "name": "ninja",
+        "version_args": [
+          "--version"
+        ],
+        "player": true,
+        "note": "Install Ninja: brew install ninja",
+        "hosts": [
+          "macos-arm64"
+        ]
+      },
+      {
+        "name": "python3",
+        "version_args": [
+          "--version"
+        ],
+        "player": true,
+        "note": "Install Python 3.11 or newer: brew install python",
+        "min_version": "3.11",
+        "hosts": [
+          "macos-arm64"
+        ]
+      },
+      {
+        "name": "sdl2-config",
+        "version_args": [
+          "--version"
+        ],
+        "player": true,
+        "note": "Install SDL2: brew install sdl2",
+        "hosts": [
+          "macos-arm64"
+        ]
+      },
+      {
+        "name": "pkg-config",
+        "version_args": [
+          "--modversion",
+          "freetype2"
+        ],
+        "player": true,
+        "label": "FreeType",
+        "note": "Install pkgconf and FreeType: brew install pkgconf freetype",
+        "hosts": [
+          "macos-arm64"
+        ]
+      },
+      {
+        "name": "rg",
+        "version_args": [
+          "--version"
+        ],
+        "player": true,
+        "note": "Install ripgrep: brew install ripgrep",
+        "hosts": [
+          "macos-arm64"
+        ]
+      },
+      {
+        "name": "xcodebuild",
+        "version_args": [
+          "-version"
+        ],
+        "player": true,
+        "note": "Install full Xcode, open it once, and install the iOS platform.",
+        "hosts": [
+          "macos-arm64"
+        ]
+      },
+      {
+        "name": "xcrun",
+        "version_args": [
+          "--sdk",
+          "macosx",
+          "metal",
+          "--version"
+        ],
+        "player": true,
+        "label": "Metal Toolchain",
+        "note": "Install the Metal Toolchain in Xcode Settings > Components.",
+        "hosts": [
+          "macos-arm64"
+        ]
+      },
       {
         "name": "%ProgramFiles(x86)%/Microsoft Visual Studio/Installer/vswhere.exe",
         "version_args": [

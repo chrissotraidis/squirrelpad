@@ -46,32 +46,17 @@ an M2 iPad Pro. Sustained hardware play, full-story compatibility, audio
 quality, and progressed-save reloads still need verification. iOS 17 is the build
 minimum, not a tested-device guarantee. See [release readiness](docs/RELEASE_READINESS.md).
 
-## Windows module development
-
-This branch prepares an experimental game-module route. It is **not available
-in the current public release**. A player can build the game-free shell in a
-private GitHub repository, then use PadMint 0.5.15 or newer with `--app` to build
-the game module from their ROM locally on Windows. The hosted shell build and a
-Windows ARM64 handoff passed at `102ec408`. Private workflow downloads and device
-behavior still need validation; no shell or personal IPA is published.
-The existing full Mac build remains available through `scripts/build-personal.py`.
-
-The experimental Windows ARM64 and x64 development builds use Visual Studio
-Build Tools with Desktop development with C++ and a Windows SDK; PadMint supplies
-its pinned compiler, linker and open-source headers for the iOS module. The ROM
-and translated game
-code remain on the player's computer. See [module build and evidence](docs/WINDOWS_MODULE.md)
-for the exact checks and remaining device/release gates.
-
 ## Get started
 
-**No Mac?** Building SquirrelPad for iPhone or iPad needs an Apple Silicon Mac
-today. SquirrelPad reads your own ROM while it builds, so it can't use [GitHub's
-Mac](https://github.com/chrissotraidis/padmint#no-mac-build-on-githubs-mac) the
-way some other ports do: that would mean uploading your game file. A Windows
-build is in progress; [PadMint's Windows
-list](https://github.com/chrissotraidis/padmint/blob/main/docs/WINDOWS.md) shows
-where it stands.
+**No Mac? Build it on a Windows PC (experimental).** PadMint 0.5.27 or newer
+builds SquirrelPad for iPhone or iPad on Windows 11 (x64 or ARM64) from your own
+Conker's Bad Fur Day (US) ROM. Install Visual Studio 2022 Build Tools with **Desktop development with
+C++**, then choose SquirrelPad in PadMint. PadMint downloads the game-free SquirrelPad app
+from this release and adds the game code it builds from your file on your PC;
+nothing of yours is uploaded. The Mac build is unchanged. This Windows route is
+new: builds pass on Windows 11 ARM64, but a Windows-built copy has not yet been
+played on a device. GitHub's Mac can't build SquirrelPad, because that would mean
+uploading your game file. Details: [Windows module](docs/WINDOWS_MODULE.md).
 
 You need an **Apple Silicon Mac, full Xcode with the iOS platform and Metal
 Toolchain**, about **6 GB free for the build**, and your own supported US ROM.
