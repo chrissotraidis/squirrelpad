@@ -70,8 +70,33 @@ func camera(_ x: Float, _ y: Float) { cameraX = x; cameraY = y }
         NotificationCenter.default.post(name: .GCControllerDidConnect, object: second)
         settle()
         assert(first.playerIndex == .index1 && buttons & 0x8000 != 0)
-        connected = []
+
+        // Saved defaults auto-hide touch for the player-one pad. Show restores touch
+        // with the controller still connected and leaves the assignment alone.
+        var touch = TouchVisibility(enabled: true, autoHide: true)
+        let secondIndex = second.playerIndex
+        assert(!touch.visible(controllerConnected: input.isConnected))
+        assert(touch.visible(controllerConnected: input.isConnected, editing: true))
+        touch.show()
+        assert(touch.enabled && !touch.autoHide && touch.visible(controllerConnected: input.isConnected))
+        assert(input.isConnected && first.playerIndex == .index1 && second.playerIndex == secondIndex)
+        var manual = TouchVisibility(enabled: false, autoHide: true)
+        assert(!manual.visible(controllerConnected: false))
+        manual.show()
+        assert(manual.visible(controllerConnected: true))
+
+        // Removing one of two pads keeps the other as player one, so touch stays auto-hidden.
+        connected = [second]
         NotificationCenter.default.post(name: .GCControllerDidDisconnect, object: first)
+        settle()
+        assert(input.isConnected && second.playerIndex == .index1 && buttons == 0)
+        assert(!TouchVisibility(enabled: true, autoHide: true).visible(controllerConnected: input.isConnected))
+        connected = [second, first]
+        NotificationCenter.default.post(name: .GCControllerDidConnect, object: first)
+        settle()
+        assert(second.playerIndex == .index1)
+        connected = []
+        NotificationCenter.default.post(name: .GCControllerDidDisconnect, object: second)
         settle()
         assert(!input.isConnected && input.connectedName == nil)
         assert(buttons == 0 && stickX == 0 && cameraX == 0)
@@ -87,6 +112,13 @@ func camera(_ x: Float, _ y: Float) { cameraX = x; cameraY = y }
         assert(input.isConnected && buttons == 0x1000)
         input.setActive(false)
         assert(buttons == 0)
-        print("Controller input, polling fallback, pause/resume, background, and reconnect passed.")
+
+        // A menu-only profile is not a usable gameplay controller and does not hide touch.
+        connected = [GCController.withMicroGamepad()]
+        NotificationCenter.default.post(name: .GCControllerDidDisconnect, object: second)
+        settle()
+        assert(!input.isConnected)
+        assert(TouchVisibility(enabled: true, autoHide: true).visible(controllerConnected: input.isConnected))
+        print("Controller input, polling fallback, pause/resume, background, reconnect, and touch visibility passed.")
     }
 }

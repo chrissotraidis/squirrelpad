@@ -15,6 +15,23 @@ private func gameRumbleRequested() -> Bool
 @_silgen_name("squirrelpad_controller_camera")
 private func setCameraState(_ x: Float, _ y: Float)
 
+/// Gameplay touch visibility. Only the player-one extended gamepad chosen by
+/// ControllerInput counts as a controller; Show always restores working touch.
+struct TouchVisibility {
+    var enabled: Bool
+    var autoHide: Bool
+
+    func visible(controllerConnected: Bool, editing: Bool = false) -> Bool {
+        enabled && (editing || !autoHide || !controllerConnected)
+    }
+
+    /// Show Touch Controls clears a manual hide and turns auto-hide off until re-enabled.
+    mutating func show() {
+        enabled = true
+        autoHide = false
+    }
+}
+
 enum GamepadButton: String, CaseIterable {
     case unbound = "Unbound"
     case a = "A", b = "B", x = "X", y = "Y"

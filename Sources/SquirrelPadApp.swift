@@ -158,9 +158,10 @@ struct SquirrelPadApp: App {
                         }
                         // Discard local gesture state when focus is lost, as well
                         // as clearing the native input state in the lifecycle handler.
-                        if session.running && !showingLauncher && touchEnabled && (!menuOpen || editingLayout)
+                        if session.running && !showingLauncher && (!menuOpen || editingLayout)
                             && scenePhase == .active && !audioInterrupted
-                            && (editingLayout || !hideTouchOnController || !controllerInput.isConnected) {
+                            && touchVisibility.visible(controllerConnected: controllerInput.isConnected,
+                                                       editing: editingLayout) {
                             TouchControlsView(opacity: editingLayout ? 1.0 : (touchTransparency ? touchOpacity : 1.0),
                                               scale: controlScale,
                                               showDpad: showDpad, showCButtons: showCButtons,
@@ -401,12 +402,14 @@ struct SquirrelPadApp: App {
                                 enhancementSettings
                             } else if settingsSection == .controls {
                                 SettingsCard(title: "Touch controls", symbol: "hand.tap") {
-                                    Toggle("Show Touch Controls", isOn: $touchEnabled)
+                                    Toggle("Show Touch Controls", isOn: Binding(
+                                        get: { touchVisibility.visible(controllerConnected: controllerInput.isConnected) },
+                                        set: { $0 ? showTouchControls() : (touchEnabled = false) }))
                                         .tint(SquirrelPadTheme.accent)
-                                    Toggle("Hide with Controller", isOn: $hideTouchOnController)
+                                    Toggle("Auto-hide Touch Controls with Controller", isOn: $hideTouchOnController)
                                         .tint(SquirrelPadTheme.accent)
                                         .disabled(!touchEnabled)
-                                    Text("Controls hide when a controller connects and return when it disconnects. Use the on-screen N64 controls. Layouts are saved separately for iPhone and iPad.")
+                                    Text("Controls hide when a controller connects and return when it disconnects. Show Touch Controls brings them back now and turns auto-hide off. Layouts are saved separately for iPhone and iPad.")
                                         .font(.subheadline)
                                         .foregroundStyle(SquirrelPadTheme.secondary)
                                     Button("Edit Touch Layout") { beginLayoutEdit(compact: compact) }
@@ -830,6 +833,17 @@ struct SquirrelPadApp: App {
         phoneControlSizes = ""
         tabletHiddenControls = ""
         phoneHiddenControls = ""
+    }
+
+    private var touchVisibility: TouchVisibility {
+        TouchVisibility(enabled: touchEnabled, autoHide: hideTouchOnController)
+    }
+
+    private func showTouchControls() {
+        var visibility = touchVisibility
+        visibility.show()
+        touchEnabled = visibility.enabled
+        hideTouchOnController = visibility.autoHide
     }
 
     private func toggleMenu() {

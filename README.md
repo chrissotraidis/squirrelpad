@@ -116,7 +116,8 @@ Pair Xbox, PlayStation, or another compatible controller in **iOS Settings →
 Bluetooth**, then check **SquirrelPad → Settings → Controls** for its name.
 Supported USB controllers are detected automatically too. The first connected
 controller controls player one. Touch controls hide automatically and return on
-disconnect; **Hide with Controller** lets you change this. Move a stick or press
+disconnect; **Auto-hide Touch Controls with Controller** lets you change this, and
+**Show Touch Controls** brings them back right away with auto-hide off. Move a stick or press
 a button in Controls to check input before resuming. **Controller Rumble → Test Rumble** checks output
 when iOS exposes haptics for that controller and connection.
 
