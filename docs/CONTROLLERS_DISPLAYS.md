@@ -16,8 +16,9 @@ LB/RB map to L/R, Menu maps to Start, and right stick maps to C buttons (or the
 optional free camera). D-pad maps directly. The first connected extended
 gamepad controls player one; this is not four-player controller support.
 Use touch for the launcher and native settings. Touch controls automatically
-hide on controller connection and return on disconnect; **Hide with Controller**
-is enabled by default. Layout editing still shows controls. Settings displays
+hide on controller connection and return on disconnect; **Auto-hide Touch Controls
+with Controller** is enabled by default. **Show Touch Controls** restores them while
+the controller stays connected and turns auto-hide off. Layout editing still shows controls. Settings displays
 received buttons and sticks so detection and working input can be checked separately.
 
 **Controller Rumble** is enabled by default. **Test Rumble** sends a short pulse
